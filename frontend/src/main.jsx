@@ -21,21 +21,32 @@ const App = () => {
     return `${h.slice(-2)}:${m.slice(-2)}`;
   };
 
-  const askAgent = async (messages) => {
+  const askAgent = async (userInput) => {
     try {
-      const response = await backend.chat(messages);
-      setChat((prevChat) => {
-        const newChat = [...prevChat];
-        newChat.pop();
-        newChat.push({ system: { content: response } });
-        return newChat;
-      });
+      const response = await backend.prompt(userInput);
+      if ('Ok' in response) {
+        setChat((prevChat) => {
+          const newChat = [...prevChat];
+          newChat.pop();
+          newChat.push({ system: { content: response.Ok } });
+          return newChat;
+        });
+      } else if ('Err' in response) {
+        alert(response.Err);
+        setChat((prevChat) => {
+          const newChat = [...prevChat];
+          newChat.pop();
+          return newChat;
+        });
+      }
     } catch (e) {
       console.log(e);
       const eStr = String(e);
       const match = eStr.match(/(SysTransient|CanisterReject), \\+"([^\\"]+)/);
       if (match) {
         alert(match[2]);
+      } else {
+        alert('An error occurred while communicating with the backend.');
       }
       setChat((prevChat) => {
         const newChat = [...prevChat];
@@ -61,8 +72,7 @@ const App = () => {
     setInputValue('');
     setIsLoading(true);
 
-    const messagesToSend = chat.slice(1).concat(userMessage);
-    askAgent(messagesToSend);
+    askAgent(inputValue);
   };
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 type Result = variant { Ok : text; Err : text };
 service : {
-  greet : (name : text) -> (text) query;
-  prompt : (prompt_text : text) -> (Result);
-  set_api_key : (key : text) -> ();
+  greet : (text) -> (text) query;
+  prompt : (text) -> (Result);
+  set_api_key : (text) -> ();
 }

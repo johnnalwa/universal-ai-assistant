@@ -2,6 +2,142 @@
 
 This project is building a decentralized AI-powered knowledge assistant that runs entirely on the Internet Computer Protocol (ICP). It's designed to be a personalized AI that becomes an expert in any domain you provide, while ensuring data privacy and decentralization through blockchain technology.
 
+## 🚀 Quick Start
+
+### Prerequisites
+
+Before setting up the Universal AI Assistant, ensure you have the following installed:
+
+- **Node.js** (v18 or higher) - [Download here](https://nodejs.org/)
+- **Rust** (latest stable) - [Install via rustup](https://rustup.rs/)
+- **DFX** (Internet Computer SDK) - [Installation guide](https://internetcomputer.org/docs/current/developer-docs/setup/install/)
+- **Git** - [Download here](https://git-scm.com/)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/johnnalwa/universal-ai-assistant.git
+   cd universal-ai-assistant
+   ```
+
+2. **Install dependencies**
+```
+   # Install candid-extractor (required for deployment)
+   cargo install candid-extractor
+   ```
+
+3. **Start the local Internet Computer replica**
+   ```bash
+   dfx start --background
+   ```
+
+4. **Deploy the canisters**
+   ```bash
+   dfx deploy
+   ```
+
+### 🔑 API Key Configuration
+
+The Universal AI Assistant uses Google's Gemini API for AI responses. You'll need to configure an API key:
+
+#### Step 1: Get a Google Gemini API Key
+
+1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Sign in with your Google account
+3. Click "Create API Key"
+4. Copy the generated API key
+
+#### Step 2: Set the API Key in Your Canister
+
+After successful deployment, configure the API key using the DFX command line:
+
+```bash
+dfx canister call backend set_api_key '("YOUR_GEMINI_API_KEY_HERE")'
+```
+
+Replace `YOUR_GEMINI_API_KEY_HERE` with your actual Google Gemini API key.
+
+**Important Security Notes:**
+- Only canister controllers can set the API key
+- The API key is stored securely in the canister's memory
+- Never share your API key publicly or commit it to version control
+
+#### Step 3: Test the Setup
+
+Verify everything is working by testing the backend directly:
+
+```bash
+dfx canister call backend prompt '("Hello, how are you?")'
+```
+
+You should receive a response like:
+```
+(
+  variant {
+    Ok = "I am doing well, thank you for asking! How are you today?\n"
+  },
+)
+```
+
+### 🌐 Access Your Assistant
+
+Once deployed, you can access your Universal AI Assistant through:
+
+- **Local Development**: `http://localhost:4943/?canisterId=YOUR_FRONTEND_CANISTER_ID`
+- **IC Network**: `https://YOUR_FRONTEND_CANISTER_ID.ic0.app`
+
+The canister IDs will be displayed after successful deployment.
+
+### 🛠️ Development Commands
+
+```bash
+# Start local replica
+dfx start
+
+# Deploy all canisters
+dfx deploy
+
+# Deploy only backend
+dfx deploy backend
+
+# Deploy only frontend
+dfx deploy frontend
+
+# Check canister status
+dfx canister status backend
+dfx canister status frontend
+
+# View canister logs
+dfx canister logs backend
+```
+
+### 🔧 Troubleshooting
+
+#### Common Issues
+
+1. **`candid-extractor: not found`**
+   ```bash
+   cargo install candid-extractor
+   ```
+
+2. **API key not set error**
+   - Ensure you've set the API key using the `set_api_key` function
+   - Verify you're calling from a controller account
+
+3. **Frontend not receiving responses**
+   - Check that the backend is deployed and running
+   - Verify the API key is properly configured
+   - Check browser console for any JavaScript errors
+
+4. **DFX connection issues**
+   ```bash
+   dfx ping local
+   # If this fails, restart the replica:
+   dfx stop
+   dfx start --background
+   ```
+
 ## Core AI Capabilities
 
 ### Intelligent Document Processing

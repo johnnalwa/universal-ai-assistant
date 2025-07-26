@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom/client';
 import { backend } from 'declarations/backend';
 import WelcomePage from './components/WelcomePage';
 import ChatInterface from './components/ChatInterface';
-import '/index.css';
 
 const App = () => {
   // View state
@@ -106,9 +104,3 @@ const App = () => {
 };
 
 export default App;
-
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);

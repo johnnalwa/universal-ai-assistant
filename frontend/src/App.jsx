@@ -206,20 +206,12 @@ const App = () => {
         return (
           <ChatInterface 
             userPrincipal={userPrincipal}
-            userKnowledgeGraph={userKnowledgeGraph}
-            userDashboard={userDashboard}
-            chat={chat}
-            setChat={setChat}
+            onBackToWelcome={handleBackToWelcome}
+            initialChat={chat}
             selectedProvider={selectedProvider}
             assistantType={assistantType}
             storeOnChain={storeOnChain}
             icpMode={icpMode}
-            conversationContext={conversationContext}
-            setConversationContext={setConversationContext}
-            onBackToWelcome={handleBackToWelcome}
-            onViewMemory={handleViewMemory}
-            onDisconnect={handleDisconnect}
-            onRefreshKnowledge={loadUserKnowledgeGraph}
           />
         );
     }

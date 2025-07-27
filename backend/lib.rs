@@ -423,7 +423,6 @@ struct Candidate {
 #[derive(Deserialize, Debug)]
 struct ContentResponse {
     parts: Vec<PartResponse>,
-    _role: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -568,10 +567,12 @@ fn determine_response_strategy(user: Principal, prompt: &str, relevant_memories:
         
         // Check if this is a new user with minimal information
         if let Some(kg) = graph {
+            // For new users, still use AI but with a learning focus
             if kg.user_profile.name.is_none() && kg.memory_nodes.is_empty() {
-                return ResponseStrategy::InquiryFirst {
-                    question: "I'd love to get to know you better! What should I call you?".to_string(),
-                    why_asking: "This helps me personalize our conversations and remember you".to_string(),
+                // Instead of hardcoded response, use AI with learning opportunity
+                return ResponseStrategy::ConfidentAnswer {
+                    confidence: 0.7,
+                    sources: Vec::new(),
                 };
             }
             

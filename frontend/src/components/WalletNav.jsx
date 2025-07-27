@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 
-const WalletNav = ({ userPrincipal, onConnect, onDisconnect }) => {
+const WalletNav = ({ userPrincipal, currentView, setCurrentView, userDashboard, onConnect, onDisconnect }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-gradient-to-r from-slate-900 via-purple-900 to-indigo-900 text-white shadow-xl border-b border-white/10">
+    <nav className="sticky top-0 z-50 bg-gradient-to-r from-slate-900 via-purple-900 to-indigo-900 text-white shadow-xl border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo and Brand */}
@@ -26,24 +26,33 @@ const WalletNav = ({ userPrincipal, onConnect, onDisconnect }) => {
             {/* Navigation Links */}
             <div className="hidden md:block ml-10">
               <div className="flex items-baseline space-x-1">
-                <a href="#" className="text-blue-100 hover:bg-white/10 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2">
+                <button 
+                  onClick={() => setCurrentView('welcome')}
+                  className={`${currentView === 'welcome' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10 hover:text-white'} px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2`}
+                >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
                   </svg>
-                  Dashboard
-                </a>
-                <a href="#" className="text-blue-100 hover:bg-white/10 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2">
+                  Home
+                </button>
+                <button 
+                  onClick={() => setCurrentView('chat')}
+                  className={`${currentView === 'chat' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10 hover:text-white'} px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2`}
+                >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
+                    <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd"/>
                   </svg>
-                  Wallet
-                </a>
-                <a href="#" className="text-blue-100 hover:bg-white/10 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2">
+                  Chat
+                </button>
+                <button 
+                  onClick={() => setCurrentView('memory')}
+                  className={`${currentView === 'memory' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10 hover:text-white'} px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2`}
+                >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/>
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
-                  Settings
-                </a>
+                  Memory
+                </button>
               </div>
             </div>
           </div>
@@ -157,15 +166,24 @@ const WalletNav = ({ userPrincipal, onConnect, onDisconnect }) => {
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-white/10 py-4">
             <div className="space-y-2">
-              <a href="#" className="block text-blue-100 hover:bg-white/10 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">
-                Dashboard
-              </a>
-              <a href="#" className="block text-blue-100 hover:bg-white/10 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">
-                Wallet
-              </a>
-              <a href="#" className="block text-blue-100 hover:bg-white/10 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">
-                Settings
-              </a>
+              <button 
+                onClick={() => { setCurrentView('welcome'); setIsMobileMenuOpen(false); }}
+                className={`${currentView === 'welcome' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10 hover:text-white'} block w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200`}
+              >
+                🏠 Home
+              </button>
+              <button 
+                onClick={() => { setCurrentView('chat'); setIsMobileMenuOpen(false); }}
+                className={`${currentView === 'chat' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10 hover:text-white'} block w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200`}
+              >
+                💬 Chat
+              </button>
+              <button 
+                onClick={() => { setCurrentView('memory'); setIsMobileMenuOpen(false); }}
+                className={`${currentView === 'memory' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10 hover:text-white'} block w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200`}
+              >
+                🧠 Memory
+              </button>
             </div>
           </div>
         )}

@@ -157,14 +157,11 @@ const App = () => {
     <div className="app-container">
       <WalletNav 
         userPrincipal={userPrincipal}
-        onConnect={handleConnect}
-        onDisconnect={handleDisconnect}
-      />
-      <Navigation 
         currentView={currentView}
         setCurrentView={setCurrentView}
-        userPrincipal={userPrincipal}
         userDashboard={userDashboard}
+        onConnect={handleConnect}
+        onDisconnect={handleDisconnect}
       />
       <main className="main-content">
         {renderCurrentView()}

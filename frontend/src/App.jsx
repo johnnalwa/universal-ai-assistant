@@ -33,7 +33,32 @@ const App = () => {
 
   useEffect(() => {
     loadInitialData();
+    checkExistingAuth();
   }, []);
+
+  // Check if user is already authenticated with Internet Identity
+  const checkExistingAuth = async () => {
+    try {
+      const { AuthClient } = await import('@dfinity/auth-client');
+      const authClient = await AuthClient.create();
+      
+      if (await authClient.isAuthenticated()) {
+        const identity = authClient.getIdentity();
+        const principal = identity.getPrincipal().toString();
+        
+        console.log('User already authenticated:', principal);
+        
+        setUserPrincipal(principal);
+        setIcpMode(true);
+        
+        // Load user data for existing session
+        await loadUserKnowledgeGraph();
+        await loadUserDashboard();
+      }
+    } catch (error) {
+      console.error('Error checking existing authentication:', error);
+    }
+  };
 
   useEffect(() => {
     if (userPrincipal) {
@@ -75,17 +100,64 @@ const App = () => {
     }
   };
 
-  const handleConnect = () => {
-    const mockPrincipal = `memory-mind-${Date.now()}`;
-    setUserPrincipal(mockPrincipal);
-    setIcpMode(true);
+  const handleConnect = async () => {
+    try {
+      // Import AuthClient dynamically to avoid SSR issues
+      const { AuthClient } = await import('@dfinity/auth-client');
+      
+      const authClient = await AuthClient.create();
+      
+      await authClient.login({
+        identityProvider: 'https://identity.ic0.app',
+        onSuccess: async () => {
+          const identity = authClient.getIdentity();
+          const principal = identity.getPrincipal().toString();
+          
+          console.log('Successfully authenticated with Internet Identity');
+          console.log('Principal ID:', principal);
+          
+          setUserPrincipal(principal);
+          setIcpMode(true);
+          
+          // Load user data after successful authentication
+          await loadUserKnowledgeGraph();
+          await loadUserDashboard();
+        },
+        onError: (error) => {
+          console.error('Internet Identity authentication failed:', error);
+          alert('Authentication failed. Please try again.');
+        }
+      });
+    } catch (error) {
+      console.error('Failed to initialize Internet Identity:', error);
+      alert('Failed to connect to Internet Identity. Please check your connection.');
+    }
   };
 
-  const handleDisconnect = () => {
-    setUserPrincipal(null);
-    setUserKnowledgeGraph(null);
-    setUserDashboard(null);
-    setIcpMode(false);
+  const handleDisconnect = async () => {
+    try {
+      // Import AuthClient to handle logout
+      const { AuthClient } = await import('@dfinity/auth-client');
+      const authClient = await AuthClient.create();
+      
+      // Logout from Internet Identity
+      await authClient.logout();
+      
+      console.log('Successfully logged out from Internet Identity');
+      
+      // Clear all user state
+      setUserPrincipal(null);
+      setUserKnowledgeGraph(null);
+      setUserDashboard(null);
+      setIcpMode(false);
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Still clear local state even if logout fails
+      setUserPrincipal(null);
+      setUserKnowledgeGraph(null);
+      setUserDashboard(null);
+      setIcpMode(false);
+    }
   };
 
   const handleGetStarted = () => {

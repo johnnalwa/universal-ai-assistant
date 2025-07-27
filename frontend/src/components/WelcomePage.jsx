@@ -143,9 +143,9 @@ const WelcomePage = ({
                       <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clipRule="evenodd"/>
                     </svg>
                   </div>
-                  <h3 className="text-3xl font-bold text-white mb-4">Connect Your Wallet</h3>
+                  <h3 className="text-3xl font-bold text-white mb-4">Connect Your Identity</h3>
                   <p className="text-blue-200 text-lg mb-8 leading-relaxed">
-                    Connect to Internet Computer Protocol to start building your personal AI knowledge graph and unlock the full potential of decentralized AI.
+                    Connect with Internet Identity to start building your personal AI knowledge graph and unlock the full potential of decentralized AI.
                   </p>
                 </div>
                 <button

@@ -80,7 +80,7 @@ const WalletNav = ({ userPrincipal, currentView, setCurrentView, userDashboard, 
                       </svg>
                     </div>
                     <div className="hidden sm:block text-left">
-                      <div className="text-white text-sm font-medium">My Wallet</div>
+                      <div className="text-white text-sm font-medium">My Identity</div>
                       <div className="text-blue-200 text-xs font-mono">
                         {userPrincipal.slice(0, 6)}...{userPrincipal.slice(-4)}
                       </div>
@@ -103,7 +103,7 @@ const WalletNav = ({ userPrincipal, currentView, setCurrentView, userDashboard, 
                           </svg>
                         </div>
                         <div>
-                          <h3 className="text-gray-900 font-semibold">Connected Wallet</h3>
+                          <h3 className="text-gray-900 font-semibold">Internet Identity</h3>
                           <p className="text-gray-600 text-sm font-mono">{userPrincipal}</p>
                         </div>
                       </div>
@@ -132,7 +132,7 @@ const WalletNav = ({ userPrincipal, currentView, setCurrentView, userDashboard, 
                           onClick={onDisconnect}
                           className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
                         >
-                          Disconnect Wallet
+                          Disconnect Identity
                         </button>
                       </div>
                     </div>
@@ -146,7 +146,7 @@ const WalletNav = ({ userPrincipal, currentView, setCurrentView, userDashboard, 
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clipRule="evenodd"/>
                 </svg>
-                Connect Wallet
+                Connect Internet Identity
               </button>
             )}
             

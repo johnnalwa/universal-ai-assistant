@@ -1,46 +1,64 @@
 import React, { useState, useEffect } from 'react';
 import { backend } from 'declarations/backend';
+import WalletNav from './components/WalletNav';
+import Navigation from './components/Navigation';
 import WelcomePage from './components/WelcomePage';
 import ChatInterface from './components/ChatInterface';
+import MemoryDashboard from './components/MemoryDashboard';
 
 const App = () => {
   // View state
-  const [currentView, setCurrentView] = useState('welcome'); // 'welcome' or 'chat'
+  const [currentView, setCurrentView] = useState('welcome'); // 'welcome', 'chat', 'memory'
   
   const [chat, setChat] = useState([
     {
       system: { 
-        content: "🌐 Welcome to your ICP-Native Universal AI Assistant! I'm powered by the Internet Computer with Internet Identity authentication, cycles-based payments, and on-chain storage. Your original chatting experience is preserved while adding Web3 capabilities. What would you like to explore today?",
+        content: "🧠 Welcome to Universal AI Assistant! I'm your personal AI that learns and remembers everything about you. Unlike other AI assistants, I build a knowledge graph of your preferences, goals, and context, making our conversations more meaningful over time. What should I call you?",
         provider: "system"
       }
     }
   ]);
   
-  // Original state variables
+  // Universal AI Assistant state
+  const [userPrincipal, setUserPrincipal] = useState(null);
+  const [userKnowledgeGraph, setUserKnowledgeGraph] = useState(null);
+  const [userDashboard, setUserDashboard] = useState(null);
+  const [conversationContext, setConversationContext] = useState(null);
+  
+  // UI state
   const [selectedProvider, setSelectedProvider] = useState('gemini');
   const [assistantType, setAssistantType] = useState('casual');
-  const [availableProviders, setAvailableProviders] = useState(['gemini']);
-  
-  // New ICP-native state variables
-  const [userPrincipal, setUserPrincipal] = useState(null);
   const [storeOnChain, setStoreOnChain] = useState(false);
-  const [userDashboard, setUserDashboard] = useState(null);
   const [icpMode, setIcpMode] = useState(false);
 
   useEffect(() => {
     loadInitialData();
-    // Simulate Internet Identity connection
-    const mockPrincipal = `rdmx6-jaaaa-aaaah-qcaiq-cai`;
-    setUserPrincipal(mockPrincipal);
-    loadUserDashboard();
   }, []);
+
+  useEffect(() => {
+    if (userPrincipal) {
+      loadUserKnowledgeGraph();
+      loadUserDashboard();
+    }
+  }, [userPrincipal]);
 
   const loadInitialData = async () => {
     try {
       const providers = await backend.get_available_providers();
-      setAvailableProviders(providers.length > 0 ? providers : ['gemini']);
+      // Initialize any other data
     } catch (error) {
-      console.log('Could not load providers:', error);
+      console.log('Could not load initial data:', error);
+    }
+  };
+
+  const loadUserKnowledgeGraph = async () => {
+    if (!userPrincipal) return;
+    
+    try {
+      const knowledgeGraph = await backend.get_user_knowledge_graph(userPrincipal);
+      setUserKnowledgeGraph(knowledgeGraph);
+    } catch (error) {
+      console.log('Could not load knowledge graph:', error);
     }
   };
 
@@ -53,24 +71,32 @@ const App = () => {
         setUserDashboard(dashboardResult.Ok);
       }
     } catch (error) {
-      console.log('Could not load user dashboard:', error);
+      console.log('Could not load dashboard:', error);
     }
   };
 
-  // Handler functions for the new UI
   const handleConnect = () => {
-    // Simulate Internet Identity connection
-    const mockPrincipal = `rdmx6-jaaaa-aaaah-qcaiq-cai`;
+    const mockPrincipal = `memory-mind-${Date.now()}`;
     setUserPrincipal(mockPrincipal);
-    loadUserDashboard();
+    setIcpMode(true);
   };
 
   const handleDisconnect = () => {
     setUserPrincipal(null);
+    setUserKnowledgeGraph(null);
     setUserDashboard(null);
+    setIcpMode(false);
   };
 
   const handleGetStarted = () => {
+    setCurrentView('chat');
+  };
+
+  const handleViewMemory = () => {
+    setCurrentView('memory');
+  };
+
+  const handleBackToChat = () => {
     setCurrentView('chat');
   };
 
@@ -78,28 +104,100 @@ const App = () => {
     setCurrentView('welcome');
   };
 
-  // Render the appropriate view
-  if (currentView === 'welcome') {
-    return (
-      <WelcomePage 
+  // Render unified layout with navigation
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'welcome':
+        return (
+          <WelcomePage 
+            userPrincipal={userPrincipal}
+            userDashboard={userDashboard}
+            onConnect={handleConnect}
+            onDisconnect={handleDisconnect}
+            onGetStarted={handleGetStarted}
+            onViewMemory={handleViewMemory}
+          />
+        );
+      case 'memory':
+        return (
+          <MemoryDashboard
+            userPrincipal={userPrincipal}
+            userKnowledgeGraph={userKnowledgeGraph}
+            userDashboard={userDashboard}
+            onBackToChat={handleBackToChat}
+            onBackToWelcome={handleBackToWelcome}
+            onRefresh={loadUserKnowledgeGraph}
+          />
+        );
+      case 'chat':
+      default:
+        return (
+          <ChatInterface 
+            userPrincipal={userPrincipal}
+            userKnowledgeGraph={userKnowledgeGraph}
+            userDashboard={userDashboard}
+            chat={chat}
+            setChat={setChat}
+            selectedProvider={selectedProvider}
+            assistantType={assistantType}
+            storeOnChain={storeOnChain}
+            icpMode={icpMode}
+            conversationContext={conversationContext}
+            setConversationContext={setConversationContext}
+            onBackToWelcome={handleBackToWelcome}
+            onViewMemory={handleViewMemory}
+            onDisconnect={handleDisconnect}
+            onRefreshKnowledge={loadUserKnowledgeGraph}
+          />
+        );
+    }
+  };
+
+  return (
+    <div className="app-container">
+      <WalletNav 
         userPrincipal={userPrincipal}
         onConnect={handleConnect}
         onDisconnect={handleDisconnect}
-        onGetStarted={handleGetStarted}
       />
-    );
-  }
+      <Navigation 
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        userPrincipal={userPrincipal}
+        userDashboard={userDashboard}
+      />
+      <main className="main-content">
+        {renderCurrentView()}
+      </main>
+      
+      <style jsx>{`
+        .app-container {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+          display: flex;
+          flex-direction: column;
+        }
 
-  return (
-    <ChatInterface 
-      userPrincipal={userPrincipal}
-      onBackToWelcome={handleBackToWelcome}
-      initialChat={chat}
-      selectedProvider={selectedProvider}
-      assistantType={assistantType}
-      storeOnChain={storeOnChain}
-      icpMode={icpMode}
-    />
+        .main-content {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+        }
+
+        * {
+          box-sizing: border-box;
+        }
+
+        body {
+          margin: 0;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+            'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+            sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+      `}</style>
+    </div>
   );
 };
 

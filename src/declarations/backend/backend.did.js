@@ -1,62 +1,13 @@
 export const idlFactory = ({ IDL }) => {
-  const CyclesRates = IDL.Record({
-    'query_base_cost' : IDL.Nat64,
-    'storage_cost_per_kb' : IDL.Nat64,
-    'computation_multiplier' : IDL.Float32,
-  });
-  const SNSProposalType = IDL.Variant({
-    'SystemPromptUpdate' : IDL.Record({
-      'prompt_name' : IDL.Text,
-      'new_prompt' : IDL.Text,
-    }),
-    'UpdateCyclesRates' : IDL.Record({ 'new_rates' : CyclesRates }),
-    'TreasuryManagement' : IDL.Record({
-      'action' : IDL.Text,
-      'amount' : IDL.Nat64,
-    }),
-    'AddAIProvider' : IDL.Record({
-      'provider_name' : IDL.Text,
-      'api_endpoint' : IDL.Text,
-    }),
-  });
-  const Result = IDL.Variant({ 'Ok' : IDL.Nat64, 'Err' : IDL.Text });
-  const Result_1 = IDL.Variant({ 'Ok' : IDL.Text, 'Err' : IDL.Text });
   const CanisterMetrics = IDL.Record({
     'storage_used_bytes' : IDL.Nat64,
     'total_queries' : IDL.Nat64,
     'total_users' : IDL.Nat64,
+    'learning_events' : IDL.Nat64,
     'uptime_start' : IDL.Nat64,
+    'knowledge_nodes_created' : IDL.Nat64,
     'total_cycles_consumed' : IDL.Nat64,
   });
-  const SNSProposal = IDL.Record({
-    'id' : IDL.Nat64,
-    'title' : IDL.Text,
-    'description' : IDL.Text,
-    'deadline' : IDL.Nat64,
-    'created_at' : IDL.Nat64,
-    'proposer' : IDL.Principal,
-    'votes_for' : IDL.Nat64,
-    'total_voting_power' : IDL.Nat64,
-    'executed' : IDL.Bool,
-    'proposal_type' : SNSProposalType,
-    'votes_against' : IDL.Nat64,
-  });
-  const AccessLevel = IDL.Variant({
-    'Premium' : IDL.Null,
-    'Private' : IDL.Null,
-    'Public' : IDL.Null,
-    'Community' : IDL.Null,
-  });
-  const AIContent = IDL.Record({
-    'creator' : IDL.Principal,
-    'content' : IDL.Text,
-    'access_level' : AccessLevel,
-    'size_bytes' : IDL.Nat64,
-    'content_type' : IDL.Text,
-    'created_at' : IDL.Nat64,
-    'cycles_cost_to_create' : IDL.Nat64,
-  });
-  const Result_2 = IDL.Variant({ 'Ok' : AIContent, 'Err' : IDL.Text });
   const SubscriptionTier = IDL.Variant({
     'Premium' : IDL.Record({
       'cycles_included' : IDL.Nat64,
@@ -71,47 +22,234 @@ export const idlFactory = ({ IDL }) => {
   });
   const UserDashboard = IDL.Record({
     'cycles_balance' : IDL.Nat64,
+    'days_since_first_interaction' : IDL.Nat64,
     'total_cycles_spent' : IDL.Nat64,
+    'knowledge_nodes_count' : IDL.Nat64,
+    'learning_progress' : IDL.Float32,
     'stored_content_count' : IDL.Nat64,
+    'memory_strength' : IDL.Float32,
     'subscription_tier' : IDL.Opt(SubscriptionTier),
     'token_balance' : IDL.Nat64,
     'conversation_count' : IDL.Nat64,
   });
-  const Result_3 = IDL.Variant({ 'Ok' : UserDashboard, 'Err' : IDL.Text });
+  const Result = IDL.Variant({ 'Ok' : UserDashboard, 'Err' : IDL.Text });
+  const ResponseLength = IDL.Variant({
+    'Short' : IDL.Null,
+    'Long' : IDL.Null,
+    'Medium' : IDL.Null,
+    'Variable' : IDL.Null,
+  });
+  const LearningHistory = IDL.Record({
+    'interaction_count' : IDL.Nat32,
+    'last_major_update' : IDL.Nat64,
+    'topics_discussed' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat32)),
+    'preferred_response_length' : ResponseLength,
+    'question_asking_frequency' : IDL.Float32,
+    'learning_speed' : IDL.Float32,
+  });
+  const RelationshipType = IDL.Variant({
+    'PartOf' : IDL.Null,
+    'Related' : IDL.Null,
+    'UsedFor' : IDL.Null,
+    'OppositeOf' : IDL.Null,
+    'ExampleOf' : IDL.Null,
+    'LeadsTo' : IDL.Null,
+    'CausedBy' : IDL.Null,
+  });
+  const KnowledgeEdge = IDL.Record({
+    'from_node' : IDL.Text,
+    'to_node' : IDL.Text,
+    'created_at' : IDL.Nat64,
+    'relationship_type' : RelationshipType,
+    'strength' : IDL.Float32,
+  });
+  const Sentiment = IDL.Variant({
+    'Negative' : IDL.Null,
+    'Excited' : IDL.Null,
+    'Curious' : IDL.Null,
+    'Frustrated' : IDL.Null,
+    'Positive' : IDL.Null,
+    'Neutral' : IDL.Null,
+  });
+  const TaskStatus = IDL.Variant({
+    'Paused' : IDL.Null,
+    'Active' : IDL.Null,
+    'Cancelled' : IDL.Null,
+    'Completed' : IDL.Null,
+  });
+  const Task = IDL.Record({
+    'status' : TaskStatus,
+    'description' : IDL.Text,
+    'created_at' : IDL.Nat64,
+    'due_date' : IDL.Opt(IDL.Nat64),
+  });
+  const EntityType = IDL.Variant({
+    'Date' : IDL.Null,
+    'Company' : IDL.Null,
+    'Person' : IDL.Null,
+    'Technology' : IDL.Null,
+    'Location' : IDL.Null,
+    'Project' : IDL.Null,
+    'Other' : IDL.Null,
+  });
+  const Entity = IDL.Record({
+    'context' : IDL.Text,
+    'name' : IDL.Text,
+    'entity_type' : EntityType,
+  });
+  const ConversationContext = IDL.Record({
+    'topic' : IDL.Text,
+    'last_message_timestamp' : IDL.Nat64,
+    'user_sentiment' : Sentiment,
+    'ongoing_tasks' : IDL.Vec(Task),
+    'related_memories' : IDL.Vec(IDL.Text),
+    'mentioned_entities' : IDL.Vec(Entity),
+    'thread_id' : IDL.Text,
+  });
+  const MemoryNodeType = IDL.Variant({
+    'Fact' : IDL.Null,
+    'Goal' : IDL.Null,
+    'Knowledge' : IDL.Null,
+    'Experience' : IDL.Null,
+    'Preference' : IDL.Null,
+    'Context' : IDL.Null,
+    'Relationship' : IDL.Null,
+  });
+  const MemoryNode = IDL.Record({
+    'id' : IDL.Text,
+    'node_type' : MemoryNodeType,
+    'content' : IDL.Text,
+    'tags' : IDL.Vec(IDL.Text),
+    'created_at' : IDL.Nat64,
+    'last_accessed' : IDL.Nat64,
+    'related_conversations' : IDL.Vec(IDL.Text),
+    'importance_score' : IDL.Float32,
+    'access_count' : IDL.Nat32,
+  });
+  const ResponsePreferences = IDL.Record({
+    'prefers_step_by_step' : IDL.Bool,
+    'prefers_detailed_explanations' : IDL.Bool,
+    'prefers_quick_answers' : IDL.Bool,
+    'prefers_examples' : IDL.Bool,
+  });
+  const WorkContext = IDL.Record({
+    'job_title' : IDL.Opt(IDL.Text),
+    'company' : IDL.Opt(IDL.Text),
+    'current_projects' : IDL.Vec(IDL.Text),
+    'skills' : IDL.Vec(IDL.Text),
+    'industry' : IDL.Opt(IDL.Text),
+  });
+  const PersonalGoal = IDL.Record({
+    'goal' : IDL.Text,
+    'importance' : IDL.Float32,
+    'progress' : IDL.Float32,
+    'category' : IDL.Text,
+    'target_date' : IDL.Opt(IDL.Nat64),
+  });
+  const ImportantEvent = IDL.Record({
+    'date' : IDL.Nat64,
+    'importance' : IDL.Float32,
+    'event' : IDL.Text,
+    'category' : IDL.Text,
+  });
+  const PersonalRelationship = IDL.Record({
+    'context' : IDL.Text,
+    'name' : IDL.Text,
+    'importance' : IDL.Float32,
+    'relationship_type' : IDL.Text,
+  });
+  const ConversationPatterns = IDL.Record({
+    'question_types' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat32)),
+    'avg_session_length' : IDL.Float32,
+    'common_topics' : IDL.Vec(IDL.Text),
+    'time_patterns' : IDL.Vec(IDL.Nat32),
+  });
+  const FormalityLevel = IDL.Variant({
+    'VeryFormal' : IDL.Null,
+    'Formal' : IDL.Null,
+    'Verycasual' : IDL.Null,
+    'Casual' : IDL.Null,
+  });
+  const TechnicalLevel = IDL.Variant({
+    'Beginner' : IDL.Null,
+    'Advanced' : IDL.Null,
+    'Intermediate' : IDL.Null,
+    'Expert' : IDL.Null,
+  });
+  const DetailLevel = IDL.Variant({
+    'Detailed' : IDL.Null,
+    'Comprehensive' : IDL.Null,
+    'Brief' : IDL.Null,
+    'Moderate' : IDL.Null,
+  });
+  const CommunicationStyle = IDL.Record({
+    'formality_level' : FormalityLevel,
+    'technical_level' : TechnicalLevel,
+    'emoji_usage' : IDL.Bool,
+    'detail_preference' : DetailLevel,
+    'humor_preference' : IDL.Bool,
+  });
+  const UserProfile = IDL.Record({
+    'preferred_name' : IDL.Opt(IDL.Text),
+    'personality_traits' : IDL.Vec(IDL.Text),
+    'interests' : IDL.Vec(IDL.Text),
+    'name' : IDL.Opt(IDL.Text),
+    'response_preferences' : ResponsePreferences,
+    'work_context' : IDL.Opt(WorkContext),
+    'knowledge_domains' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Float32)),
+    'goals' : IDL.Vec(PersonalGoal),
+    'important_dates' : IDL.Vec(ImportantEvent),
+    'expertise_areas' : IDL.Vec(IDL.Text),
+    'relationships' : IDL.Vec(PersonalRelationship),
+    'conversation_patterns' : ConversationPatterns,
+    'communication_style' : CommunicationStyle,
+  });
+  const PersonalKnowledgeGraph = IDL.Record({
+    'learning_patterns' : LearningHistory,
+    'last_updated' : IDL.Nat64,
+    'relationships' : IDL.Vec(KnowledgeEdge),
+    'context_threads' : IDL.Vec(IDL.Tuple(IDL.Text, ConversationContext)),
+    'memory_nodes' : IDL.Vec(IDL.Tuple(IDL.Text, MemoryNode)),
+    'user_profile' : UserProfile,
+  });
+  const Result_1 = IDL.Variant({ 'Ok' : IDL.Text, 'Err' : IDL.Text });
+  const UserProfileUpdate = IDL.Record({
+    'interests' : IDL.Opt(IDL.Vec(IDL.Text)),
+    'name' : IDL.Opt(IDL.Text),
+    'goals' : IDL.Opt(IDL.Vec(PersonalGoal)),
+  });
   return IDL.Service({
-    'create_sns_proposal' : IDL.Func(
-        [IDL.Text, IDL.Text, SNSProposalType],
-        [Result],
-        [],
-      ),
-    'deposit_user_cycles' : IDL.Func([IDL.Principal], [Result_1], []),
-    'get_ai_token_balance' : IDL.Func([IDL.Principal], [IDL.Nat64], ['query']),
     'get_available_providers' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'get_canister_metrics' : IDL.Func([], [CanisterMetrics], ['query']),
-    'get_sns_proposals' : IDL.Func([], [IDL.Vec(SNSProposal)], ['query']),
-    'get_stored_content' : IDL.Func([IDL.Text], [Result_2], ['query']),
-    'get_user_cycles_balance' : IDL.Func(
+    'get_user_dashboard' : IDL.Func([IDL.Principal], [Result], ['query']),
+    'get_user_knowledge_graph' : IDL.Func(
         [IDL.Principal],
-        [IDL.Nat64],
+        [IDL.Opt(PersonalKnowledgeGraph)],
         ['query'],
       ),
-    'get_user_dashboard' : IDL.Func([IDL.Principal], [Result_3], ['query']),
+    'get_user_memories' : IDL.Func(
+        [IDL.Principal, IDL.Opt(IDL.Nat32)],
+        [IDL.Vec(MemoryNode)],
+        ['query'],
+      ),
     'greet' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
     'icp_ai_prompt' : IDL.Func(
         [IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Text), IDL.Opt(IDL.Bool)],
         [Result_1],
         [],
       ),
-    'mint_ai_tokens' : IDL.Func([IDL.Principal, IDL.Nat64], [Result_1], []),
-    'prompt' : IDL.Func([IDL.Text], [Result_1], []),
-    'set_api_key' : IDL.Func([IDL.Text], [], []),
-    'set_provider_api_key' : IDL.Func([IDL.Text, IDL.Text], [], []),
-    'store_ai_content' : IDL.Func(
-        [IDL.Text, IDL.Text, AccessLevel],
+    'memory_mind_prompt' : IDL.Func(
+        [IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Bool)],
         [Result_1],
         [],
       ),
-    'vote_sns_proposal' : IDL.Func([IDL.Nat64, IDL.Bool], [Result_1], []),
+    'prompt' : IDL.Func([IDL.Text], [Result_1], []),
+    'set_api_key' : IDL.Func([IDL.Text], [], []),
+    'update_user_profile' : IDL.Func(
+        [IDL.Principal, UserProfileUpdate],
+        [Result_1],
+        [],
+      ),
   });
 };
 export const init = ({ IDL }) => { return []; };

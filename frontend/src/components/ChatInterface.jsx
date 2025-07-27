@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { backend } from 'declarations/backend';
-import botImg from '/bot.svg';
-import userImg from '/user.svg';
 
 const ChatInterface = ({ 
   userPrincipal, 
@@ -36,15 +35,14 @@ const ChatInterface = ({
 
     const userMessage = inputValue.trim();
     setInputValue('');
-    setIsLoading(true);
 
-    // Add user message to chat
+    // Add user message to chat immediately for better UX
     setChat(prev => [...prev, { user: { content: userMessage } }]);
+    setIsLoading(true);
 
     try {
       let response;
       if (icpMode) {
-        // Use ICP-native prompt function with provider selection
         response = await backend.icp_ai_prompt(
           userMessage,
           selectedProvider ? [selectedProvider] : [],
@@ -52,7 +50,6 @@ const ChatInterface = ({
           storeOnChain ? [storeOnChain] : []
         );
       } else {
-        // Use original prompt function
         response = await backend.prompt(userMessage);
       }
 
@@ -131,24 +128,24 @@ const ChatInterface = ({
           className="flex-1 overflow-y-auto p-4 space-y-4"
         >
           {chat.map((message, index) => (
-            <div key={index} className="animate-fadeIn">
+            <div key={index} className="my-6">
               {message.user && (
-                <div className="flex items-start space-x-4 justify-end max-w-4xl ml-auto">
-                  <div className="flex-1 min-w-0 flex justify-end">
-                    <div className="bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-2xl rounded-tr-md px-6 py-4 shadow-lg max-w-2xl">
-                      <p className="text-base leading-relaxed font-medium">{message.user.content}</p>
+                <div className="flex items-start justify-end space-x-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="bg-blue-600 rounded-2xl rounded-tr-md px-6 py-4 shadow-lg">
+                      <p className="text-white font-medium text-base leading-relaxed">{message.user.content}</p>
                     </div>
                   </div>
                   <div className="flex-shrink-0">
-                    <div className="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center shadow-lg">
-                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <div className="w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full flex items-center justify-center shadow-lg">
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                       </svg>
                     </div>
                   </div>
                 </div>
               )}
-              
+
               {message.assistant && (
                 <div className="flex items-start space-x-4 max-w-4xl">
                   <div className="flex-shrink-0">
@@ -159,49 +156,9 @@ const ChatInterface = ({
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl rounded-tl-md px-6 py-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-200">
-                      <div className="prose prose-sm max-w-none">
-                        <div className="text-gray-800 leading-relaxed whitespace-pre-wrap font-medium text-base">
-                          {message.assistant.content.split('\n').map((line, lineIndex) => {
-                            // Handle bullet points
-                            if (line.trim().startsWith('•') || line.trim().startsWith('*')) {
-                              return (
-                                <div key={lineIndex} className="flex items-start space-x-2 my-2">
-                                  <span className="text-blue-500 font-bold mt-1">•</span>
-                                  <span className="flex-1">{line.replace(/^[•*]\s*/, '')}</span>
-                                </div>
-                              );
-                            }
-                            // Handle numbered lists
-                            if (/^\d+\./.test(line.trim())) {
-                              return (
-                                <div key={lineIndex} className="flex items-start space-x-2 my-2">
-                                  <span className="text-purple-600 font-semibold">{line.match(/^\d+\./)[0]}</span>
-                                  <span className="flex-1">{line.replace(/^\d+\.\s*/, '')}</span>
-                                </div>
-                              );
-                            }
-                            // Handle headers (lines with **text**)
-                            if (line.includes('**')) {
-                              const parts = line.split('**');
-                              return (
-                                <div key={lineIndex} className="my-3">
-                                  {parts.map((part, partIndex) => 
-                                    partIndex % 2 === 1 ? 
-                                      <span key={partIndex} className="font-bold text-gray-900 text-lg">{part}</span> : 
-                                      <span key={partIndex}>{part}</span>
-                                  )}
-                                </div>
-                              );
-                            }
-                            // Regular lines
-                            return line.trim() ? (
-                              <p key={lineIndex} className="my-2 leading-relaxed">{line}</p>
-                            ) : (
-                              <div key={lineIndex} className="my-2"></div>
-                            );
-                          })}
-                        </div>
+                    <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl rounded-tl-md px-6 py-4 shadow-lg border border-gray-100">
+                      <div className="prose prose-sm max-w-none text-gray-800 leading-relaxed whitespace-pre-wrap font-medium text-base">
+                        <ReactMarkdown>{message.assistant.content}</ReactMarkdown>
                       </div>
                       {message.assistant.provider && (
                         <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
@@ -218,7 +175,7 @@ const ChatInterface = ({
                   </div>
                 </div>
               )}
-              
+
               {message.system && (
                 <div className="flex justify-center">
                   <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl px-4 py-2 max-w-2xl">
@@ -228,7 +185,7 @@ const ChatInterface = ({
               )}
             </div>
           ))}
-          
+
           {isLoading && (
             <div className="flex items-start space-x-4 max-w-4xl">
               <div className="flex-shrink-0">
@@ -276,7 +233,7 @@ const ChatInterface = ({
           </form>
         </div>
       </div>
-      
+
       <style jsx>{`
         .chat-header {
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -286,7 +243,7 @@ const ChatInterface = ({
           position: relative;
           overflow: hidden;
         }
-        
+
         .chat-header::before {
           content: '';
           position: absolute;
@@ -298,7 +255,7 @@ const ChatInterface = ({
                       radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
           pointer-events: none;
         }
-        
+
         .header-content {
           max-width: 1200px;
           margin: 0 auto;
@@ -309,11 +266,11 @@ const ChatInterface = ({
           position: relative;
           z-index: 1;
         }
-        
+
         .header-controls {
           flex: 1;
         }
-        
+
         .back-button {
           display: flex;
           align-items: center;
@@ -327,42 +284,42 @@ const ChatInterface = ({
           transition: all 0.3s ease;
           backdrop-filter: blur(10px);
         }
-        
+
         .back-button:hover {
           background: rgba(255, 255, 255, 0.2);
           transform: translateX(-2px);
         }
-        
+
         .back-icon {
           width: 1.25rem;
           height: 1.25rem;
         }
-        
+
         .back-text {
           font-weight: 500;
         }
-        
+
         .header-branding {
           flex: 2;
           display: flex;
           justify-content: center;
         }
-        
+
         .brand-logo {
           display: flex;
           align-items: center;
           gap: 1rem;
         }
-        
+
         .brand-icon {
           font-size: 2rem;
           filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
         }
-        
+
         .brand-text {
           text-align: center;
         }
-        
+
         .brand-title {
           font-size: 1.5rem;
           font-weight: 700;
@@ -372,20 +329,20 @@ const ChatInterface = ({
           -webkit-text-fill-color: transparent;
           background-clip: text;
         }
-        
+
         .brand-subtitle {
           font-size: 0.875rem;
           margin: 0.25rem 0 0 0;
           opacity: 0.9;
           color: #e0e7ff;
         }
-        
+
         .header-status {
           flex: 1;
           display: flex;
           justify-content: flex-end;
         }
-        
+
         .connection-status {
           display: flex;
           align-items: center;
@@ -395,7 +352,7 @@ const ChatInterface = ({
           border-radius: 0.5rem;
           backdrop-filter: blur(10px);
         }
-        
+
         .status-dot {
           width: 8px;
           height: 8px;
@@ -403,34 +360,34 @@ const ChatInterface = ({
           border-radius: 50%;
           animation: pulse 2s infinite;
         }
-        
+
         .status-text {
           font-size: 0.875rem;
           font-weight: 500;
           color: #e0e7ff;
         }
-        
+
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.5; }
         }
-        
+
         @media (max-width: 768px) {
           .header-content {
             flex-direction: column;
             gap: 1rem;
             text-align: center;
           }
-          
+
           .header-controls,
           .header-status {
             flex: none;
           }
-          
+
           .brand-title {
             font-size: 1.25rem;
           }
-          
+
           .brand-subtitle {
             font-size: 0.75rem;
           }

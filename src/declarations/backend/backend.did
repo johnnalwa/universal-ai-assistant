@@ -188,13 +188,26 @@ type WorkContext = record {
 service : {
   get_available_providers : () -> (vec text) query;
   get_canister_metrics : () -> (CanisterMetrics) query;
-  get_user_dashboard : (principal) -> (Result) query;
-  get_user_knowledge_graph : (principal) -> (opt PersonalKnowledgeGraph) query;
-  get_user_memories : (principal, opt nat32) -> (vec MemoryNode) query;
-  greet : (text) -> (text) query;
-  icp_ai_prompt : (text, opt text, opt text, opt bool) -> (Result_1);
-  memory_mind_prompt : (text, opt text, opt bool) -> (Result_1);
-  prompt : (text) -> (Result_1);
-  set_api_key : (text) -> ();
-  update_user_profile : (principal, UserProfileUpdate) -> (Result_1);
+  get_user_dashboard : (user : principal) -> (Result) query;
+  get_user_knowledge_graph : (user : principal) -> (
+      opt PersonalKnowledgeGraph,
+    ) query;
+  get_user_memories : (user : principal, limit : opt nat32) -> (
+      vec MemoryNode,
+    ) query;
+  greet : (name : text) -> (text) query;
+  icp_ai_prompt : (prompt_text : text, opt text, opt text, opt bool) -> (
+      Result_1,
+    );
+  memory_mind_prompt : (
+      prompt_text : text,
+      context_thread_id : opt text,
+      opt bool,
+    ) -> (Result_1);
+  prompt : (prompt_text : text) -> (Result_1);
+  set_api_key : (key : text) -> ();
+  update_user_profile : (
+      user : principal,
+      profile_update : UserProfileUpdate,
+    ) -> (Result_1);
 }

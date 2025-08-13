@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { backend } from 'declarations/backend';
 import WalletNav from './components/WalletNav';
-import Navigation from './components/Navigation';
+import Sidebar from './components/Sidebar';
 import WelcomePage from './components/WelcomePage';
-import ChatInterface from './components/ChatInterface';
+import EnhancedChatInterface from './components/EnhancedChatInterface';
 import MemoryDashboard from './components/MemoryDashboard';
 
 const App = () => {
@@ -176,88 +176,46 @@ const App = () => {
     setCurrentView('welcome');
   };
 
-  // Render unified layout with navigation
-  const renderCurrentView = () => {
-    switch (currentView) {
-      case 'welcome':
-        return (
+  return (
+    <div className="app">
+      <Sidebar 
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        userPrincipal={userPrincipal}
+        userDashboard={userDashboard}
+      />
+      
+      <main className="main-content">
+        {currentView === 'welcome' && (
           <WelcomePage 
+            onStartChatting={() => setCurrentView('chat')}
+            onViewMemory={() => setCurrentView('memory')}
             userPrincipal={userPrincipal}
             userDashboard={userDashboard}
-            onConnect={handleConnect}
-            onDisconnect={handleDisconnect}
-            onGetStarted={handleGetStarted}
-            onViewMemory={handleViewMemory}
           />
-        );
-      case 'memory':
-        return (
-          <MemoryDashboard
+        )}
+        
+        {currentView === 'chat' && (
+          <EnhancedChatInterface
             userPrincipal={userPrincipal}
-            userKnowledgeGraph={userKnowledgeGraph}
-            userDashboard={userDashboard}
-            onBackToChat={handleBackToChat}
-            onBackToWelcome={handleBackToWelcome}
-            onRefresh={loadUserKnowledgeGraph}
-          />
-        );
-      case 'chat':
-      default:
-        return (
-          <ChatInterface 
-            userPrincipal={userPrincipal}
-            onBackToWelcome={handleBackToWelcome}
+            onBackToWelcome={() => setCurrentView('welcome')}
             initialChat={chat}
             selectedProvider={selectedProvider}
             assistantType={assistantType}
             storeOnChain={storeOnChain}
             icpMode={icpMode}
           />
-        );
-    }
-  };
-
-  return (
-    <div className="app-container">
-      <WalletNav 
-        userPrincipal={userPrincipal}
-        currentView={currentView}
-        setCurrentView={setCurrentView}
-        userDashboard={userDashboard}
-        onConnect={handleConnect}
-        onDisconnect={handleDisconnect}
-      />
-      <main className="main-content">
-        {renderCurrentView()}
+        )}
+        
+        {currentView === 'memory' && (
+          <MemoryDashboard
+            userPrincipal={userPrincipal}
+            userKnowledgeGraph={userKnowledgeGraph}
+            userDashboard={userDashboard}
+            onBackToWelcome={() => setCurrentView('welcome')}
+          />
+        )}
       </main>
-      
-      <style jsx>{`
-        .app-container {
-          min-height: 100vh;
-          background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-          display: flex;
-          flex-direction: column;
-        }
-
-        .main-content {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-
-        * {
-          box-sizing: border-box;
-        }
-
-        body {
-          margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-            'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-            sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-      `}</style>
     </div>
   );
 };

@@ -16,6 +16,7 @@ const Sidebar = ({
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [userName, setUserName] = useState('');
+  const [isAutopilotOn, setIsAutopilotOn] = useState(false);
 
   useEffect(() => {
     if (userDashboard?.user_profile?.preferred_name) {
@@ -39,6 +40,7 @@ const Sidebar = ({
     { id: 'welcome', label: 'Welcome', icon: '🏠' },
     { id: 'chat', label: 'Chat', icon: '💬' },
     { id: 'memory', label: 'Memory', icon: '🧠' },
+    { id: 'coach', label: 'WCHL Coach', icon: '🏆' },
   ];
 
   return (
@@ -78,7 +80,35 @@ const Sidebar = ({
         ))}
       </nav>
 
+      <div className="sidebar-features">
+        <div className="feature-item" title="Toggle Autopilot Memory Coach">
+          <span className="feature-icon">🚀</span>
+          {!isCollapsed && <span className="feature-label">Autopilot</span>}
+          {!isCollapsed && (
+            <label className="switch">
+              <input 
+                type="checkbox" 
+                checked={isAutopilotOn} 
+                onChange={() => setIsAutopilotOn(!isAutopilotOn)} 
+              />
+              <span className="slider round"></span>
+            </label>
+          )}
+        </div>
+      </div>
+
       <div className="sidebar-footer">
+        {isAuthenticated && (
+          <div className="sidebar-balance">
+            <span className="balance-icon">💰</span>
+            {!isCollapsed && (
+              <>
+                <span className="balance-label">ckBTC</span>
+                <span className="balance-amount">0.0000</span>
+              </>
+            )}
+          </div>
+        )}
         {isAuthenticated ? (
           <div className="user-section">
             <div className="user-avatar">

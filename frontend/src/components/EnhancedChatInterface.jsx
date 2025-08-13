@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { backend } from 'declarations/backend';
+import ReactMarkdown from 'react-markdown';
 import '../styles/enhanced-chat.css';
 
 const EnhancedChatInterface = ({ 
@@ -18,7 +19,11 @@ const EnhancedChatInterface = ({
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
+  const [visibleSources, setVisibleSources] = useState(null);
+  const [isConfidential, setIsConfidential] = useState(false);
+  const [showProofSources, setShowProofSources] = useState({});
+  const [showInputOptions, setShowInputOptions] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -105,7 +110,7 @@ const EnhancedChatInterface = ({
             AI Conversation
           </h2>
           <div className="header-controls">
-            <button className="header-btn settings-btn" onClick={() => setIsSettingsOpen(!isSettingsOpen)} title="Toggle Settings">
+            <button className="header-btn settings-btn" onClick={() => setIsSettingsVisible(!isSettingsVisible)} title="Toggle Settings">
               ⚙️
             </button>
             <button className="header-btn clear-btn" onClick={handleClearChat} title="Clear chat">
@@ -116,7 +121,7 @@ const EnhancedChatInterface = ({
         </div>
       </div>
 
-      {isSettingsOpen && (
+      {isSettingsVisible && (
         <div className="chat-settings">
         <div className="settings-grid">
           <div className="setting-group">
@@ -183,11 +188,25 @@ const EnhancedChatInterface = ({
               <div className="message-content">
                 <div className="message-bubble">
                   <div className="message-text">
-                    {msg.user?.content || msg.system?.content}
+                    {msg.user ? msg.user.content : <ReactMarkdown>{msg.system.content}</ReactMarkdown>}
                   </div>
-                  {msg.system?.provider && (
-                    <div className="message-meta">
-                      via {msg.system.provider}
+                  {msg.system && (
+                    <div className="message-footer">
+                      <span className="provider-info">via {msg.system.provider}</span>
+                      <div className="proof-section">
+                        <button 
+                          className="proof-toggle-btn"
+                          onClick={() => setVisibleSources(visibleSources === index ? null : index)}
+                        >
+                          🛡️ View Sources
+                        </button>
+                        {visibleSources === index && (
+                          <div className="sources-container">
+                            <p className="source-item">Source 1: [Placeholder for a knowledge base document]</p>
+                            <p className="source-item">Source 2: [Placeholder for an external web link]</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -232,6 +251,37 @@ const EnhancedChatInterface = ({
             >
               {isLoading ? '⏳' : '➤'}
             </button>
+            <div className="input-options-container">
+              <button 
+                className="input-options-toggle"
+                onClick={() => setShowInputOptions(!showInputOptions)}
+                title="More options"
+              >
+                +
+              </button>
+              {showInputOptions && (
+                <div className="input-options-menu">
+                  <button 
+                    className={`input-option-item ${isConfidential ? 'active' : ''}`}
+                    onClick={() => {
+                      setIsConfidential(!isConfidential);
+                      setShowInputOptions(false);
+                    }}
+                  >
+                    <span className="option-icon">🔒</span>
+                    <span>Confidential Mode</span>
+                  </button>
+                  <button className="input-option-item">
+                    <span className="option-icon">📎</span>
+                    <span>Attach File</span>
+                  </button>
+                  <button className="input-option-item boost">
+                    <span className="option-icon">⚡</span>
+                    <span>Boost Message</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </form>
       </div>

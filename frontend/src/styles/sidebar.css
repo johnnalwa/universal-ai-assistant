@@ -219,12 +219,13 @@
   }
 
   .sidebar-nav {
-    flex: 1;
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding: 1.5rem 0;
     overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 1rem;
   }
 
   .nav-item {
@@ -292,4 +293,115 @@
 
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
   background: rgba(59, 130, 246, 0.7);
+}
+
+/* --- Feature Toggles --- */
+.sidebar-features {
+  padding: 1rem;
+  border-top: 1px solid rgba(30, 41, 59, 0.3);
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+}
+
+.feature-icon {
+  font-size: 1.125rem;
+  min-width: 20px;
+  text-align: center;
+}
+
+.feature-label {
+  flex-grow: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* --- Toggle Switch --- */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.2);
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #3b82f6;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.slider.round {
+  border-radius: 24px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* --- ckBTC Balance --- */
+.sidebar-balance {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  color: #cbd5e1;
+  white-space: nowrap;
+}
+
+.balance-icon {
+  font-size: 1.125rem;
+  min-width: 20px;
+  text-align: center;
+}
+
+.balance-label {
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.balance-amount {
+  margin-left: auto;
+  font-weight: 700;
+  color: #facc15; /* Gold color */
+  font-family: monospace;
+  font-size: 0.875rem;
 }

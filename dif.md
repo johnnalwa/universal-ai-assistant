@@ -77,4 +77,4 @@ Want me to start by adding the UI stubs in:
 
 frontend/src/components/Sidebar.jsx (Autopilot, WCHL Coach, ckBTC)
 frontend/src/components/EnhancedChatInterface.jsx (Proof badge, Boost, Confidential, Mic/Upload)
-frontend/src/components/MemoryDashboard.jsx (Garden, Insights, Share, Mint)
+frontend/src/components/MemoryDashboard.jsx (Garden, Insights, Share, Mint)YES 

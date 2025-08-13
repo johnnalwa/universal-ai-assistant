@@ -257,6 +257,56 @@ The Universal AI Assistant is designed to be versatile and can be applied to a w
 
 ---
 
+## Planned Features (WCHL 2025 Roadmap)
+
+- **Autopilot Memory Coach**
+  - Daily Digest summarizing what the assistant learned about you and two smart suggestions. Toggle from the sidebar.
+
+- **Trust & Proof Mode**
+  - Each answer shows a "Proof" badge. Tap to see sources and verify the response.
+
+- **Consent Links (Share a Memory Snapshot)**
+  - Create scoped, expiring links to share specific parts of your profile (e.g., work context). Revoke anytime.
+
+- **Boosted Answers (ckBTC Micropayments)**
+  - Optional "Boost" chip in chat to get deeper, longer answers using a tiny ckBTC payment. Balance shown in the sidebar.
+
+- **Smart Routines**
+  - One-click templates like Weekly Goals Check-In and Project Standup. The assistant runs them and logs outcomes.
+
+- **Memory Garden (Visual Map)**
+  - Interactive map of your memories and relationships. Click nodes to view or correct facts.
+
+- **Confidential Notes Mode**
+  - Lock icon in chat to mark sensitive messages as confidential. Clearly labeled and kept separate.
+
+- **Milestone Capsules**
+  - Mint a shareable "Milestone Capsule" for big wins (e.g., MVP Launch). Celebrate and showcase progress.
+
+- **Team Space**
+  - Create a team workspace. Choose which personal memories are available to the team assistant.
+
+- **Voice Notes & Attachments**
+  - Record voice notes or drop files. The assistant extracts key facts into memory for you.
+
+- **Open Memory Link (Read-Only Profile)**
+  - Optional public page showing a curated bio, skills, goals, and recent learnings with auto-expiry.
+
+- **Learning Insights Panel**
+  - Trends, memory strength, preferred response styles, and usage stats presented clearly.
+
+- **Ask-First Mode**
+  - When unsure, the assistant asks a quick clarifying question before answering.
+
+- **WCHL Coach**
+  - Built-in checklist, deadlines, and a demo script to help you ship and present confidently.
+
+### Suggested Milestones
+- Milestone 1: Autopilot, Trust & Proof, Consent Links
+- Milestone 2: Boosted Answers, Memory Garden
+- Milestone 3: Smart Routines, Confidential Notes, Learning Insights
+- Milestone 4: Milestone Capsules, Team Space, Voice & Attachments, WCHL Coach
+
 <div align="center">
 
 **Built with ❤️ for the decentralized future**
@@ -266,5 +316,4 @@ The Universal AI Assistant is designed to be versatile and can be applied to a w
 *"Your AI assistant that actually knows YOU"*
 
 ⭐ **Star this repo if you find it useful!** ⭐
-
 </div>

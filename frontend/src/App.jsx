@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { backend } from 'declarations/backend';
-import WalletNav from './components/WalletNav';
 import Sidebar from './components/Sidebar';
+import MobileMenuBar from './components/MobileMenuBar';
 import WelcomePage from './components/WelcomePage';
 import EnhancedChatInterface from './components/EnhancedChatInterface';
 import MemoryDashboard from './components/MemoryDashboard';
@@ -30,6 +30,9 @@ const App = () => {
   const [assistantType, setAssistantType] = useState('casual');
   const [storeOnChain, setStoreOnChain] = useState(false);
   const [icpMode, setIcpMode] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     loadInitialData();
@@ -50,6 +53,7 @@ const App = () => {
         
         setUserPrincipal(principal);
         setIcpMode(true);
+        setIsAuthenticated(true);
         
         // Load user data for existing session
         await loadUserKnowledgeGraph();
@@ -118,6 +122,7 @@ const App = () => {
           
           setUserPrincipal(principal);
           setIcpMode(true);
+          setIsAuthenticated(true);
           
           // Load user data after successful authentication
           await loadUserKnowledgeGraph();
@@ -150,6 +155,7 @@ const App = () => {
       setUserKnowledgeGraph(null);
       setUserDashboard(null);
       setIcpMode(false);
+      setIsAuthenticated(false);
     } catch (error) {
       console.error('Error during logout:', error);
       // Still clear local state even if logout fails
@@ -157,6 +163,7 @@ const App = () => {
       setUserKnowledgeGraph(null);
       setUserDashboard(null);
       setIcpMode(false);
+      setIsAuthenticated(false);
     }
   };
 
@@ -176,45 +183,72 @@ const App = () => {
     setCurrentView('welcome');
   };
 
+  const handleLogin = () => {
+    handleConnect();
+  };
+
+  const handleLogout = () => {
+    handleDisconnect();
+  };
+
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
+
+  const closeMobileSidebar = () => {
+    setIsMobileSidebarOpen(false);
+  };
+
   return (
-    <div className="app">
-      <Sidebar 
+    <div className="app-container">
+      <MobileMenuBar
+        isSidebarOpen={isMobileSidebarOpen}
+        toggleSidebar={toggleMobileSidebar}
+        currentView={currentView}
+        userPrincipal={userPrincipal}
+        userDashboard={userDashboard}
+        isAuthenticated={isAuthenticated}
+      />
+      
+      <Sidebar
         currentView={currentView}
         setCurrentView={setCurrentView}
         userPrincipal={userPrincipal}
         userDashboard={userDashboard}
+        isAuthenticated={isAuthenticated}
+        onLogin={handleLogin}
+        onLogout={handleLogout}
+        isMobileOpen={isMobileSidebarOpen}
+        onMobileClose={closeMobileSidebar}
       />
       
       <main className="main-content">
-        {currentView === 'welcome' && (
-          <WelcomePage 
-            onStartChatting={() => setCurrentView('chat')}
-            onViewMemory={() => setCurrentView('memory')}
-            userPrincipal={userPrincipal}
-            userDashboard={userDashboard}
-          />
-        )}
-        
-        {currentView === 'chat' && (
-          <EnhancedChatInterface
-            userPrincipal={userPrincipal}
-            onBackToWelcome={() => setCurrentView('welcome')}
-            initialChat={chat}
-            selectedProvider={selectedProvider}
-            assistantType={assistantType}
-            storeOnChain={storeOnChain}
-            icpMode={icpMode}
-          />
-        )}
-        
-        {currentView === 'memory' && (
-          <MemoryDashboard
-            userPrincipal={userPrincipal}
-            userKnowledgeGraph={userKnowledgeGraph}
-            userDashboard={userDashboard}
-            onBackToWelcome={() => setCurrentView('welcome')}
-          />
-        )}
+        <div className="content-wrapper">
+          {currentView === 'welcome' && <WelcomePage />}
+          {currentView === 'chat' && (
+            <EnhancedChatInterface
+              chat={chat}
+              setChat={setChat}
+              selectedProvider={selectedProvider}
+              setSelectedProvider={setSelectedProvider}
+              assistantType={assistantType}
+              setAssistantType={setAssistantType}
+              storeOnChain={storeOnChain}
+              setStoreOnChain={setStoreOnChain}
+              userPrincipal={userPrincipal}
+              icpMode={icpMode}
+              setIcpMode={setIcpMode}
+            />
+          )}
+          {currentView === 'memory' && (
+            <MemoryDashboard
+              userPrincipal={userPrincipal}
+              userKnowledgeGraph={userKnowledgeGraph}
+              userDashboard={userDashboard}
+              refreshData={loadInitialData}
+            />
+          )}
+        </div>
       </main>
     </div>
   );

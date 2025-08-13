@@ -1,166 +1,234 @@
-import React, { useState, useRef, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
+import React, { useState, useEffect, useRef } from 'react';
 import { backend } from 'declarations/backend';
+import '../styles/enhanced-chat.css';
 
 const EnhancedChatInterface = ({ 
-  userPrincipal, 
-  onBackToWelcome,
-  initialChat = [],
-  selectedProvider = 'gemini',
-  assistantType = 'casual',
-  storeOnChain = false,
-  icpMode = false
+  chat, 
+  setChat, 
+  selectedProvider, 
+  setSelectedProvider,
+  assistantType, 
+  setAssistantType,
+  storeOnChain, 
+  setStoreOnChain,
+  userPrincipal,
+  icpMode,
+  setIcpMode
 }) => {
-  const [chat, setChat] = useState(initialChat.length > 0 ? initialChat : [
-    {
-      system: { 
-        content: "🌐 Welcome to your ICP-Native Universal AI Assistant! I'm powered by the Internet Computer with Internet Identity authentication, cycles-based payments, and on-chain storage. Your original chatting experience is preserved while adding Web3 capabilities. What would you like to explore today?",
-        provider: "system"
-      }
-    }
-  ]);
-  const [inputValue, setInputValue] = useState('');
+  const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const chatBoxRef = useRef(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   useEffect(() => {
-    if (chatBoxRef.current) {
-      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-    }
+    scrollToBottom();
   }, [chat]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
+  useEffect(() => {
+    if (!isLoading) {
+      inputRef.current?.focus();
+    }
+  }, [isLoading]);
 
-    const userMessage = inputValue.trim();
-    setInputValue('');
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!message.trim() || isLoading) return;
+
+    const userMessage = message.trim();
+    setMessage('');
+    setIsLoading(true);
     setIsTyping(true);
 
-    // Add user message to chat immediately for better UX
-    setChat(prev => [...prev, { user: { content: userMessage, timestamp: Date.now() } }]);
-    setIsLoading(true);
+    const newChat = [...chat, { user: { content: userMessage } }];
+    setChat(newChat);
 
     try {
       let response;
       if (icpMode) {
         response = await backend.icp_ai_prompt(
-          userMessage,
-          selectedProvider ? [selectedProvider] : [],
-          assistantType ? [assistantType] : [],
-          storeOnChain ? [storeOnChain] : []
+          userMessage, 
+          [selectedProvider], 
+          [assistantType], 
+          [storeOnChain]
         );
       } else {
-        response = await backend.memory_mind_prompt(userMessage, null, [true]);
+        response = await backend.memory_mind_prompt(userMessage, [], [true]);
       }
 
-      if (response && response.Ok) {
-        // Simulate typing effect
-        setTimeout(() => {
-          setChat(prev => [...prev, { system: { content: response.Ok, provider: selectedProvider, timestamp: Date.now() } }]);
-          setIsTyping(false);
-        }, 1000);
+      if ('Ok' in response) {
+        setChat([...newChat, { system: { content: response.Ok, provider: selectedProvider } }]);
+      } else if ('Err' in response) {
+        setChat([...newChat, { system: { content: `Error: ${response.Err}`, provider: selectedProvider } }]);
       } else {
-        setChat(prev => [...prev, { system: { content: "Error: " + response?.Err || "Failed to get response", provider: "system" } }]);
-        setIsTyping(false);
+        // Fallback for unexpected response structure
+        setChat([...newChat, { system: { content: 'Received an unexpected response format.', provider: selectedProvider } }]);
       }
     } catch (error) {
-      console.error('Error:', error);
-      setChat(prev => [...prev, { system: { content: "Error: " + error.message, provider: "system" } }]);
-      setIsTyping(false);
+      console.error('Error sending message:', error);
+      setChat([...newChat, { system: { content: `Error: ${error.message}`, provider: selectedProvider } }]);
     } finally {
       setIsLoading(false);
-      inputRef.current?.focus();
+      setIsTyping(false);
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit(e);
+      handleSendMessage(e);
     }
   };
 
-  const formatMessageTime = (timestamp) => {
-    if (!timestamp) return '';
-    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const handleClearChat = () => {
+    setChat([
+      {
+        system: {
+          content: "🧠 I'm ready to continue our conversation! How can I help you today?",
+          provider: selectedProvider
+        }
+      }
+    ]);
   };
 
   return (
     <div className="enhanced-chat-container">
       <div className="chat-header">
-        <div className="chat-info">
-          <h2>AI Assistant</h2>
-          <div className="status-indicator">
-            <div className={`status-dot ${isTyping ? 'typing' : 'online'}`}></div>
-            <span>{isTyping ? 'AI is typing...' : 'Online'}</span>
+        <div className="header-content">
+          <h2 className="chat-title">
+            <span className="title-icon">💬</span>
+            AI Conversation
+          </h2>
+          <div className="header-controls">
+            <button className="header-btn settings-btn" onClick={() => setIsSettingsOpen(!isSettingsOpen)} title="Toggle Settings">
+              ⚙️
+            </button>
+            <button className="header-btn clear-btn" onClick={handleClearChat} title="Clear chat">
+              <span>🗑️</span>
+              <span>Clear</span>
+            </button>
           </div>
-        </div>
-        <div className="chat-actions">
-          <button className="action-btn" title="Clear chat" onClick={() => setChat([])}>
-            🗑️
-          </button>
-          <button className="action-btn" title="Settings" onClick={() => {}}>
-            ⚙️
-          </button>
         </div>
       </div>
 
-      <div className="chat-messages" ref={chatBoxRef}>
-        {chat.map((message, index) => (
-          <div key={index} className={`message ${message.user ? 'user-message' : 'system-message'}`}>
-            <div className="message-content">
-              <div className="message-text">
-                <ReactMarkdown>
-                  {message.user?.content || message.system?.content}
-                </ReactMarkdown>
-              </div>
-              <div className="message-meta">
-                <span className="message-time">
-                  {formatMessageTime(message.user?.timestamp || message.system?.timestamp)}
-                </span>
-                {message.system?.provider && (
-                  <span className="message-provider">
-                    via {message.system.provider}
-                  </span>
-                )}
-              </div>
-            </div>
+      {isSettingsOpen && (
+        <div className="chat-settings">
+        <div className="settings-grid">
+          <div className="setting-group">
+            <label>AI Provider</label>
+            <select 
+              value={selectedProvider} 
+              onChange={(e) => setSelectedProvider(e.target.value)}
+              className="setting-select"
+            >
+              <option value="gemini">Google Gemini</option>
+              <option value="openai">OpenAI GPT</option>
+              <option value="claude">Anthropic Claude</option>
+            </select>
           </div>
-        ))}
 
-        {isLoading && (
-          <div className="message system-message">
-            <div className="message-content">
-              <div className="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
+          <div className="setting-group">
+            <label>Assistant Style</label>
+            <select 
+              value={assistantType} 
+              onChange={(e) => setAssistantType(e.target.value)}
+              className="setting-select"
+            >
+              <option value="casual">Casual</option>
+              <option value="professional">Professional</option>
+              <option value="creative">Creative</option>
+              <option value="technical">Technical</option>
+            </select>
+          </div>
+
+          <div className="setting-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={icpMode}
+                onChange={(e) => setIcpMode(e.target.checked)}
+              />
+              <span>ICP Mode</span>
+            </label>
+          </div>
+
+          {icpMode && (
+            <div className="setting-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={storeOnChain}
+                  onChange={(e) => setStoreOnChain(e.target.checked)}
+                />
+                <span>Store on-chain</span>
+              </label>
+            </div>
+          )}
+        </div>
+      </div>
+      )}
+
+      <div className="messages-container">
+        <div className="messages-scroll">
+          {chat.map((msg, index) => (
+            <div key={index} className={`message ${msg.user ? 'user-message' : 'system-message'}`}>
+              <div className="message-avatar">
+                {msg.user ? '👤' : '🧠'}
+              </div>
+              <div className="message-content">
+                <div className="message-bubble">
+                  <div className="message-text">
+                    {msg.user?.content || msg.system?.content}
+                  </div>
+                  {msg.system?.provider && (
+                    <div className="message-meta">
+                      via {msg.system.provider}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          ))}
+          
+          {isTyping && (
+            <div className="message system-message">
+              <div className="message-avatar">🧠</div>
+              <div className="message-content">
+                <div className="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
-      <div className="chat-input-area">
-        <form onSubmit={handleSubmit} className="chat-form">
-          <div className="input-container">
+      <div className="input-container">
+        <form onSubmit={handleSendMessage} className="input-form">
+          <div className="input-wrapper">
             <textarea
               ref={inputRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Type your message here... (Shift+Enter for new line)"
-              rows="1"
-              className="chat-input"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={isLoading ? "AI is thinking..." : "Type your message..."}
               disabled={isLoading}
+              className="message-input"
+              rows={1}
             />
             <button 
               type="submit" 
-              disabled={isLoading || !inputValue.trim()}
-              className="send-button"
+              disabled={!message.trim() || isLoading}
+              className="send-btn"
             >
               {isLoading ? '⏳' : '➤'}
             </button>

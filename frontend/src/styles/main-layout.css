@@ -12,22 +12,28 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
   color: white;
-  overflow: hidden;
+  /* overflow: hidden; */ /* This was causing the main scrolling issue */
 }
 
 .app-container {
   display: flex;
   height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  color: white;
   overflow: hidden;
+  position: relative;
 }
 
 .main-content {
   flex: 1;
   margin-left: 280px;
-  height: 100vh;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  overflow-y: auto; /* Allow vertical scrolling */
+  transition: all 0.3s ease;
+  position: relative;
+  background: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(5px);
 }
 
 .sidebar.collapsed + .main-content {
@@ -36,9 +42,14 @@ body {
 
 .content-wrapper {
   flex: 1;
-  overflow: hidden;
+  /* overflow: hidden; */ /* Let parent handle scrolling */
+  position: relative;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.1) 0%, rgba(30, 41, 59, 0.1) 100%);
+  border-radius: 1rem 0 0 0;
+  margin: 0.5rem 0.5rem 0 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Responsive design */
@@ -49,13 +60,13 @@ body {
   
   .main-content {
     margin-left: 0;
-    margin-top: 60px;
-    height: calc(100vh - 60px);
+    margin-top: 0;
+    border-radius: 0;
   }
   
-  .sidebar.collapsed + .main-content {
-    margin-left: 0;
-    margin-top: 60px;
+  .content-wrapper {
+    border-radius: 0;
+    margin: 0;
   }
 }
 

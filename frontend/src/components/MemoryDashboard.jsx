@@ -122,95 +122,59 @@ const MemoryDashboard = ({
     }
   };
 
+  const ActionButton = ({ icon, title, subtitle, onClick, disabled, isActive, colorClass }) => (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`group relative flex flex-col items-center justify-center p-5 rounded-2xl transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 ${colorClass} ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-xl'}`}
+    >
+      <div className="text-4xl mb-3 transition-transform duration-300 group-hover:scale-110">{icon}</div>
+      <h3 className="font-semibold text-white text-center text-base tracking-wide">{title}</h3>
+      {subtitle && <p className="text-xs text-white/80 text-center">{subtitle}</p>}
+      {isActive && (
+        <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+      )}
+    </button>
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 p-4">
+    <div className="min-h-full bg-slate-900 p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="mx-auto mb-6 max-w-6xl">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onBackToChat}
-              className="bg-white/80 rounded-full px-4 py-2 shadow-md text-sm font-medium text-gray-600 hover:bg-white transition-colors"
-            >
-              ← Back to Chat
-            </button>
-            <button
-              onClick={onBackToWelcome}
-              className="bg-white/80 rounded-full px-4 py-2 shadow-md text-sm font-medium text-gray-600 hover:bg-white transition-colors"
-            >
-              🏠 Home
-            </button>
-          </div>
-          
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-            🧠 My Memory Dashboard
-          </h1>
-          
-          <button
-            onClick={onRefresh}
-            className="bg-white/80 rounded-full px-4 py-2 shadow-md text-sm font-medium text-blue-600 hover:bg-white transition-colors"
-          >
-            🔄 Refresh
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-100">Memory Dashboard</h1>
+          <p className="text-slate-400 mt-1">Welcome back, {userPrincipal ? `${userPrincipal.slice(0, 5)}...${userPrincipal.slice(-3)}` : 'User'}</p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <button onClick={onBackToWelcome} className="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Welcome">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <button onClick={onBackToChat} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md hover:shadow-lg">
+            Back to Chat
           </button>
         </div>
+      </div>
 
-        {/* Dashboard Actions */}
-        <div className="flex flex-wrap justify-center gap-3 mb-8">
-          <button 
-            className={`flex items-center gap-2 bg-white/80 rounded-full px-4 py-2 shadow-md text-sm font-medium text-gray-600 hover:bg-white transition-colors ${activeAction === 'garden' ? 'opacity-50' : ''}`}
-            onClick={handleMemoryGarden}
-            disabled={isLoadingAction}
-          >
-            <span>🌳</span>
-            <span>{activeAction === 'garden' ? 'Loading...' : 'Memory Garden'}</span>
-          </button>
-          <button 
-            className={`flex items-center gap-2 bg-white/80 rounded-full px-4 py-2 shadow-md text-sm font-medium text-gray-600 hover:bg-white transition-colors ${activeAction === 'insights' ? 'opacity-50' : ''}`}
-            onClick={handleLearningInsights}
-            disabled={isLoadingAction}
-          >
-            <span>📊</span>
-            <span>{activeAction === 'insights' ? 'Loading...' : 'Learning Insights'}</span>
-          </button>
-          <button 
-            className={`flex items-center gap-2 bg-white/80 rounded-full px-4 py-2 shadow-md text-sm font-medium text-gray-600 hover:bg-white transition-colors ${activeAction === 'share' ? 'opacity-50' : ''}`}
-            onClick={handleShareProfile}
-            disabled={isLoadingAction}
-          >
-            <span>🔗</span>
-            <span>{activeAction === 'share' ? 'Copying...' : 'Share Profile'}</span>
-          </button>
-          <button 
-            className={`flex items-center gap-2 bg-gradient-to-r from-teal-400 to-blue-500 text-white rounded-full px-4 py-2 shadow-lg hover:shadow-xl transition-all ${activeAction === 'mint' ? 'opacity-50' : ''}`}
-            onClick={handleMintMilestone}
-            disabled={isLoadingAction}
-          >
-            <span>💊</span>
-            <span>{activeAction === 'mint' ? 'Minting...' : 'Mint Milestone'}</span>
-          </button>
-          
-          {/* New Feature Buttons */}
-          <button 
-            className="flex items-center gap-2 bg-white/80 rounded-full px-4 py-2 shadow-md text-sm font-medium text-purple-600 hover:bg-white transition-colors"
-            onClick={onOpenConsentLinks}
-          >
-            <span>🔗</span>
-            <span>Consent Links</span>
-          </button>
-          <button 
-            className="flex items-center gap-2 bg-white/80 rounded-full px-4 py-2 shadow-md text-sm font-medium text-green-600 hover:bg-white transition-colors"
-            onClick={onOpenSmartRoutines}
-          >
-            <span>🔄</span>
-            <span>Smart Routines</span>
-          </button>
-          <button 
-            className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-4 py-2 shadow-lg hover:shadow-xl transition-all"
-            onClick={onOpenMilestoneCapsules}
-          >
-            <span>🏆</span>
-            <span>Milestone Capsules</span>
-          </button>
+        {/* Actions Grid */}
+        <div className="mb-10 space-y-8">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-300 mb-4 border-b border-slate-700 pb-2">Primary Actions</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <ActionButton icon="🌳" title="Memory Garden" subtitle="Visualize connections" onClick={handleMemoryGarden} disabled={isLoadingAction} isActive={activeAction === 'garden'} colorClass="bg-gradient-to-br from-green-500 to-cyan-600" />
+              <ActionButton icon="💡" title="Learning Insights" subtitle="Track your progress" onClick={handleLearningInsights} disabled={isLoadingAction} isActive={activeAction === 'insights'} colorClass="bg-gradient-to-br from-yellow-500 to-orange-600" />
+              <ActionButton icon="🌐" title="Share Profile" subtitle="Public knowledge link" onClick={handleShareProfile} disabled={isLoadingAction} isActive={activeAction === 'share'} colorClass="bg-gradient-to-br from-blue-500 to-indigo-600" />
+              <ActionButton icon="💎" title="Mint Milestone" subtitle="Create an NFT" onClick={handleMintMilestone} disabled={isLoadingAction} isActive={activeAction === 'mint'} colorClass="bg-gradient-to-br from-purple-500 to-pink-600" />
+            </div>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-slate-300 mb-4 border-b border-slate-700 pb-2">Tools & Utilities</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+              <ActionButton icon="🤖" title="Smart Routines" onClick={onOpenSmartRoutines} colorClass="bg-slate-800 hover:bg-slate-700" />
+              <ActionButton icon="캡" title="Milestone Capsules" onClick={onOpenMilestoneCapsules} colorClass="bg-slate-800 hover:bg-slate-700" />
+              <ActionButton icon="🔗" title="Consent Links" onClick={onOpenConsentLinks} colorClass="bg-slate-800 hover:bg-slate-700" />
+              <ActionButton icon="🔄" title="Refresh Data" onClick={onRefresh} colorClass="bg-slate-800 hover:bg-slate-700" />
+            </div>
+          </div>
         </div>
 
         {/* Stats Overview */}
@@ -353,7 +317,6 @@ const MemoryDashboard = ({
             </div>
           )}
         </div>
-      </div>
     </div>
   );
 };

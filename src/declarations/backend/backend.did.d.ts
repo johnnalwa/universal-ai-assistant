@@ -37,6 +37,21 @@ export type DetailLevel = { 'Detailed' : null } |
   { 'Comprehensive' : null } |
   { 'Brief' : null } |
   { 'Moderate' : null };
+export interface EnhancedChatMessage {
+  'ii_verified' : [] | [boolean],
+  'content' : string,
+  'provider' : string,
+  'context_thread_id' : [] | [string],
+  'role' : string,
+  'user_sentiment' : [] | [Sentiment],
+  'extracted_facts' : Array<ExtractedFact>,
+  'referenced_memories' : Array<string>,
+  'learned_preferences' : Array<LearnedPreference>,
+  'timestamp' : bigint,
+  'cycles_cost' : [] | [bigint],
+  'response_strategy' : [] | [ResponseStrategy],
+  'content_stored_on_chain' : [] | [boolean],
+}
 export interface Entity {
   'context' : string,
   'name' : string,
@@ -49,6 +64,18 @@ export type EntityType = { 'Date' : null } |
   { 'Location' : null } |
   { 'Project' : null } |
   { 'Other' : null };
+export interface ExtractedFact {
+  'fact_type' : FactType,
+  'fact' : string,
+  'confidence' : number,
+  'should_remember' : boolean,
+}
+export type FactType = { 'Goal' : null } |
+  { 'Knowledge' : null } |
+  { 'Experience' : null } |
+  { 'Preference' : null } |
+  { 'PersonalInfo' : null } |
+  { 'Relationship' : null };
 export type FormalityLevel = { 'VeryFormal' : null } |
   { 'Formal' : null } |
   { 'Verycasual' : null } |
@@ -65,6 +92,11 @@ export interface KnowledgeEdge {
   'created_at' : bigint,
   'relationship_type' : RelationshipType,
   'strength' : number,
+}
+export interface LearnedPreference {
+  'preference' : string,
+  'category' : string,
+  'confidence' : number,
 }
 export interface LearningHistory {
   'interaction_count' : number,
@@ -131,6 +163,14 @@ export interface ResponsePreferences {
   'prefers_quick_answers' : boolean,
   'prefers_examples' : boolean,
 }
+export type ResponseStrategy = {
+    'InquiryFirst' : { 'question' : string, 'why_asking' : string }
+  } |
+  {
+    'PartialAnswer' : { 'known_info' : string, 'clarification_needed' : string }
+  } |
+  { 'ConfidentAnswer' : { 'sources' : Array<string>, 'confidence' : number } } |
+  { 'LearningOpportunity' : { 'suggestion' : string } };
 export type Result = { 'Ok' : UserDashboard } |
   { 'Err' : string };
 export type Result_1 = { 'Ok' : string } |
@@ -209,6 +249,10 @@ export interface WorkContext {
 export interface _SERVICE {
   'get_available_providers' : ActorMethod<[], Array<string>>,
   'get_canister_metrics' : ActorMethod<[], CanisterMetrics>,
+  'get_user_conversations' : ActorMethod<
+    [Principal],
+    Array<EnhancedChatMessage>
+  >,
   'get_user_dashboard' : ActorMethod<[Principal], Result>,
   'get_user_knowledge_graph' : ActorMethod<
     [Principal],

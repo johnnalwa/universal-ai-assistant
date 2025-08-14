@@ -196,12 +196,17 @@ const EnhancedChatInterface = ({
             )}
           </h2>
           <div className="header-controls">
-            <button className="header-btn settings-btn" onClick={() => setIsSettingsVisible(!isSettingsVisible)} title="Toggle Settings">
-              ⚙️
+            <button 
+              className={`header-btn settings-btn ${isSettingsVisible ? 'active' : ''}`} 
+              onClick={() => setIsSettingsVisible(!isSettingsVisible)} 
+              title="Toggle Settings"
+            >
+              <span className="btn-icon">⚙️</span>
+              <span className="btn-label">Settings</span>
             </button>
             <button className="header-btn clear-btn" onClick={handleClearChat} title="Clear chat">
-              <span>🗑️</span>
-              <span>Clear</span>
+              <span className="btn-icon">🗑️</span>
+              <span className="btn-label">Clear</span>
             </button>
           </div>
         </div>
@@ -209,59 +214,81 @@ const EnhancedChatInterface = ({
 
       {isSettingsVisible && (
         <div className="chat-settings">
-        <div className="settings-grid">
-          <div className="setting-group">
-            <label>AI Provider</label>
-            <select 
-              value={selectedProvider} 
-              onChange={(e) => setSelectedProvider(e.target.value)}
-              className="setting-select"
-            >
-              <option value="gemini">Google Gemini</option>
-              <option value="openai">OpenAI GPT</option>
-              <option value="claude">Anthropic Claude</option>
-            </select>
+          <div className="settings-header">
+            <h3 className="settings-title">
+              <span className="settings-icon">⚙️</span>
+              Chat Configuration
+            </h3>
           </div>
-
-          <div className="setting-group">
-            <label>Assistant Style</label>
-            <select 
-              value={assistantType} 
-              onChange={(e) => setAssistantType(e.target.value)}
-              className="setting-select"
-            >
-              <option value="casual">Casual</option>
-              <option value="professional">Professional</option>
-              <option value="creative">Creative</option>
-              <option value="technical">Technical</option>
-            </select>
-          </div>
-
-          <div className="setting-group">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={icpMode}
-                onChange={(e) => setIcpMode(e.target.checked)}
-              />
-              <span>ICP Mode</span>
-            </label>
-          </div>
-
-          {icpMode && (
+          <div className="settings-grid">
             <div className="setting-group">
+              <label className="setting-label">
+                <span className="label-icon">🤖</span>
+                AI Provider
+              </label>
+              <select 
+                value={selectedProvider} 
+                onChange={(e) => setSelectedProvider(e.target.value)}
+                className="setting-select"
+              >
+                <option value="gemini">🔮 Google Gemini</option>
+                <option value="openai">🧠 OpenAI GPT</option>
+                <option value="claude">🎭 Anthropic Claude</option>
+              </select>
+            </div>
+
+            <div className="setting-group">
+              <label className="setting-label">
+                <span className="label-icon">🎨</span>
+                Assistant Style
+              </label>
+              <select 
+                value={assistantType} 
+                onChange={(e) => setAssistantType(e.target.value)}
+                className="setting-select"
+              >
+                <option value="casual">😊 Casual</option>
+                <option value="professional">💼 Professional</option>
+                <option value="creative">🎨 Creative</option>
+                <option value="technical">🔧 Technical</option>
+              </select>
+            </div>
+
+            <div className="setting-group checkbox-group">
               <label className="checkbox-label">
                 <input
                   type="checkbox"
-                  checked={storeOnChain}
-                  onChange={(e) => setStoreOnChain(e.target.checked)}
+                  checked={icpMode}
+                  onChange={(e) => setIcpMode(e.target.checked)}
+                  className="setting-checkbox"
                 />
-                <span>Store on-chain</span>
+                <span className="checkbox-custom"></span>
+                <span className="checkbox-text">
+                  <span className="checkbox-icon">⚡</span>
+                  ICP Mode
+                </span>
               </label>
             </div>
-          )}
+
+            {icpMode && (
+              <div className="setting-group checkbox-group">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={storeOnChain}
+                    onChange={(e) => setStoreOnChain(e.target.checked)}
+                    className="setting-checkbox"
+                  />
+                  <span className="checkbox-custom"></span>
+                  <span className="checkbox-text">
+                    <span className="checkbox-icon">🔗</span>
+                    Store on-chain
+                  </span>
+                </label>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
       )}
 
       <div className="messages-container">
@@ -381,30 +408,46 @@ const EnhancedChatInterface = ({
               </button>
               {showInputOptions && (
                 <div className="input-options-menu">
-                  <button 
-                    className={`input-option-item ${isConfidential ? 'active' : ''}`}
-                    onClick={() => {
-                      setIsConfidential(!isConfidential);
-                      setShowInputOptions(false);
-                    }}
-                  >
-                    <span className="option-icon">🔒</span>
-                    <span>Confidential Mode</span>
-                  </button>
-                  <button 
-                    className="input-option-item"
-                    onClick={handleFileUpload}
-                  >
-                    <span className="option-icon">📎</span>
-                    <span>Attach File</span>
-                  </button>
-                  <button 
-                    className={`input-option-item boost ${isBoosted ? 'active' : ''}`}
-                    onClick={handleBoostToggle}
-                  >
-                    <span className="option-icon">⚡</span>
-                    <span>Boost Message {isBoosted ? '(Active)' : ''}</span>
-                  </button>
+                  <div className="options-header">
+                    <span className="options-title">Message Options</span>
+                  </div>
+                  <div className="options-grid">
+                    <button 
+                      className={`input-option-item ${isConfidential ? 'active' : ''}`}
+                      onClick={() => {
+                        setIsConfidential(!isConfidential);
+                        setShowInputOptions(false);
+                      }}
+                    >
+                      <span className="option-icon">🔒</span>
+                      <div className="option-content">
+                        <span className="option-title">Confidential</span>
+                        <span className="option-desc">Private conversation</span>
+                      </div>
+                      {isConfidential && <span className="option-status">✓</span>}
+                    </button>
+                    <button 
+                      className="input-option-item"
+                      onClick={handleFileUpload}
+                    >
+                      <span className="option-icon">📎</span>
+                      <div className="option-content">
+                        <span className="option-title">Attach File</span>
+                        <span className="option-desc">Upload document</span>
+                      </div>
+                    </button>
+                    <button 
+                      className={`input-option-item boost ${isBoosted ? 'active' : ''}`}
+                      onClick={handleBoostToggle}
+                    >
+                      <span className="option-icon">⚡</span>
+                      <div className="option-content">
+                        <span className="option-title">Boost Message</span>
+                        <span className="option-desc">{isBoosted ? 'Enhanced mode active' : 'Enhanced processing'}</span>
+                      </div>
+                      {isBoosted && <span className="option-status">✓</span>}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

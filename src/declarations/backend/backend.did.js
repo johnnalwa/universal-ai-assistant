@@ -8,6 +8,63 @@ export const idlFactory = ({ IDL }) => {
     'knowledge_nodes_created' : IDL.Nat64,
     'total_cycles_consumed' : IDL.Nat64,
   });
+  const Sentiment = IDL.Variant({
+    'Negative' : IDL.Null,
+    'Excited' : IDL.Null,
+    'Curious' : IDL.Null,
+    'Frustrated' : IDL.Null,
+    'Positive' : IDL.Null,
+    'Neutral' : IDL.Null,
+  });
+  const FactType = IDL.Variant({
+    'Goal' : IDL.Null,
+    'Knowledge' : IDL.Null,
+    'Experience' : IDL.Null,
+    'Preference' : IDL.Null,
+    'PersonalInfo' : IDL.Null,
+    'Relationship' : IDL.Null,
+  });
+  const ExtractedFact = IDL.Record({
+    'fact_type' : FactType,
+    'fact' : IDL.Text,
+    'confidence' : IDL.Float32,
+    'should_remember' : IDL.Bool,
+  });
+  const LearnedPreference = IDL.Record({
+    'preference' : IDL.Text,
+    'category' : IDL.Text,
+    'confidence' : IDL.Float32,
+  });
+  const ResponseStrategy = IDL.Variant({
+    'InquiryFirst' : IDL.Record({
+      'question' : IDL.Text,
+      'why_asking' : IDL.Text,
+    }),
+    'PartialAnswer' : IDL.Record({
+      'known_info' : IDL.Text,
+      'clarification_needed' : IDL.Text,
+    }),
+    'ConfidentAnswer' : IDL.Record({
+      'sources' : IDL.Vec(IDL.Text),
+      'confidence' : IDL.Float32,
+    }),
+    'LearningOpportunity' : IDL.Record({ 'suggestion' : IDL.Text }),
+  });
+  const EnhancedChatMessage = IDL.Record({
+    'ii_verified' : IDL.Opt(IDL.Bool),
+    'content' : IDL.Text,
+    'provider' : IDL.Text,
+    'context_thread_id' : IDL.Opt(IDL.Text),
+    'role' : IDL.Text,
+    'user_sentiment' : IDL.Opt(Sentiment),
+    'extracted_facts' : IDL.Vec(ExtractedFact),
+    'referenced_memories' : IDL.Vec(IDL.Text),
+    'learned_preferences' : IDL.Vec(LearnedPreference),
+    'timestamp' : IDL.Nat64,
+    'cycles_cost' : IDL.Opt(IDL.Nat64),
+    'response_strategy' : IDL.Opt(ResponseStrategy),
+    'content_stored_on_chain' : IDL.Opt(IDL.Bool),
+  });
   const SubscriptionTier = IDL.Variant({
     'Premium' : IDL.Record({
       'cycles_included' : IDL.Nat64,
@@ -62,14 +119,6 @@ export const idlFactory = ({ IDL }) => {
     'created_at' : IDL.Nat64,
     'relationship_type' : RelationshipType,
     'strength' : IDL.Float32,
-  });
-  const Sentiment = IDL.Variant({
-    'Negative' : IDL.Null,
-    'Excited' : IDL.Null,
-    'Curious' : IDL.Null,
-    'Frustrated' : IDL.Null,
-    'Positive' : IDL.Null,
-    'Neutral' : IDL.Null,
   });
   const TaskStatus = IDL.Variant({
     'Paused' : IDL.Null,
@@ -223,6 +272,11 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'get_available_providers' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'get_canister_metrics' : IDL.Func([], [CanisterMetrics], ['query']),
+    'get_user_conversations' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Vec(EnhancedChatMessage)],
+        ['query'],
+      ),
     'get_user_dashboard' : IDL.Func([IDL.Principal], [Result], ['query']),
     'get_user_knowledge_graph' : IDL.Func(
         [IDL.Principal],

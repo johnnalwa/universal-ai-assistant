@@ -30,6 +30,21 @@ type ConversationPatterns = record {
   time_patterns : vec nat32;
 };
 type DetailLevel = variant { Detailed; Comprehensive; Brief; Moderate };
+type EnhancedChatMessage = record {
+  ii_verified : opt bool;
+  content : text;
+  provider : text;
+  context_thread_id : opt text;
+  role : text;
+  user_sentiment : opt Sentiment;
+  extracted_facts : vec ExtractedFact;
+  referenced_memories : vec text;
+  learned_preferences : vec LearnedPreference;
+  timestamp : nat64;
+  cycles_cost : opt nat64;
+  response_strategy : opt ResponseStrategy;
+  content_stored_on_chain : opt bool;
+};
 type Entity = record { context : text; name : text; entity_type : EntityType };
 type EntityType = variant {
   Date;
@@ -39,6 +54,20 @@ type EntityType = variant {
   Location;
   Project;
   Other;
+};
+type ExtractedFact = record {
+  fact_type : FactType;
+  fact : text;
+  confidence : float32;
+  should_remember : bool;
+};
+type FactType = variant {
+  Goal;
+  Knowledge;
+  Experience;
+  Preference;
+  PersonalInfo;
+  Relationship;
 };
 type FormalityLevel = variant { VeryFormal; Formal; Verycasual; Casual };
 type ImportantEvent = record {
@@ -53,6 +82,11 @@ type KnowledgeEdge = record {
   created_at : nat64;
   relationship_type : RelationshipType;
   strength : float32;
+};
+type LearnedPreference = record {
+  preference : text;
+  category : text;
+  confidence : float32;
 };
 type LearningHistory = record {
   interaction_count : nat32;
@@ -119,6 +153,12 @@ type ResponsePreferences = record {
   prefers_detailed_explanations : bool;
   prefers_quick_answers : bool;
   prefers_examples : bool;
+};
+type ResponseStrategy = variant {
+  InquiryFirst : record { question : text; why_asking : text };
+  PartialAnswer : record { known_info : text; clarification_needed : text };
+  ConfidentAnswer : record { sources : vec text; confidence : float32 };
+  LearningOpportunity : record { suggestion : text };
 };
 type Result = variant { Ok : UserDashboard; Err : text };
 type Result_1 = variant { Ok : text; Err : text };
@@ -190,26 +230,14 @@ type WorkContext = record {
 service : {
   get_available_providers : () -> (vec text) query;
   get_canister_metrics : () -> (CanisterMetrics) query;
-  get_user_dashboard : (user : principal) -> (Result) query;
-  get_user_knowledge_graph : (user : principal) -> (
-      opt PersonalKnowledgeGraph,
-    ) query;
-  get_user_memories : (user : principal, limit : opt nat32) -> (
-      vec MemoryNode,
-    ) query;
-  greet : (name : text) -> (text) query;
-  icp_ai_prompt : (prompt_text : text, opt text, opt text, opt bool) -> (
-      Result_1,
-    );
-  memory_mind_prompt : (
-      prompt_text : text,
-      context_thread_id : opt text,
-      opt bool,
-    ) -> (Result_1);
-  prompt : (prompt_text : text) -> (Result_1);
-  set_api_key : (key : text) -> ();
-  update_user_profile : (
-      user : principal,
-      profile_update : UserProfileUpdate,
-    ) -> (Result_1);
+  get_user_conversations : (principal) -> (vec EnhancedChatMessage) query;
+  get_user_dashboard : (principal) -> (Result) query;
+  get_user_knowledge_graph : (principal) -> (opt PersonalKnowledgeGraph) query;
+  get_user_memories : (principal, opt nat32) -> (vec MemoryNode) query;
+  greet : (text) -> (text) query;
+  icp_ai_prompt : (text, opt text, opt text, opt bool) -> (Result_1);
+  memory_mind_prompt : (text, opt text, opt bool) -> (Result_1);
+  prompt : (text) -> (Result_1);
+  set_api_key : (text) -> ();
+  update_user_profile : (principal, UserProfileUpdate) -> (Result_1);
 }

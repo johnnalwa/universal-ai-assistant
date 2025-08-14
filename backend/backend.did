@@ -114,6 +114,7 @@ type RelationshipType = variant {
 };
 type ResponseLength = variant { Short; Long; Medium; Variable };
 type ResponsePreferences = record {
+  autopilot_enabled : bool;
   prefers_step_by_step : bool;
   prefers_detailed_explanations : bool;
   prefers_quick_answers : bool;
@@ -176,6 +177,7 @@ type UserProfile = record {
 type UserProfileUpdate = record {
   interests : opt vec text;
   name : opt text;
+  response_preferences : opt ResponsePreferences;
   goals : opt vec PersonalGoal;
 };
 type WorkContext = record {

@@ -15,8 +15,12 @@ const Sidebar = ({
   onMobileClose
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [userName, setUserName] = useState('');
+  const [autopilotEnabled, setAutopilotEnabled] = useState(false);
+  const [isUpdatingAutopilot, setIsUpdatingAutopilot] = useState(false);
   const [isAutopilotOn, setIsAutopilotOn] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [ckBTCBalance, setCkBTCBalance] = useState('0.0000');
+  const [isLoadingBalance, setIsLoadingBalance] = useState(false);
 
   useEffect(() => {
     if (userDashboard?.user_profile?.preferred_name) {
@@ -27,6 +31,65 @@ const Sidebar = ({
       setUserName(userPrincipal.substring(0, 8) + '...');
     }
   }, [userDashboard, userPrincipal]);
+
+  // Load autopilot setting from user profile
+  useEffect(() => {
+    if (userDashboard?.user_profile?.response_preferences?.autopilot_enabled) {
+      setAutopilotEnabled(true);
+    }
+  }, [userDashboard]);
+
+  // Load ckBTC balance
+  useEffect(() => {
+    const loadBalance = async () => {
+      if (!userPrincipal || isLoadingBalance) return;
+      
+      setIsLoadingBalance(true);
+      try {
+        // Simulate balance loading - in real implementation, this would call a ckBTC canister
+        const mockBalance = (Math.random() * 0.1).toFixed(4);
+        setCkBTCBalance(mockBalance);
+      } catch (error) {
+        console.error('Error loading ckBTC balance:', error);
+        setCkBTCBalance('0.0000');
+      } finally {
+        setIsLoadingBalance(false);
+      }
+    };
+
+    if (isAuthenticated && userPrincipal) {
+      loadBalance();
+    }
+  }, [userPrincipal, isAuthenticated, isLoadingBalance]);
+
+  const handleAutopilotToggle = async () => {
+    if (!userPrincipal || isUpdatingAutopilot) return;
+    
+    setIsUpdatingAutopilot(true);
+    try {
+      const newAutopilotState = !autopilotEnabled;
+      
+      // Update user profile with autopilot preference
+      const profileUpdate = {
+        response_preferences: {
+          autopilot_enabled: newAutopilotState
+        }
+      };
+      
+      const result = await backend.update_user_profile(userPrincipal, profileUpdate);
+      
+      if ('Ok' in result) {
+        setAutopilotEnabled(newAutopilotState);
+        console.log('Autopilot setting updated:', newAutopilotState);
+      } else {
+        console.error('Failed to update autopilot setting:', result.Err);
+      }
+    } catch (error) {
+      console.error('Error updating autopilot setting:', error);
+    } finally {
+      setIsUpdatingAutopilot(false);
+    }
+  };
 
   const handleNavigation = (view) => {
     setCurrentView(view);
@@ -88,10 +151,11 @@ const Sidebar = ({
             <label className="switch">
               <input 
                 type="checkbox" 
-                checked={isAutopilotOn} 
-                onChange={() => setIsAutopilotOn(!isAutopilotOn)} 
+                checked={autopilotEnabled} 
+                onChange={handleAutopilotToggle}
+                disabled={isUpdatingAutopilot}
               />
-              <span className="slider round"></span>
+              <span className={`slider round ${isUpdatingAutopilot ? 'updating' : ''}`}></span>
             </label>
           )}
         </div>
@@ -104,7 +168,9 @@ const Sidebar = ({
             {!isCollapsed && (
               <>
                 <span className="balance-label">ckBTC</span>
-                <span className="balance-amount">0.0000</span>
+                <span className="balance-amount">
+                  {isLoadingBalance ? '...' : ckBTCBalance}
+                </span>
               </>
             )}
           </div>

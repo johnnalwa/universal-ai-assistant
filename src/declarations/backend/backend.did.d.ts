@@ -125,6 +125,7 @@ export type ResponseLength = { 'Short' : null } |
   { 'Medium' : null } |
   { 'Variable' : null };
 export interface ResponsePreferences {
+  'autopilot_enabled' : boolean,
   'prefers_step_by_step' : boolean,
   'prefers_detailed_explanations' : boolean,
   'prefers_quick_answers' : boolean,
@@ -195,6 +196,7 @@ export interface UserProfile {
 export interface UserProfileUpdate {
   'interests' : [] | [Array<string>],
   'name' : [] | [string],
+  'response_preferences' : [] | [ResponsePreferences],
   'goals' : [] | [Array<PersonalGoal>],
 }
 export interface WorkContext {

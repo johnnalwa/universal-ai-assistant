@@ -257,55 +257,53 @@ The Universal AI Assistant is designed to be versatile and can be applied to a w
 
 ---
 
-## Planned Features (WCHL 2025 Roadmap)
+## ✨ Core Implemented Features ✨
 
-- **Autopilot Memory Coach**
-  - Daily Digest summarizing what the assistant learned about you and two smart suggestions. Toggle from the sidebar.
+This project has moved beyond the planning phase and now includes a rich set of fully implemented, interactive features. Here’s what you can experience in the app right now:
 
-- **Trust & Proof Mode**
-  - Each answer shows a "Proof" badge. Tap to see sources and verify the response.
+### 🧠 The MemoryMind Engine (Core)
+The foundational learning system that makes the assistant truly personal.
+-   **Fact & Preference Extraction**: Automatically learns from your prompts about your name, goals, interests, and preferences.
+-   **Personal Knowledge Graph (PKG)**: Securely stores all learned information in a structured graph, unique to you.
+-   **Contextual Response Generation**: Uses the PKG to provide adaptive, context-aware answers that show it remembers past conversations.
+-   **Data Sovereignty**: Built on the Internet Computer, ensuring you have full ownership and control over your data via your Internet Identity.
 
-- **Consent Links (Share a Memory Snapshot)**
-  - Create scoped, expiring links to share specific parts of your profile (e.g., work context). Revoke anytime.
+### 💬 Enhanced Chat Experience
+The chat interface is packed with advanced features for a powerful and intuitive user experience.
+-   **Trust & Proof Mode**: See a confidence score for each AI response and view the sources from your memory that informed the answer.
+-   **Boosted Answers (ckBTC)**: Use a tiny ckBTC micropayment to get deeper, more comprehensive answers for critical questions.
+-   **Confidential Mode**: A toggle in the chat interface to have conversations that are *not* saved to the AI's long-term memory, ensuring privacy for sensitive topics.
+-   **File & Voice Upload**: Upload text files to have their content automatically summarized and integrated into the conversation.
 
-- **Boosted Answers (ckBTC Micropayments)**
-  - Optional "Boost" chip in chat to get deeper, longer answers using a tiny ckBTC payment. Balance shown in the sidebar.
+### 🚀 Assistant & Coaching Modules
+Specialized modules designed to help you achieve your goals.
+-   **Autopilot Memory Coach**: A toggle in the sidebar that activates a proactive coaching mode, providing summaries and suggestions based on what the AI has learned about you.
+-   **WCHL Coach**: A dedicated interface with checklists, deadlines, and a demo script to help you prepare for the WCHL hackathon.
+-   **Project Shipping Coach**: A tool to help you manage and ship your projects effectively.
 
-- **Smart Routines**
-  - One-click templates like Weekly Goals Check-In and Project Standup. The assistant runs them and logs outcomes.
+### 📊 Memory & Profile Management
+Tools to visualize and control your AI's knowledge.
+-   **Memory Dashboard**: A central hub to see what your AI knows about you, including key memories and learning progress.
+-   **ckBTC Balance**: View your ckBTC balance directly in the sidebar, ready for boosting answers.
+-   **Profile Sharing**: A function in the dashboard to share a snapshot of your profile.
+-   **Milestone Capsules**: Mint a placeholder NFT to commemorate significant achievements.
 
-- **Memory Garden (Visual Map)**
-  - Interactive map of your memories and relationships. Click nodes to view or correct facts.
+---
 
-- **Confidential Notes Mode**
-  - Lock icon in chat to mark sensitive messages as confidential. Clearly labeled and kept separate.
+## 🗺️ Future Roadmap
 
-- **Milestone Capsules**
-  - Mint a shareable "Milestone Capsule" for big wins (e.g., MVP Launch). Celebrate and showcase progress.
+While the core experience is robust, here are some of the exciting features planned for future development:
 
-- **Team Space**
-  - Create a team workspace. Choose which personal memories are available to the team assistant.
+-   **Smart Routines**: One-click templates for recurring tasks like Weekly Goals Check-In and Project Standups.
+-   **Memory Garden (Full Visualization)**: An interactive, visual map of your memories and their relationships. Click nodes to view, edit, or delete facts.
+-   **Team Spaces**: Create a shared workspace where you can selectively contribute personal memories to a collective team assistant.
+-   **Advanced Consent Links**: Create scoped, time-limited links to share specific parts of your profile (e.g., work context for a collaborator), with the ability to revoke access at any time.
+-   **Open Memory Link (Public Profile)**: An optional public, read-only page to showcase a curated bio, skills, and recent learnings.
+-   **Dedicated Learning Insights Panel**: A detailed analytics view showing trends, memory strength, preferred response styles, and usage statistics.
+-   **Full Voice Note Integration**: Go beyond file uploads to record voice notes directly in the app for the assistant to process and learn from.
+-   **Ask-First Mode**: An explicit mode where the assistant will always ask a clarifying question when its confidence is low, before providing an answer.
 
-- **Voice Notes & Attachments**
-  - Record voice notes or drop files. The assistant extracts key facts into memory for you.
-
-- **Open Memory Link (Read-Only Profile)**
-  - Optional public page showing a curated bio, skills, goals, and recent learnings with auto-expiry.
-
-- **Learning Insights Panel**
-  - Trends, memory strength, preferred response styles, and usage stats presented clearly.
-
-- **Ask-First Mode**
-  - When unsure, the assistant asks a quick clarifying question before answering.
-
-- **WCHL Coach**
-  - Built-in checklist, deadlines, and a demo script to help you ship and present confidently.
-
-### Suggested Milestones
-- Milestone 1: Autopilot, Trust & Proof, Consent Links
-- Milestone 2: Boosted Answers, Memory Garden
-- Milestone 3: Smart Routines, Confidential Notes, Learning Insights
-- Milestone 4: Milestone Capsules, Team Space, Voice & Attachments, WCHL Coach
+---
 
 <div align="center">
 

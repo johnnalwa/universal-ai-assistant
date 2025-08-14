@@ -304,6 +304,7 @@ struct ResponsePreferences {
     prefers_step_by_step: bool,
     prefers_quick_answers: bool,
     prefers_detailed_explanations: bool,
+    autopilot_enabled: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone, CandidType)]
@@ -865,6 +866,9 @@ fn update_user_profile(user: Principal, profile_update: UserProfileUpdate) -> Re
             if let Some(interests) = profile_update.interests {
                 kg.user_profile.interests = interests;
             }
+            if let Some(response_prefs) = profile_update.response_preferences {
+                kg.user_profile.response_preferences = response_prefs;
+            }
             kg.last_updated = ic_cdk::api::time();
             Ok("Profile updated successfully".to_string())
         } else {
@@ -873,11 +877,30 @@ fn update_user_profile(user: Principal, profile_update: UserProfileUpdate) -> Re
     })
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(CandidType, Deserialize, Clone)]
 struct UserProfileUpdate {
     name: Option<String>,
     interests: Option<Vec<String>>,
     goals: Option<Vec<PersonalGoal>>,
+    response_preferences: Option<ResponsePreferences>,
+}
+
+// Function to retrieve user conversations
+#[ic_cdk::query]
+fn get_user_conversations(user: Principal) -> Vec<EnhancedChatMessage> {
+    let caller = ic_cdk::caller();
+    if caller != user && !ic_cdk::api::is_controller(&caller) {
+        return Vec::new();
+    }
+
+    STATE.with(|state| {
+        state
+            .borrow()
+            .conversations
+            .get(&user)
+            .cloned()
+            .unwrap_or_else(Vec::new)
+    })
 }
 
 // Enhanced dashboard with MemoryMind metrics

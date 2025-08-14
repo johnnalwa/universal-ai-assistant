@@ -5,10 +5,19 @@ import MobileMenuBar from './components/MobileMenuBar';
 import WelcomePage from './components/WelcomePage';
 import EnhancedChatInterface from './components/EnhancedChatInterface';
 import MemoryDashboard from './components/MemoryDashboard';
+import ProjectShippingCoach from './components/ProjectShippingCoach';
+import ConsentLinks from './components/ConsentLinks';
+import SmartRoutines from './components/SmartRoutines';
+import MilestoneCapsules from './components/MilestoneCapsules';
 
 const App = () => {
   // View state
-  const [currentView, setCurrentView] = useState('welcome'); // 'welcome', 'chat', 'memory'
+  const [currentView, setCurrentView] = useState('welcome'); // 'welcome', 'chat', 'memory', 'coach'
+  
+  // Modal states for new features
+  const [showConsentLinks, setShowConsentLinks] = useState(false);
+  const [showSmartRoutines, setShowSmartRoutines] = useState(false);
+  const [showMilestoneCapsules, setShowMilestoneCapsules] = useState(false);
   
   const [chat, setChat] = useState([
     {
@@ -68,6 +77,7 @@ const App = () => {
     if (userPrincipal) {
       loadUserKnowledgeGraph();
       loadUserDashboard();
+      loadUserConversations();
     }
   }, [userPrincipal]);
 
@@ -88,6 +98,32 @@ const App = () => {
       setUserKnowledgeGraph(knowledgeGraph);
     } catch (error) {
       console.log('Could not load knowledge graph:', error);
+    }
+  };
+
+    const loadUserConversations = async () => {
+    if (!userPrincipal) return;
+    try {
+      const conversations = await backend.get_user_conversations(userPrincipal);
+      if (conversations && conversations.length > 0) {
+        const formattedChat = conversations.map(msg => {
+          // The backend uses 'assistant' and 'user' roles.
+          // The frontend uses 'system' and 'user' keys.
+          const role = msg.role === 'assistant' ? 'system' : 'user';
+          return { [role]: { content: msg.content, provider: msg.provider || 'system' } };
+        });
+        setChat(formattedChat);
+      } else {
+        // Keep the initial welcome message for new users
+        setChat([{
+          system: { 
+            content: "🧠 Welcome to Universal AI Assistant! I'm your personal AI that learns and remembers everything about you. Unlike other AI assistants, I build a knowledge graph of your preferences, goals, and context, making our conversations more meaningful over time. What should I call you?",
+            provider: "system"
+          }
+        }]);
+      }
+    } catch (error) {
+      console.error('Failed to load conversations:', error);
     }
   };
 
@@ -245,11 +281,42 @@ const App = () => {
               userPrincipal={userPrincipal}
               userKnowledgeGraph={userKnowledgeGraph}
               userDashboard={userDashboard}
-              refreshData={loadInitialData}
+              onBackToChat={() => setCurrentView('chat')}
+              onBackToWelcome={() => setCurrentView('welcome')}
+              onRefresh={loadInitialData}
+              onOpenConsentLinks={() => setShowConsentLinks(true)}
+              onOpenSmartRoutines={() => setShowSmartRoutines(true)}
+              onOpenMilestoneCapsules={() => setShowMilestoneCapsules(true)}
+            />
+          )}
+          {currentView === 'coach' && (
+            <ProjectShippingCoach
+              userPrincipal={userPrincipal}
+              onBackToChat={() => setCurrentView('chat')}
+              onBackToWelcome={() => setCurrentView('welcome')}
             />
           )}
         </div>
       </main>
+
+      {/* Modal Components */}
+      <ConsentLinks
+        userPrincipal={userPrincipal}
+        isOpen={showConsentLinks}
+        onClose={() => setShowConsentLinks(false)}
+      />
+      
+      <SmartRoutines
+        userPrincipal={userPrincipal}
+        isOpen={showSmartRoutines}
+        onClose={() => setShowSmartRoutines(false)}
+      />
+      
+      <MilestoneCapsules
+        userPrincipal={userPrincipal}
+        isOpen={showMilestoneCapsules}
+        onClose={() => setShowMilestoneCapsules(false)}
+      />
     </div>
   );
 };

@@ -127,6 +127,7 @@ export const idlFactory = ({ IDL }) => {
     'access_count' : IDL.Nat32,
   });
   const ResponsePreferences = IDL.Record({
+    'autopilot_enabled' : IDL.Bool,
     'prefers_step_by_step' : IDL.Bool,
     'prefers_detailed_explanations' : IDL.Bool,
     'prefers_quick_answers' : IDL.Bool,
@@ -216,6 +217,7 @@ export const idlFactory = ({ IDL }) => {
   const UserProfileUpdate = IDL.Record({
     'interests' : IDL.Opt(IDL.Vec(IDL.Text)),
     'name' : IDL.Opt(IDL.Text),
+    'response_preferences' : IDL.Opt(ResponsePreferences),
     'goals' : IDL.Opt(IDL.Vec(PersonalGoal)),
   });
   return IDL.Service({

@@ -7,30 +7,96 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global Navy Blue Theme */
+/* Modern Red-Blue Theme with White Background */
 :root {
-  --navy-primary: #1e3a8a;
-  --navy-secondary: #1e40af;
-  --navy-light: #3b82f6;
-  --navy-lighter: #60a5fa;
-  --navy-dark: #1e293b;
-  --navy-darker: #0f172a;
-  --text-primary: #ffffff;
-  --text-secondary: #e2e8f0;
-  --text-muted: #94a3b8;
-  --border-color: rgba(59, 130, 246, 0.3);
-  --shadow-color: rgba(30, 58, 138, 0.3);
+  /* New Color Scheme */
+  --primary-red: #b92b27;
+  --primary-blue: #1565c0;
+  --main-gradient: linear-gradient(135deg, #b92b27, #1565c0);
+  
+  /* Background Colors */
+  --primary-bg: #ffffff;
+  --primary-bg-rgb: 255, 255, 255;
+  --secondary-bg: #f8fafc;
+  --secondary-bg-rgb: 248, 250, 252;
+  --tertiary-bg: #f1f5f9;
+  
+  /* Text Colors */
+  --text-color: #1e293b;
+  --text-color-secondary: #64748b;
+  --text-color-muted: #94a3b8;
+  
+  /* Accent Colors */
+  --accent-color: #1565c0;
+  --accent-color-rgb: 21, 101, 192;
+  --accent-color-dark: #0d47a1;
+  --accent-color-light: #42a5f5;
+  --accent-border-color: rgba(21, 101, 192, 0.3);
+  --accent-shadow: rgba(21, 101, 192, 0.4);
+  --accent-gradient: linear-gradient(135deg, #1565c0, #0d47a1);
+  --accent-gradient-hover: linear-gradient(135deg, #1976d2, #0d47a1);
+  
+  /* Border Colors */
+  --border-color: rgba(21, 101, 192, 0.2);
+  --border-color-light: rgba(0, 0, 0, 0.1);
+  --border-color-dark: rgba(0, 0, 0, 0.2);
+  
+  /* Shadow Colors */
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --shadow-color-light: rgba(21, 101, 192, 0.15);
+  
+  /* Glass Effects */
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-bg-light: rgba(255, 255, 255, 0.5);
+  --glass-bg-medium: rgba(255, 255, 255, 0.7);
+  
+  /* Gradients */
+  --secondary-gradient: linear-gradient(135deg, #b92b27, #1565c0);
+  --user-message-bg: linear-gradient(135deg, rgba(21, 101, 192, 0.1), rgba(66, 165, 245, 0.05));
+  --system-message-bg: linear-gradient(135deg, rgba(185, 43, 39, 0.1), rgba(21, 101, 192, 0.05));
+  
+  /* Status Colors */
+  --success-color: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.1);
+  --success-shadow: rgba(16, 185, 129, 0.2);
+  
+  --warning-color: #f59e0b;
+  --warning-color-hover: #fbbf24;
+  --warning-bg: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.05));
+  --warning-shadow: rgba(245, 158, 11, 0.2);
+  --warning-gradient: linear-gradient(90deg, #f59e0b, #fbbf24);
+  
+  --danger-color: #b92b27;
+  --danger-bg: rgba(185, 43, 39, 0.1);
+  --danger-shadow: rgba(185, 43, 39, 0.3);
+  --danger-gradient: linear-gradient(135deg, #b92b27, #d32f2f);
+
+  /* Legacy Variables for Sidebar */
+  --dark-navy: #ffffff;
+  --navy: #f8fafc;
+  --light-navy: #e2e8f0;
+  --lightest-navy: #cbd5e1;
+  --navy-shadow: rgba(0, 0, 0, 0.1);
+
+  --slate: #64748b;
+  --light-slate: #475569;
+  --lightest-slate: #334155;
+
+  --white: #1e293b;
+  --blue: #1565c0;
+  --blue-tint: rgba(21, 101, 192, 0.1);
+
+  --font-sans: 'Inter', -apple-system, system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, var(--navy-darker) 0%, var(--navy-dark) 50%, var(--navy-secondary) 100%);
-  color: var(--text-primary);
+  background: var(--primary-bg);
+  color: var(--text-color);
   overflow: hidden;
 }
 
@@ -44,37 +110,35 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(30, 41, 59, 0.3);
-  border-radius: 4px;
+  background: var(--dark-navy);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(59, 130, 246, 0.5);
+  background: var(--lightest-navy);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.7);
+  background: var(--light-navy);
 }
 
 /* Focus styles */
 *:focus {
-  outline: 2px solid var(--navy-light);
+  outline: 2px solid var(--blue);
   outline-offset: 2px;
 }
 
 /* Utility classes */
 .text-gradient {
-  background: linear-gradient(135deg, var(--navy-light), var(--navy-lighter));
+  background: linear-gradient(135deg, var(--blue), var(--lightest-slate));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .glass-effect {
-  background: rgba(30, 41, 59, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background-color: var(--blue-tint);
+  border: 1px solid var(--light-navy);
   border-radius: 1rem;
 }
 
@@ -205,7 +269,6 @@ body {
 /* Glass morphism effect */
 .glass {
   background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 

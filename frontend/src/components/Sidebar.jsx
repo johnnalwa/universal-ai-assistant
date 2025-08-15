@@ -93,9 +93,11 @@ const Sidebar = ({
 
   const handleNavigation = (view) => {
     setCurrentView(view);
-    // Close mobile sidebar when navigating
+    // Close mobile sidebar after a short delay to allow navigation to complete
     if (onMobileClose) {
-      onMobileClose();
+      setTimeout(() => {
+        onMobileClose();
+      }, 100);
     }
   };
 

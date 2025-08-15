@@ -1,7 +1,7 @@
 .wchl-coach-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #06b6d4 100%);
-  color: white;
+  background: var(--main-gradient);
+  color: var(--text-color);
   padding: 1rem;
 }
 
@@ -59,7 +59,7 @@
 /* Player Profile Section */
 .player-profile-section {
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  /* backdrop-filter: blur(10px); */ /* Removed blur effect */
   border-radius: 20px;
   padding: 2rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -96,7 +96,7 @@
   border-radius: 10px;
   border: none;
   background: rgba(255, 255, 255, 0.9);
-  color: #1e3a8a;
+  color: var(--accent-color);
   font-size: 1rem;
   cursor: pointer;
 }
@@ -104,7 +104,7 @@
 /* Stats Section */
 .stats-section {
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  /* backdrop-filter: blur(10px); */ /* Removed blur effect */
   border-radius: 20px;
   padding: 2rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -137,7 +137,7 @@
 }
 
 .stat-card.highlight {
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  background: var(--warning-gradient);
   color: white;
   font-weight: bold;
 }
@@ -171,12 +171,12 @@
 }
 
 .stat-btn.add {
-  background: #10b981;
+  background: var(--success-color);
   color: white;
 }
 
 .stat-btn.subtract {
-  background: #ef4444;
+  background: var(--danger-color);
   color: white;
 }
 
@@ -185,7 +185,7 @@
 }
 
 .reset-btn {
-  background: rgba(239, 68, 68, 0.8);
+  background: var(--danger-bg);
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -196,14 +196,14 @@
 }
 
 .reset-btn:hover {
-  background: rgba(239, 68, 68, 1);
+  background: var(--danger-color);
   transform: translateY(-2px);
 }
 
 /* Coaching Section */
 .coaching-section {
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  /* backdrop-filter: blur(10px); */ /* Removed blur effect */
   border-radius: 20px;
   padding: 2rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -216,7 +216,7 @@
 }
 
 .generate-tip-btn {
-  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  background: var(--accent-gradient);
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -229,7 +229,7 @@
 
 .generate-tip-btn:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 10px 20px var(--accent-shadow);
 }
 
 .generate-tip-btn:disabled {
@@ -241,14 +241,14 @@
   background: rgba(255, 255, 255, 0.15);
   border-radius: 15px;
   padding: 1.5rem;
-  border-left: 4px solid #fbbf24;
+  border-left: 4px solid var(--warning-color);
 }
 
 .tip-header {
   font-weight: bold;
   font-size: 1.1rem;
   margin-bottom: 1rem;
-  color: #fbbf24;
+  color: var(--warning-color);
 }
 
 .tip-content {
@@ -259,7 +259,7 @@
 /* Drills Section */
 .drills-section {
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  /* backdrop-filter: blur(10px); */ /* Removed blur effect */
   border-radius: 20px;
   padding: 2rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -294,7 +294,7 @@
   font-weight: bold;
   font-size: 1.1rem;
   margin-bottom: 0.75rem;
-  color: #fbbf24;
+  color: var(--warning-color);
 }
 
 .drill-description {

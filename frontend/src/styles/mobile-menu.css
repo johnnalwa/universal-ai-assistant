@@ -6,10 +6,10 @@
   left: 0;
   right: 0;
   height: 60px;
-  background: linear-gradient(90deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%);
-  border-bottom: 1px solid rgba(30, 58, 138, 0.3);
+  background: var(--secondary-gradient);
+  border-bottom: 1px solid var(--border-color);
   z-index: 1002;
-  box-shadow: 0 2px 20px rgba(30, 58, 138, 0.4);
+  box-shadow: 0 2px 20px var(--shadow-color-light);
 }
 
 .mobile-menu-content {
@@ -34,7 +34,7 @@
 }
 
 .hamburger-btn:hover {
-  background: rgba(59, 130, 246, 0.2);
+  background: var(--accent-border-color);
 }
 
 .hamburger-line {
@@ -69,8 +69,8 @@
 
 .title-icon {
   font-size: 1.25rem;
-  color: #60a5fa;
-  text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+  color: var(--accent-color-light);
+  text-shadow: 0 0 10px var(--accent-shadow);
 }
 
 .title-text {
@@ -90,14 +90,14 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  background: var(--accent-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-weight: 700;
   font-size: 0.875rem;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 2px 8px var(--accent-shadow);
 }
 
 .mobile-connect-indicator {
@@ -112,7 +112,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #ef4444;
+  background: var(--danger-color);
   animation: pulse 2s infinite;
 }
 
@@ -129,9 +129,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(var(--primary-bg-rgb), 0.5);
   z-index: 1001;
-  backdrop-filter: blur(4px);
+  /* backdrop-filter: blur(4px); */ /* Removed blur effect */
+  backdrop-filter: none !important;
+  filter: none !important;
 }
 
 .mobile-sidebar-overlay.active {

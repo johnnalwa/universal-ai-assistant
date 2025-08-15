@@ -260,7 +260,13 @@ const App = () => {
       
       <main className="main-content">
         <div className="content-wrapper">
-          {currentView === 'welcome' && <WelcomePage />}
+          {currentView === 'welcome' && 
+            <WelcomePage 
+              onConnect={handleConnect}
+              onGetStarted={handleGetStarted}
+              onViewMemory={handleViewMemory}
+            />
+          }
           {currentView === 'chat' && (
             <EnhancedChatInterface
               chat={chat}

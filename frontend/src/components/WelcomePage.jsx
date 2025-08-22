@@ -1,4 +1,5 @@
 import React from 'react';
+import { FiCpu, FiLink, FiMessageCircle, FiLock, FiBookOpen, FiHelpCircle, FiGlobe } from 'react-icons/fi';
 
 const WelcomePage = ({ 
   userPrincipal, 
@@ -22,7 +23,7 @@ const WelcomePage = ({
           {/* Main Hero Content */}
           <div className="mb-12">
             <div className="relative inline-block mb-8">
-              <span className="text-8xl md:text-9xl filter drop-shadow-2xl">🧠</span>
+              <FiCpu className="text-8xl md:text-9xl filter drop-shadow-2xl text-blue-500" />
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold text-gray-800 mb-6 leading-tight">
@@ -43,15 +44,15 @@ const WelcomePage = ({
             {/* Feature Pills */}
             <div className="flex flex-wrap justify-center gap-4 mb-16">
               <div className="flex items-center gap-3 bg-gray-100 px-6 py-3 rounded-full border border-gray-200 hover:bg-gray-200 transition-all duration-300">
-                <span className="text-2xl">🧠</span>
+                <FiCpu className="text-2xl text-blue-500" />
                 <span className="text-gray-800 font-medium">Permanent Memory</span>
               </div>
               <div className="flex items-center gap-3 bg-gray-100 px-6 py-3 rounded-full border border-gray-200 hover:bg-gray-200 transition-all duration-300">
-                <span className="text-2xl">🔗</span>
+                <FiLink className="text-2xl text-blue-500" />
                 <span className="text-gray-800 font-medium">Knowledge Graph</span>
               </div>
               <div className="flex items-center gap-3 bg-gray-100 px-6 py-3 rounded-full border border-gray-200 hover:bg-gray-200 transition-all duration-300">
-                <span className="text-2xl">🔐</span>
+                <FiLock className="text-2xl text-blue-500" />
                 <span className="text-gray-800 font-medium">You Own Your Data</span>
               </div>
             </div>
@@ -115,14 +116,14 @@ const WelcomePage = ({
                     onClick={() => onGetStarted()}
                     className="w-full bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
                   >
-                    <span className="text-2xl">💬</span>
+                    <FiMessageCircle className="text-2xl" />
                     Start Chatting
                   </button>
                   <button
                     onClick={() => onViewMemory()}
                     className="w-full bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
                   >
-                    <span className="text-2xl">🧠</span>
+                    <FiCpu className="text-2xl" />
                     View My Memory
                   </button>
                 </div>
@@ -153,51 +154,60 @@ const WelcomePage = ({
             )}
           </div>
         </div>
+      </div>
 
-        {/* Features Grid */}
+      {/* Features Section */}
+      <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">Why Choose Universal AI?</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Experience the next generation of AI assistants with permanent memory and true personalization
+          </p>
+        </div>
+        
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200">
-            <div className="text-3xl mb-3">🧠</div>
+          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+            <FiCpu className="text-3xl mb-3 text-blue-500" />
             <h3 className="text-lg font-semibold mb-2 text-gray-800">Personal Knowledge Graph</h3>
             <p className="text-gray-600 text-sm">
               I build a comprehensive map of your interests, goals, preferences, and context that grows with every conversation
             </p>
           </div>
           
-          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200">
-            <div className="text-3xl mb-3">🤔</div>
+          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+            <FiHelpCircle className="text-3xl mb-3 text-blue-500" />
             <h3 className="text-lg font-semibold mb-2 text-gray-800">Smart Inquiry System</h3>
             <p className="text-gray-600 text-sm">
               Instead of guessing, I ask clarifying questions to give you the most relevant and helpful responses
             </p>
           </div>
           
-          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200">
-            <div className="text-3xl mb-3">💭</div>
+          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+            <FiCpu className="text-3xl mb-3 text-blue-500" />
             <h3 className="text-lg font-semibold mb-2 text-gray-800">Contextual Memory</h3>
             <p className="text-gray-600 text-sm">
               I remember our previous conversations and reference them naturally, making each interaction more meaningful
             </p>
           </div>
           
-          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200">
-            <div className="text-3xl mb-3">🔗</div>
+          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+            <FiLink className="text-3xl mb-3 text-blue-500" />
             <h3 className="text-lg font-semibold mb-2 text-gray-800">Relationship Mapping</h3>
             <p className="text-gray-600 text-sm">
               I understand how different pieces of information connect, creating a rich web of knowledge about you
             </p>
           </div>
           
-          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200">
-            <div className="text-3xl mb-3">📚</div>
+          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+            <FiBookOpen className="text-3xl mb-3 text-blue-500" />
             <h3 className="text-lg font-semibold mb-2 text-gray-800">Continuous Learning</h3>
             <p className="text-gray-600 text-sm">
               Every interaction teaches me more about you, making future conversations more personalized and helpful
             </p>
           </div>
           
-          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200">
-            <div className="text-3xl mb-3">🌐</div>
+          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+            <FiGlobe className="text-3xl mb-3 text-blue-500" />
             <h3 className="text-lg font-semibold mb-2 text-gray-800">Decentralized & Yours</h3>
             <p className="text-gray-600 text-sm">
               Your personal AI brain runs on ICP blockchain - you own it, control it, and it can never be taken away
@@ -211,32 +221,32 @@ const WelcomePage = ({
             <>
               <button
                 onClick={onConnect}
-                className="bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white px-12 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-3"
+                className="bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white px-12 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-3 min-h-[56px]"
               >
-                <span className="text-xl">🧠</span>
+                <FiCpu className="text-xl" />
                 Start Building Your AI Brain
               </button>
               <button
                 onClick={onGetStarted}
-                className="bg-gray-100 text-gray-800 px-8 py-4 rounded-xl font-semibold text-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 border border-gray-200"
+                className="bg-gray-100 text-gray-800 px-8 py-4 rounded-xl font-semibold text-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 border border-gray-200 min-h-[56px]"
               >
                 Try Without Connecting
               </button>
             </>
           ) : (
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={onGetStarted}
-                className="bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white px-12 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-3"
+                className="bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white px-12 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3 min-h-[56px]"
               >
-                <span className="text-xl">💬</span>
+                <FiMessageCircle className="text-xl" />
                 Start Chatting
               </button>
               <button
                 onClick={onViewMemory}
-                className="bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white px-12 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-3"
+                className="bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white px-12 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3 min-h-[56px]"
               >
-                <span className="text-xl">🧠</span>
+                <FiCpu className="text-xl" />
                 View My Memory
               </button>
             </div>
@@ -244,7 +254,7 @@ const WelcomePage = ({
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-12 text-gray-500 text-sm">
+        <div className="text-center mt-16 text-gray-500 text-sm">
           <p>Built on Internet Computer Protocol • Powered by Personal Knowledge Graphs</p>
           <p className="mt-1">Your AI brain that grows with you, forever</p>
         </div>

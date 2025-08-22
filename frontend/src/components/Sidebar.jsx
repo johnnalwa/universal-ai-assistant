@@ -1,5 +1,5 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { FiHome, FiMessageCircle, FiCpu, FiUser, FiSettings, FiLogOut, FiDollarSign, FiZap } from 'react-icons/fi';
 import { backend } from 'declarations/backend';
 import '../styles/sidebar.css';
 
@@ -102,10 +102,10 @@ const Sidebar = ({
   };
 
   const navItems = [
-    { id: 'welcome', label: 'Welcome', icon: '🏠' },
-    { id: 'chat', label: 'Chat', icon: '💬' },
-    { id: 'memory', label: 'Memory', icon: '🧠' },
-    { id: 'coach', label: 'WCHL Coach', icon: '🏆' },
+    { id: 'welcome', label: 'Welcome', icon: FiHome },
+    { id: 'chat', label: 'Chat', icon: FiMessageCircle },
+    { id: 'memory', label: 'Memory', icon: FiCpu },
+    { id: 'coach', label: 'AI Coach', icon: FiUser },
   ];
 
   return (
@@ -139,7 +139,7 @@ const Sidebar = ({
             onClick={() => handleNavigation(item.id)}
             title={item.label}
           >
-            <span className="nav-icon">{item.icon}</span>
+            <item.icon className="nav-icon" size={20} />
             {!isCollapsed && <span className="nav-label">{item.label}</span>}
           </button>
         ))}
@@ -147,7 +147,7 @@ const Sidebar = ({
 
       <div className="sidebar-features">
         <div className="feature-item" title="Toggle Autopilot Memory Coach">
-          <span className="feature-icon">🚀</span>
+          <FiZap className="feature-icon" size={16} />
           {!isCollapsed && <span className="feature-label">Autopilot</span>}
           {!isCollapsed && (
             <label className="switch">
@@ -166,7 +166,7 @@ const Sidebar = ({
       <div className="sidebar-footer">
         {isAuthenticated && (
           <div className="sidebar-balance">
-            <span className="balance-icon">💰</span>
+            <FiDollarSign className="balance-icon" size={16} />
             {!isCollapsed && (
               <>
                 <span className="balance-label">ckBTC</span>
@@ -193,7 +193,7 @@ const Sidebar = ({
               onClick={onLogout}
               title="Logout"
             >
-              🚪
+              <FiLogOut className="logout-icon" size={16} />
             </button>
           </div>
         ) : (
@@ -202,7 +202,7 @@ const Sidebar = ({
             onClick={onLogin}
             disabled={!onLogin}
           >
-            <span className="nav-icon">🔓</span>
+            <FiUser className="user-icon" size={20} />
             {!isCollapsed && <span className="nav-label">Connect Wallet</span>}
           </button>
         )}

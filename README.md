@@ -118,18 +118,18 @@ PersonalKnowledgeGraph {
 ```
 
 **Core Components:**
-- 🧠 **Personal Knowledge Canister**: Your AI brain stored on ICP
-- 🔗 **Memory Graph Storage**: Interconnected knowledge nodes
-- 🤖 **AI Processing Engine**: Contextual response generation
-- 🔐 **Internet Identity**: Passwordless, secure authentication
-- 📊 **Learning Analytics**: Continuous improvement tracking
+- **Personal Knowledge Canister**: Your AI brain stored on ICP
+- **Memory Graph Storage**: Interconnected knowledge nodes
+- **AI Processing Engine**: Contextual response generation
+- **Internet Identity**: Passwordless, secure authentication
+- **Learning Analytics**: Continuous improvement tracking
 
 ### Frontend Experience (React)
-- 💬 **Intelligent Chat Interface**: Context-aware conversations
-- 📊 **Memory Dashboard**: Visualize your AI's knowledge about you
-- 🎯 **Profile Management**: Control what your AI learns
-- 📈 **Learning Progress**: Track AI evolution over time
-- 🔒 **Privacy Controls**: Manage data access and sharing
+-  **Intelligent Chat Interface**: Context-aware conversations
+-  **Memory Dashboard**: Visualize your AI's knowledge about you
+-  **Profile Management**: Control what your AI learns
+-  **Learning Progress**: Track AI evolution over time
+-  **Privacy Controls**: Manage data access and sharing
 
 ---
 

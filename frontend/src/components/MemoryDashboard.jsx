@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { backend } from 'declarations/backend';
+import { FiFileText, FiHeart, FiTarget, FiUsers, FiStar, FiBook, FiLink, FiFile, FiZap, FiArrowLeft, FiHome, FiGitBranch, FiGlobe, FiAward, FiBox, FiSettings, FiCpu } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
 
 const MemoryDashboard = ({
@@ -29,16 +31,17 @@ const MemoryDashboard = ({
   };
 
   const getMemoryTypeIcon = (type) => {
-    const icons = {
-      Fact: '📝',
-      Preference: '❤️',
-      Goal: '🎯',
-      Relationship: '👥',
-      Experience: '✨',
-      Knowledge: '📚',
-      Context: '🔗'
+    const iconComponents = {
+      Fact: FiFileText,
+      Preference: FiHeart,
+      Goal: FiTarget,
+      Relationship: FiUsers,
+      Experience: FiStar,
+      Knowledge: FiBook,
+      Context: FiLink
     };
-    return icons[type] || '📄';
+    const IconComponent = iconComponents[type] || FiFile;
+    return <IconComponent className="text-blue-500" size={16} />;
   };
 
   const getMemoryTypeColor = (type) => {
@@ -56,7 +59,7 @@ const MemoryDashboard = ({
 
   const filteredMemories = selectedMemoryType === 'all' 
     ? memories 
-    : memories.filter(memory => memory.node_type === selectedMemoryType);
+    : memories.filter(memory => memory && memory.node_type === selectedMemoryType);
 
   const handleMemoryGarden = async () => {
     setIsLoadingAction(true);
@@ -224,7 +227,7 @@ const MemoryDashboard = ({
           <h2 className="text-xl font-semibold text-gray-800 mb-6">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <ActionButton 
-              icon="🌳" 
+              icon={<FiGitBranch className="text-blue-500" size={20} />} 
               title="Memory Garden" 
               subtitle="Visualize connections" 
               onClick={handleMemoryGarden} 
@@ -233,7 +236,7 @@ const MemoryDashboard = ({
               colorClass="bg-gradient-to-br from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600" 
             />
             <ActionButton 
-              icon="💡" 
+              icon={<FiZap className="text-blue-500" size={20} />} 
               title="Learning Insights" 
               subtitle="Track your progress" 
               onClick={handleLearningInsights} 
@@ -242,27 +245,26 @@ const MemoryDashboard = ({
               colorClass="bg-gradient-to-br from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600" 
             />
             <ActionButton 
-              icon="🌐" 
+              icon={<FiGlobe className="text-blue-500" size={20} />} 
               title="Share Profile" 
-              subtitle="Public knowledge link" 
+              subtitle="Export your data" 
               onClick={handleShareProfile} 
               disabled={isLoadingAction} 
               isActive={activeAction === 'share'} 
               colorClass="bg-gradient-to-br from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600" 
             />
             <ActionButton 
-              icon="💎" 
-              title="Mint Milestone" 
-              subtitle="Create an NFT" 
-              onClick={handleMintMilestone} 
+              icon={<FiAward className="text-blue-500" size={20} />} 
+              title="Mint Milestone NFT" 
+              subtitle="Celebrate achievements" 
+              onClick={handleMintNFT} 
               disabled={isLoadingAction} 
-              isActive={activeAction === 'mint'} 
+              isActive={activeAction === 'nft'} 
               colorClass="bg-gradient-to-br from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600" 
             />
           </div>
         </div>
 
-        {/* Secondary Tools */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">Tools & Utilities</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -270,28 +272,28 @@ const MemoryDashboard = ({
               onClick={onOpenSmartRoutines}
               className="flex flex-col items-center p-4 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 border border-gray-200 hover:border-gray-300"
             >
-              <span className="text-2xl mb-2">🤖</span>
+              <FiUsers className="text-2xl mb-2 text-blue-500" />
               <span className="text-sm font-medium text-gray-700">Smart Routines</span>
             </button>
             <button
               onClick={onOpenMilestoneCapsules}
               className="flex flex-col items-center p-4 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 border border-gray-200 hover:border-gray-300"
             >
-              <span className="text-2xl mb-2">📦</span>
+              <FiBox className="text-2xl mb-2 text-blue-500" />
               <span className="text-sm font-medium text-gray-700">Milestone Capsules</span>
             </button>
             <button
               onClick={onOpenConsentLinks}
               className="flex flex-col items-center p-4 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 border border-gray-200 hover:border-gray-300"
             >
-              <span className="text-2xl mb-2">🔗</span>
+              <FiLink className="text-2xl mb-2 text-blue-500" />
               <span className="text-sm font-medium text-gray-700">Consent Links</span>
             </button>
             <button
               onClick={onRefresh}
               className="flex flex-col items-center p-4 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 border border-gray-200 hover:border-gray-300"
             >
-              <span className="text-2xl mb-2">🔄</span>
+              <FiSettings className="text-2xl mb-2 text-blue-500" />
               <span className="text-sm font-medium text-gray-700">Refresh Data</span>
             </button>
           </div>
@@ -365,7 +367,9 @@ const MemoryDashboard = ({
         <div>
           {filteredMemories.length > 0 ? (
             <div className="grid gap-5">
-              {filteredMemories.map((memory, index) => (
+              {filteredMemories.map((memory, index) => {
+                if (!memory || !memory.node_type) return null;
+                return (
                 <div
                   key={memory.id || index}
                   className={`${getMemoryTypeColor(memory.node_type)} rounded-2xl p-5 shadow-sm border transition-all duration-300 hover:shadow-lg hover:border-purple-300`}
@@ -419,7 +423,8 @@ const MemoryDashboard = ({
                     )}
                   </div>
                 </div>
-              ))}
+                );
+              }).filter(Boolean)}
             </div>
           ) : (
             <div className="text-center py-16">

@@ -71,7 +71,7 @@
   --danger-shadow: rgba(185, 43, 39, 0.3);
   --danger-gradient: linear-gradient(135deg, #b92b27, #d32f2f);
 
-  /* Legacy Variables for Sidebar */
+  /* Consistent Variables */
   --dark-navy: #ffffff;
   --navy: #f8fafc;
   --light-navy: #e2e8f0;
@@ -79,10 +79,10 @@
   --navy-shadow: rgba(0, 0, 0, 0.1);
 
   --slate: #64748b;
-  --light-slate: #475569;
-  --lightest-slate: #334155;
+  --light-slate: #64748b;
+  --lightest-slate: #475569;
 
-  --white: #1e293b;
+  --white: #ffffff;
   --blue: #1565c0;
   --blue-tint: rgba(21, 101, 192, 0.1);
 
@@ -97,7 +97,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: var(--primary-bg);
   color: var(--text-color);
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 * {
@@ -110,16 +110,17 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--dark-navy);
+  background: var(--secondary-bg);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--lightest-navy);
+  background: rgba(var(--accent-color-rgb), 0.3);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--light-navy);
+  background: rgba(var(--accent-color-rgb), 0.5);
 }
 
 /* Focus styles */

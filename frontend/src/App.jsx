@@ -5,7 +5,7 @@ import MobileMenuBar from './components/MobileMenuBar';
 import WelcomePage from './components/WelcomePage';
 import EnhancedChatInterface from './components/EnhancedChatInterface';
 import MemoryDashboard from './components/MemoryDashboard';
-import ProjectShippingCoach from './components/ProjectShippingCoach';
+import AIProjectCoach from './components/AIProjectCoach';
 import ConsentLinks from './components/ConsentLinks';
 import SmartRoutines from './components/SmartRoutines';
 import MilestoneCapsules from './components/MilestoneCapsules';
@@ -296,7 +296,7 @@ const App = () => {
             />
           )}
           {currentView === 'coach' && (
-            <ProjectShippingCoach
+            <AIProjectCoach
               userPrincipal={userPrincipal}
               onBackToChat={() => setCurrentView('chat')}
               onBackToWelcome={() => setCurrentView('welcome')}

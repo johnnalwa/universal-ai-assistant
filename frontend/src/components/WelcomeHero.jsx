@@ -7,9 +7,9 @@ const WelcomeHero = ({ onGetStarted }) => {
         <div className="text-center">
           {/* Main Hero Content */}
           <div className="animate-fadeIn">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-              Universal AI Assistant
-            </h1>
+            <div className="flex items-center justify-center mb-8">
+              <img src="/logo.svg" alt="Universal AI Assistant" className="h-32 md:h-40" />
+            </div>
             <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto">
               Your intelligent companion powered by the Internet Computer blockchain. 
               Experience AI with true decentralization, privacy, and ownership.
@@ -53,7 +53,7 @@ const WelcomeHero = ({ onGetStarted }) => {
           <div className="animate-fadeIn">
             <button
               onClick={onGetStarted}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
+              className="bg-gradient-to-r from-red-500 to-blue-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-red-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
             >
               Get Started Now
             </button>

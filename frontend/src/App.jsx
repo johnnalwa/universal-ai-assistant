@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { backend } from 'declarations/backend';
+import TopNavbar from './components/TopNavbar';
 import Sidebar from './components/Sidebar';
 import MobileMenuBar from './components/MobileMenuBar';
 import WelcomePage from './components/WelcomePage';
@@ -236,14 +237,25 @@ const App = () => {
   };
 
   return (
-    <div className="app-container">
-      <MobileMenuBar
-        isSidebarOpen={isMobileSidebarOpen}
-        toggleSidebar={toggleMobileSidebar}
-        currentView={currentView}
+    <div className="app">
+      <TopNavbar
         userPrincipal={userPrincipal}
         userDashboard={userDashboard}
         isAuthenticated={isAuthenticated}
+        onLogin={handleConnect}
+        onLogout={handleDisconnect}
+        onMobileMenuToggle={toggleMobileSidebar}
+      />
+      
+      <MobileMenuBar 
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        isOpen={isMobileSidebarOpen}
+        onClose={closeMobileSidebar}
+        userPrincipal={userPrincipal}
+        isAuthenticated={isAuthenticated}
+        onLogin={handleConnect}
+        onLogout={handleDisconnect}
       />
       
       <Sidebar
@@ -252,8 +264,8 @@ const App = () => {
         userPrincipal={userPrincipal}
         userDashboard={userDashboard}
         isAuthenticated={isAuthenticated}
-        onLogin={handleLogin}
-        onLogout={handleLogout}
+        onLogin={handleConnect}
+        onLogout={handleDisconnect}
         isMobileOpen={isMobileSidebarOpen}
         onMobileClose={closeMobileSidebar}
       />

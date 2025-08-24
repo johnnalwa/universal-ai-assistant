@@ -1,5 +1,6 @@
 import React from 'react';
 import { FiCpu, FiLink, FiMessageCircle, FiLock, FiBookOpen, FiHelpCircle, FiGlobe } from 'react-icons/fi';
+import '../styles/animations.css';
 
 const WelcomePage = ({ 
   userPrincipal, 
@@ -16,136 +17,117 @@ const WelcomePage = ({
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-800">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="relative z-10 max-w-6xl mx-auto px-6 py-24 text-center">
-          {/* Main Hero Content */}
-          <div className="mb-12">
-            <div className="relative inline-block mb-8">
-              <FiCpu className="text-8xl md:text-9xl filter drop-shadow-2xl text-blue-500" />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 text-gray-800 overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-10 left-10 w-20 h-20 bg-red-200 rounded-full opacity-20 animate-pulse"></div>
+        <div className="absolute top-32 right-20 w-16 h-16 bg-blue-200 rounded-full opacity-30 animate-bounce" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-purple-200 rounded-full opacity-25 animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-40 right-1/3 w-8 h-8 bg-red-300 rounded-full opacity-20 animate-bounce" style={{animationDelay: '0.5s'}}></div>
+      </div>
+
+      {/* Full Width Logo Section */}
+      <div className="relative z-10 w-full">
+        <div className="w-full px-6 py-8 text-center">
+          {/* Full Width Logo */}
+          <div className="mb-8 animate-fade-in">
+            <div className="w-full max-w-4xl mx-auto transform hover:scale-105 transition-transform duration-500">
+              <img src="/logo.svg" alt="Universal AI Assistant" className="w-full h-auto max-h-32 md:max-h-40 filter drop-shadow-2xl animate-float" />
             </div>
-            
-            <h1 className="text-5xl md:text-7xl font-bold text-gray-800 mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-red-500 to-blue-500 bg-clip-text text-transparent">
-                Universal AI Assistant
-              </span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-gray-600 mb-6 font-medium">
+          </div>
+        </div>
+      </div>
+
+      {/* Content Section */}
+      <div className="relative z-10">
+        <div className="max-w-5xl mx-auto px-6 py-8 text-center">
+          {/* Main Content */}
+          <div className="mb-12 animate-slide-up" style={{animationDelay: '0.2s'}}>
+            <p className="text-lg md:text-xl text-gray-600 mb-8 font-medium">
               Your Personal AI That Remembers Everything
             </p>
             
-            <p className="text-lg text-gray-500 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Built on Internet Computer Protocol with permanent memory and knowledge graphs.
-              Your conversations, insights, and personal data stay with you forever.
-            </p>
-            
             {/* Feature Pills */}
-            <div className="flex flex-wrap justify-center gap-4 mb-16">
-              <div className="flex items-center gap-3 bg-gray-100 px-6 py-3 rounded-full border border-gray-200 hover:bg-gray-200 transition-all duration-300">
-                <FiCpu className="text-2xl text-blue-500" />
-                <span className="text-gray-800 font-medium">Permanent Memory</span>
+            <div className="flex flex-wrap justify-center gap-3 mb-12 animate-slide-up" style={{animationDelay: '0.4s'}}>
+              <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-200 hover:bg-white hover:shadow-md transition-all duration-300 transform hover:scale-105">
+                <FiCpu className="text-lg text-red-500" />
+                <span className="text-gray-800 font-medium text-sm">Permanent Memory</span>
               </div>
-              <div className="flex items-center gap-3 bg-gray-100 px-6 py-3 rounded-full border border-gray-200 hover:bg-gray-200 transition-all duration-300">
-                <FiLink className="text-2xl text-blue-500" />
-                <span className="text-gray-800 font-medium">Knowledge Graph</span>
+              <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-200 hover:bg-white hover:shadow-md transition-all duration-300 transform hover:scale-105">
+                <FiLink className="text-lg text-blue-500" />
+                <span className="text-gray-800 font-medium text-sm">Knowledge Graph</span>
               </div>
-              <div className="flex items-center gap-3 bg-gray-100 px-6 py-3 rounded-full border border-gray-200 hover:bg-gray-200 transition-all duration-300">
-                <FiLock className="text-2xl text-blue-500" />
-                <span className="text-gray-800 font-medium">You Own Your Data</span>
+              <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-200 hover:bg-white hover:shadow-md transition-all duration-300 transform hover:scale-105">
+                <FiLock className="text-lg text-purple-500" />
+                <span className="text-gray-800 font-medium text-sm">You Own Your Data</span>
               </div>
             </div>
           </div>
           
           {/* Connection Section */}
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-md mx-auto animate-slide-up" style={{animationDelay: '0.6s'}}>
             {userPrincipal ? (
-              <div className="bg-gray-100 rounded-3xl p-8 border border-gray-200 shadow-lg">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-gray-800 font-semibold text-lg">Connected to ICP</span>
-                  </div>
-                  <button 
-                    onClick={onDisconnect}
-                    className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-colors border border-red-300 text-sm"
-                  >
-                    Disconnect
-                  </button>
-                </div>
-                
-                <div className="text-center mb-6">
-                  <div className="text-gray-600 text-sm font-mono bg-gray-200 rounded-lg py-2 px-4">
-                    {userPrincipal.slice(0, 12)}...{userPrincipal.slice(-8)}
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 shadow-xl hover:shadow-2xl transition-all duration-300">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-gray-800 font-semibold">Connected</span>
                   </div>
                 </div>
                 
                 {/* User Stats */}
                 {userDashboard && (
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-white rounded-xl p-4 text-center border border-gray-200">
-                      <div className="text-3xl font-bold text-gray-800">
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-3 text-center border border-red-200">
+                      <div className="text-xl font-bold text-red-600">
                         {formatNumber(userDashboard.total_memories || 0)}
                       </div>
-                      <div className="text-gray-500 text-sm">Memory Nodes</div>
+                      <div className="text-red-700 text-xs">Memories</div>
                     </div>
-                    <div className="bg-white rounded-xl p-4 text-center border border-gray-200">
-                      <div className="text-3xl font-bold text-gray-800">
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-3 text-center border border-blue-200">
+                      <div className="text-xl font-bold text-blue-600">
                         {Math.round((userDashboard.memory_strength || 0) * 100)}%
                       </div>
-                      <div className="text-gray-500 text-sm">Memory Strength</div>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 text-center border border-gray-200">
-                      <div className="text-3xl font-bold text-gray-800">
-                        {userDashboard.total_conversations || 0}
-                      </div>
-                      <div className="text-gray-500 text-sm">Conversations</div>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 text-center border border-gray-200">
-                      <div className="text-3xl font-bold text-gray-800">
-                        {Math.round((userDashboard.profile_completeness || 0) * 100)}%
-                      </div>
-                      <div className="text-gray-500 text-sm">Profile Complete</div>
+                      <div className="text-blue-700 text-xs">Strength</div>
                     </div>
                   </div>
                 )}
                 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <button
                     onClick={() => onGetStarted()}
-                    className="w-full bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
+                    className="w-full bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white py-3 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
                   >
-                    <FiMessageCircle className="text-2xl" />
+                    <FiMessageCircle className="text-lg" />
                     Start Chatting
                   </button>
                   <button
                     onClick={() => onViewMemory()}
-                    className="w-full bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
+                    className="w-full bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-800 py-3 px-6 rounded-xl font-semibold hover:shadow-md transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
                   >
-                    <FiCpu className="text-2xl" />
-                    View My Memory
+                    <FiCpu className="text-lg" />
+                    View Memory
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="bg-gray-100 rounded-3xl p-10 border border-gray-200 shadow-lg text-center">
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 border border-gray-200 shadow-xl hover:shadow-2xl transition-all duration-300 text-center">
                 <div className="mb-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clipRule="evenodd"/>
                     </svg>
                   </div>
-                  <h3 className="text-3xl font-bold text-gray-800 mb-4">Connect Your Identity</h3>
-                  <p className="text-gray-600 text-lg mb-8 leading-relaxed">
-                    Connect with Internet Identity to start building your personal AI knowledge graph and unlock the full potential of decentralized AI.
+                  <h3 className="text-2xl font-bold text-gray-800 mb-3">Connect Your Identity</h3>
+                  <p className="text-gray-600 mb-6">
+                    Start building your personal AI knowledge graph
                   </p>
                 </div>
                 <button
                   onClick={onConnect}
-                  className="bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white px-10 py-5 rounded-xl font-bold text-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3 mx-auto"
+                  className="bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 mx-auto"
                 >
-                  <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clipRule="evenodd"/>
                   </svg>
                   Connect to ICP
@@ -156,107 +138,37 @@ const WelcomePage = ({
         </div>
       </div>
 
-      {/* Features Section */}
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">Why Choose Universal AI?</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Experience the next generation of AI assistants with permanent memory and true personalization
-          </p>
-        </div>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
-            <FiCpu className="text-3xl mb-3 text-blue-500" />
-            <h3 className="text-lg font-semibold mb-2 text-gray-800">Personal Knowledge Graph</h3>
-            <p className="text-gray-600 text-sm">
-              I build a comprehensive map of your interests, goals, preferences, and context that grows with every conversation
+      {/* Simplified Features Section */}
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        <div className="grid md:grid-cols-3 gap-4 animate-slide-up" style={{animationDelay: '0.8s'}}>
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-md border border-gray-200 hover:shadow-lg hover:bg-white transition-all duration-300 transform hover:scale-105">
+            <FiCpu className="text-2xl mb-2 text-red-500" />
+            <h3 className="font-semibold mb-1 text-gray-800">Personal Memory</h3>
+            <p className="text-gray-600 text-xs">
+              Builds knowledge about you with every conversation
             </p>
           </div>
           
-          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
-            <FiHelpCircle className="text-3xl mb-3 text-blue-500" />
-            <h3 className="text-lg font-semibold mb-2 text-gray-800">Smart Inquiry System</h3>
-            <p className="text-gray-600 text-sm">
-              Instead of guessing, I ask clarifying questions to give you the most relevant and helpful responses
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-md border border-gray-200 hover:shadow-lg hover:bg-white transition-all duration-300 transform hover:scale-105">
+            <FiLink className="text-2xl mb-2 text-blue-500" />
+            <h3 className="font-semibold mb-1 text-gray-800">Smart Connections</h3>
+            <p className="text-gray-600 text-xs">
+              Links information to provide contextual responses
             </p>
           </div>
           
-          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
-            <FiCpu className="text-3xl mb-3 text-blue-500" />
-            <h3 className="text-lg font-semibold mb-2 text-gray-800">Contextual Memory</h3>
-            <p className="text-gray-600 text-sm">
-              I remember our previous conversations and reference them naturally, making each interaction more meaningful
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-md border border-gray-200 hover:shadow-lg hover:bg-white transition-all duration-300 transform hover:scale-105">
+            <FiGlobe className="text-2xl mb-2 text-purple-500" />
+            <h3 className="font-semibold mb-1 text-gray-800">Decentralized</h3>
+            <p className="text-gray-600 text-xs">
+              Your AI runs on blockchain - you own and control it
             </p>
           </div>
-          
-          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
-            <FiLink className="text-3xl mb-3 text-blue-500" />
-            <h3 className="text-lg font-semibold mb-2 text-gray-800">Relationship Mapping</h3>
-            <p className="text-gray-600 text-sm">
-              I understand how different pieces of information connect, creating a rich web of knowledge about you
-            </p>
-          </div>
-          
-          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
-            <FiBookOpen className="text-3xl mb-3 text-blue-500" />
-            <h3 className="text-lg font-semibold mb-2 text-gray-800">Continuous Learning</h3>
-            <p className="text-gray-600 text-sm">
-              Every interaction teaches me more about you, making future conversations more personalized and helpful
-            </p>
-          </div>
-          
-          <div className="bg-gray-100 rounded-2xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
-            <FiGlobe className="text-3xl mb-3 text-blue-500" />
-            <h3 className="text-lg font-semibold mb-2 text-gray-800">Decentralized & Yours</h3>
-            <p className="text-gray-600 text-sm">
-              Your personal AI brain runs on ICP blockchain - you own it, control it, and it can never be taken away
-            </p>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          {!userPrincipal ? (
-            <>
-              <button
-                onClick={onConnect}
-                className="bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white px-12 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-3 min-h-[56px]"
-              >
-                <FiCpu className="text-xl" />
-                Start Building Your AI Brain
-              </button>
-              <button
-                onClick={onGetStarted}
-                className="bg-gray-100 text-gray-800 px-8 py-4 rounded-xl font-semibold text-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 border border-gray-200 min-h-[56px]"
-              >
-                Try Without Connecting
-              </button>
-            </>
-          ) : (
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                onClick={onGetStarted}
-                className="bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white px-12 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3 min-h-[56px]"
-              >
-                <FiMessageCircle className="text-xl" />
-                Start Chatting
-              </button>
-              <button
-                onClick={onViewMemory}
-                className="bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white px-12 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3 min-h-[56px]"
-              >
-                <FiCpu className="text-xl" />
-                View My Memory
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-16 text-gray-500 text-sm">
-          <p>Built on Internet Computer Protocol • Powered by Personal Knowledge Graphs</p>
-          <p className="mt-1">Your AI brain that grows with you, forever</p>
+        <div className="text-center mt-12 text-gray-400 text-xs animate-fade-in" style={{animationDelay: '1s'}}>
+          <p>Built on Internet Computer Protocol</p>
         </div>
       </div>
     </div>

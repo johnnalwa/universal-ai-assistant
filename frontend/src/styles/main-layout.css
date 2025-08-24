@@ -25,6 +25,7 @@ body {
 .main-content {
   flex: 1;
   margin-left: 280px;
+  margin-top: 64px; /* Account for fixed top navbar */
   display: flex;
   flex-direction: column;
   overflow-y: auto; /* Allow vertical scrolling */
@@ -57,7 +58,8 @@ body {
   
   .main-content {
     margin-left: 0;
-    padding-top: 60px;
+    margin-top: 64px; /* Account for fixed top navbar on mobile */
+    padding-top: 0;
   }
   
   .sidebar {

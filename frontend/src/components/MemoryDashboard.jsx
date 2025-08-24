@@ -264,62 +264,67 @@ const MemoryDashboard = ({
     <div className="min-h-full bg-white p-3">
       <Toaster position="top-right" />
       
-      {/* Simplified Header */}
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">My AI Memory</h1>
-          <p className="text-sm text-gray-500">What I've learned about you</p>
+      {/* Dashboard Header with Logo */}
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-4">
+          <img src="/logo-icon.svg" alt="Universal AI Assistant" className="w-10 h-10" />
+          <div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-red-500 to-blue-600 bg-clip-text text-transparent">
+              My AI Memory
+            </h1>
+            <p className="text-sm text-gray-500">What I've learned about you</p>
+          </div>
         </div>
         <button 
           onClick={onBackToChat} 
-          className="px-3 py-1.5 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600"
+          className="px-4 py-2 bg-gradient-to-r from-red-500 to-blue-600 text-white rounded-lg text-sm hover:from-red-600 hover:to-blue-700 transition-all"
         >
           Back to Chat
         </button>
       </div>
 
-      {/* Quick Stats */}
+      {/* Quick Stats with Brand Colors */}
       {userDashboard && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <div className="bg-blue-50 rounded-lg p-3 text-center">
-            <div className="text-xl font-bold text-blue-600">{Number(userDashboard.knowledge_nodes_count)}</div>
-            <div className="text-xs text-gray-600">Memories</div>
+          <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-lg p-3 text-center">
+            <div className="text-xl font-bold text-red-600">{Number(userDashboard.knowledge_nodes_count)}</div>
+            <div className="text-xs text-red-700">Memories</div>
           </div>
-          <div className="bg-green-50 rounded-lg p-3 text-center">
-            <div className="text-xl font-bold text-green-600">{Math.round((userDashboard.memory_strength || 0) * 100)}%</div>
-            <div className="text-xs text-gray-600">Strength</div>
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-3 text-center">
+            <div className="text-xl font-bold text-blue-600">{Math.round((userDashboard.memory_strength || 0) * 100)}%</div>
+            <div className="text-xs text-blue-700">Strength</div>
           </div>
-          <div className="bg-purple-50 rounded-lg p-3 text-center">
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-3 text-center">
             <div className="text-xl font-bold text-purple-600">{Math.round((userDashboard.learning_progress || 0) * 100)}%</div>
-            <div className="text-xs text-gray-600">Progress</div>
+            <div className="text-xs text-purple-700">Progress</div>
           </div>
-          <div className="bg-orange-50 rounded-lg p-3 text-center">
+          <div className="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-3 text-center">
             <div className="text-xl font-bold text-orange-600">{Number(userDashboard.days_since_first_interaction)}</div>
-            <div className="text-xs text-gray-600">Days</div>
+            <div className="text-xs text-orange-700">Days</div>
           </div>
         </div>
       )}
 
-      {/* Simple Actions */}
+      {/* Action Buttons with Brand Styling */}
       <div className="flex flex-wrap gap-2 mb-6">
         <button
           onClick={handleExportData}
           disabled={isLoadingAction}
-          className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm flex items-center gap-2"
+          className="px-3 py-2 bg-gradient-to-r from-red-100 to-red-200 hover:from-red-200 hover:to-red-300 border border-red-300 text-red-700 rounded-lg text-sm flex items-center gap-2 transition-all"
         >
           <FiDownload size={14} />
           Export Data
         </button>
         <button
           onClick={onOpenSmartRoutines}
-          className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm flex items-center gap-2"
+          className="px-3 py-2 bg-gradient-to-r from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300 border border-blue-300 text-blue-700 rounded-lg text-sm flex items-center gap-2 transition-all"
         >
           <FiUsers size={14} />
           Routines
         </button>
         <button
           onClick={onOpenMilestoneCapsules}
-          className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm flex items-center gap-2"
+          className="px-3 py-2 bg-gradient-to-r from-purple-100 to-purple-200 hover:from-purple-200 hover:to-purple-300 border border-purple-300 text-purple-700 rounded-lg text-sm flex items-center gap-2 transition-all"
         >
           <FiBox size={14} />
           Milestones
@@ -339,8 +344,8 @@ const MemoryDashboard = ({
                 key={type}
                 onClick={() => setSelectedMemoryType(type)}
                 className={`px-3 py-1.5 rounded-lg text-sm transition-all ${selectedMemoryType === type 
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-gradient-to-r from-red-500 to-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gradient-to-r hover:from-red-100 hover:to-blue-100 hover:text-gray-800'
                 }`}
               >
                 {type === 'all' ? 'All' : type} ({count})
@@ -413,7 +418,7 @@ const MemoryDashboard = ({
             </p>
             <button
               onClick={onBackToChat}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600"
+              className="bg-gradient-to-r from-red-500 to-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:from-red-600 hover:to-blue-700 transition-all"
             >
               Start Chatting
             </button>

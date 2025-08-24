@@ -1,0 +1,126 @@
+<svg viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient for the brain/neural network -->
+    <linearGradient id="brainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Gradient for blockchain elements -->
+    <linearGradient id="blockchainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#DC2626;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Glow effect -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Memory node pulse animation -->
+    <animate id="pulse" attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite"/>
+  </defs>
+  
+  <!-- Background subtle grid pattern -->
+  <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#E5E7EB" stroke-width="0.5" opacity="0.3"/>
+  </pattern>
+  <rect width="300" height="120" fill="url(#grid)"/>
+  
+  <!-- Main neural network/brain structure -->
+  <g transform="translate(30, 20)">
+    <!-- Central processing core -->
+    <circle cx="40" cy="40" r="15" fill="url(#brainGradient)" filter="url(#glow)" opacity="0.9"/>
+    
+    <!-- Memory nodes around the core -->
+    <circle cx="20" cy="20" r="4" fill="#EF4444">
+      <animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="60" cy="25" r="4" fill="#F87171">
+      <animate attributeName="r" values="4;6;4" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="25" cy="60" r="4" fill="#60A5FA">
+      <animate attributeName="r" values="3.5;5.5;3.5" dur="1.8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="65" cy="55" r="4" fill="#3B82F6">
+      <animate attributeName="r" values="4;6;4" dur="2.2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="40" cy="10" r="3" fill="#1D4ED8">
+      <animate attributeName="r" values="2.5;4.5;2.5" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="15" cy="45" r="3" fill="#DC2626">
+      <animate attributeName="r" values="3;5;3" dur="2.8s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Neural connections (animated) -->
+    <g stroke="url(#brainGradient)" stroke-width="1.5" fill="none" opacity="0.6">
+      <path d="M 40 40 L 20 20">
+        <animate attributeName="stroke-opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite"/>
+      </path>
+      <path d="M 40 40 L 60 25">
+        <animate attributeName="stroke-opacity" values="0.8;0.3;0.8" dur="2.5s" repeatCount="indefinite"/>
+      </path>
+      <path d="M 40 40 L 25 60">
+        <animate attributeName="stroke-opacity" values="0.5;0.9;0.5" dur="2s" repeatCount="indefinite"/>
+      </path>
+      <path d="M 40 40 L 65 55">
+        <animate attributeName="stroke-opacity" values="0.4;0.7;0.4" dur="2.8s" repeatCount="indefinite"/>
+      </path>
+      <path d="M 40 40 L 40 10">
+        <animate attributeName="stroke-opacity" values="0.6;0.9;0.6" dur="1.8s" repeatCount="indefinite"/>
+      </path>
+      <path d="M 20 20 L 60 25">
+        <animate attributeName="stroke-opacity" values="0.2;0.5;0.2" dur="4s" repeatCount="indefinite"/>
+      </path>
+    </g>
+    
+    <!-- Blockchain/decentralization symbol -->
+    <g transform="translate(75, 30)" fill="url(#blockchainGradient)" opacity="0.8">
+      <!-- Three connected blocks representing decentralization -->
+      <rect x="0" y="0" width="8" height="8" rx="1"/>
+      <rect x="12" y="0" width="8" height="8" rx="1"/>
+      <rect x="6" y="12" width="8" height="8" rx="1"/>
+      
+      <!-- Connection lines -->
+      <line x1="8" y1="4" x2="12" y2="4" stroke="url(#blockchainGradient)" stroke-width="1.5"/>
+      <line x1="4" y1="8" x2="10" y2="12" stroke="url(#blockchainGradient)" stroke-width="1.5"/>
+      <line x1="16" y1="8" x2="14" y2="12" stroke="url(#blockchainGradient)" stroke-width="1.5"/>
+    </g>
+  </g>
+  
+  <!-- Brand text -->
+  <g transform="translate(140, 30)">
+    <text x="0" y="20" font-family="'Inter', 'Segoe UI', sans-serif" font-size="22" font-weight="700" fill="#1F2937">
+      Universal
+    </text>
+    <text x="0" y="45" font-family="'Inter', 'Segoe UI', sans-serif" font-size="22" font-weight="700" fill="url(#brainGradient)">
+      AI Assistant
+    </text>
+    <text x="0" y="65" font-family="'Inter', 'Segoe UI', sans-serif" font-size="10" font-weight="400" fill="#6B7280" letter-spacing="2px">
+      YOUR AI THAT REMEMBERS
+    </text>
+  </g>
+  
+  <!-- Decorative elements -->
+  <g opacity="0.3">
+    <!-- Subtle data flow lines -->
+    <path d="M 10 100 Q 50 95 90 100 T 170 100" stroke="#EF4444" stroke-width="1" fill="none">
+      <animate attributeName="stroke-dasharray" values="0,100;50,50;100,0" dur="4s" repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Memory indicators -->
+    <circle cx="280" cy="20" r="2" fill="#EF4444">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="285" cy="25" r="1.5" fill="#60A5FA">
+      <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="275" cy="30" r="1.5" fill="#3B82F6">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>

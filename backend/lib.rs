@@ -341,6 +341,48 @@ enum EntityType {
     Other,
 }
 
+// Additional structures for new features
+#[derive(Serialize, Deserialize, Clone, CandidType)]
+struct SmartRoutine {
+    id: String,
+    name: String,
+    description: String,
+    category: String,
+    frequency: String,
+    is_active: bool,
+    created_at: u64,
+    last_completed: Option<u64>,
+}
+
+#[derive(Serialize, Deserialize, Clone, CandidType)]
+struct MilestoneCapsule {
+    id: String,
+    title: String,
+    content: String,
+    created_at: u64,
+    unlock_date: u64,
+    is_unlocked: bool,
+    tags: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone, CandidType)]
+struct ConsentLink {
+    id: String,
+    name: String,
+    access_level: String,
+    created_at: u64,
+    expires_at: Option<u64>,
+    is_active: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone, CandidType)]
+struct UserDataExport {
+    user_id: String,
+    knowledge_graph: PersonalKnowledgeGraph,
+    conversations: Vec<EnhancedChatMessage>,
+    exported_at: u64,
+}
+
 // Keep existing structures for compatibility
 #[derive(Serialize, Deserialize, Clone, CandidType)]
 struct AIContent {
@@ -1073,6 +1115,395 @@ fn get_available_providers() -> Vec<String> {
 #[ic_cdk::query]
 fn get_canister_metrics() -> CanisterMetrics {
     STATE.with(|state| state.borrow().canister_metrics.clone())
+}
+
+#[ic_cdk::update]
+fn update_user_preferences(user: Principal, preferences: ResponsePreferences) -> Result<String, String> {
+    let caller = ic_cdk::caller();
+    if caller != user && !ic_cdk::api::is_controller(&caller) {
+        return Err("Unauthorized".to_string());
+    }
+    
+    STATE.with(|state| {
+        let mut state = state.borrow_mut();
+        if let Some(kg) = state.personal_knowledge_graphs.get_mut(&user) {
+            kg.user_profile.response_preferences = preferences;
+            kg.last_updated = ic_cdk::api::time();
+            Ok("Preferences updated successfully".to_string())
+        } else {
+            // Create new knowledge graph if it doesn't exist
+            ensure_user_knowledge_graph(user);
+            if let Some(kg) = state.personal_knowledge_graphs.get_mut(&user) {
+                kg.user_profile.response_preferences = preferences;
+                kg.last_updated = ic_cdk::api::time();
+                Ok("Preferences updated successfully".to_string())
+            } else {
+                Err("Failed to create user profile".to_string())
+            }
+        }
+    })
+}
+
+#[ic_cdk::update]
+async fn save_conversation(user: Principal, message: EnhancedChatMessage) -> Result<String, String> {
+    let caller = ic_cdk::caller();
+    if caller != user && !ic_cdk::api::is_controller(&caller) {
+        return Err("Unauthorized".to_string());
+    }
+    
+    STATE.with(|state| {
+        let mut state = state.borrow_mut();
+        let conversation = state.conversations.entry(user).or_insert_with(Vec::new);
+        conversation.push(message);
+        state.canister_metrics.total_queries += 1;
+    });
+    
+    Ok("Conversation saved successfully".to_string())
+}
+
+#[ic_cdk::query]
+fn get_ai_coach_suggestions(user: Principal, context: String) -> Result<Vec<String>, String> {
+    let caller = ic_cdk::caller();
+    if caller != user && !ic_cdk::api::is_controller(&caller) {
+        return Err("Unauthorized".to_string());
+    }
+    
+    STATE.with(|state| {
+        let state = state.borrow();
+        if let Some(kg) = state.personal_knowledge_graphs.get(&user) {
+            let mut suggestions = Vec::new();
+            
+            // Generate suggestions based on user's goals and context
+            for goal in &kg.user_profile.goals {
+                if goal.progress < 1.0 {
+                    suggestions.push(format!("Continue working on: {}", goal.goal));
+                }
+            }
+            
+            // Add context-specific suggestions
+            if context.to_lowercase().contains("project") {
+                suggestions.push("Break down your project into smaller, manageable tasks".to_string());
+                suggestions.push("Set specific deadlines for each milestone".to_string());
+            }
+            
+            if context.to_lowercase().contains("learning") {
+                suggestions.push("Practice regularly with small, consistent sessions".to_string());
+                suggestions.push("Find a study buddy or accountability partner".to_string());
+            }
+            
+            if suggestions.is_empty() {
+                suggestions.push("Set clear, measurable goals for your projects".to_string());
+                suggestions.push("Track your progress regularly".to_string());
+                suggestions.push("Celebrate small wins along the way".to_string());
+            }
+            
+            Ok(suggestions)
+        } else {
+            Ok(vec!["Start by setting some personal goals to get personalized coaching".to_string()])
+        }
+    })
+}
+
+#[ic_cdk::update]
+fn create_smart_routine(user: Principal, routine: SmartRoutine) -> Result<String, String> {
+    let caller = ic_cdk::caller();
+    if caller != user && !ic_cdk::api::is_controller(&caller) {
+        return Err("Unauthorized".to_string());
+    }
+    
+    STATE.with(|state| {
+        let mut state = state.borrow_mut();
+        if let Some(kg) = state.personal_knowledge_graphs.get_mut(&user) {
+            // Store routine as a special memory node
+            let routine_node = MemoryNode {
+                id: format!("routine_{}_{}", user.to_text(), ic_cdk::api::time()),
+                content: format!("Smart Routine: {} - {}", routine.name, routine.description),
+                node_type: MemoryNodeType::Context,
+                importance_score: 0.8,
+                created_at: ic_cdk::api::time(),
+                last_accessed: ic_cdk::api::time(),
+                access_count: 1,
+                tags: vec!["routine".to_string(), routine.category.clone()],
+                related_conversations: Vec::new(),
+            };
+            kg.memory_nodes.insert(routine_node.id.clone(), routine_node);
+            kg.last_updated = ic_cdk::api::time();
+            Ok("Smart routine created successfully".to_string())
+        } else {
+            Err("User profile not found".to_string())
+        }
+    })
+}
+
+#[ic_cdk::query]
+fn get_user_routines(user: Principal) -> Result<Vec<SmartRoutine>, String> {
+    let caller = ic_cdk::caller();
+    if caller != user && !ic_cdk::api::is_controller(&caller) {
+        return Err("Unauthorized".to_string());
+    }
+    
+    STATE.with(|state| {
+        let state = state.borrow();
+        if let Some(kg) = state.personal_knowledge_graphs.get(&user) {
+            let routines: Vec<SmartRoutine> = kg.memory_nodes.values()
+                .filter(|node| node.tags.contains(&"routine".to_string()))
+                .map(|node| SmartRoutine {
+                    id: node.id.clone(),
+                    name: extract_routine_name(&node.content),
+                    description: extract_routine_description(&node.content),
+                    category: node.tags.iter().find(|&tag| tag != "routine").unwrap_or(&"general".to_string()).clone(),
+                    frequency: "daily".to_string(), // Default frequency
+                    is_active: true,
+                    created_at: node.created_at,
+                    last_completed: None,
+                })
+                .collect();
+            Ok(routines)
+        } else {
+            Ok(Vec::new())
+        }
+    })
+}
+
+#[ic_cdk::update]
+fn create_milestone_capsule(user: Principal, capsule: MilestoneCapsule) -> Result<String, String> {
+    let caller = ic_cdk::caller();
+    if caller != user && !ic_cdk::api::is_controller(&caller) {
+        return Err("Unauthorized".to_string());
+    }
+    
+    STATE.with(|state| {
+        let mut state = state.borrow_mut();
+        if let Some(kg) = state.personal_knowledge_graphs.get_mut(&user) {
+            let capsule_node = MemoryNode {
+                id: format!("capsule_{}_{}", user.to_text(), ic_cdk::api::time()),
+                content: format!("Milestone Capsule: {} - {}", capsule.title, capsule.content),
+                node_type: MemoryNodeType::Experience,
+                importance_score: 0.9,
+                created_at: ic_cdk::api::time(),
+                last_accessed: ic_cdk::api::time(),
+                access_count: 1,
+                tags: vec!["milestone".to_string(), "capsule".to_string()],
+                related_conversations: Vec::new(),
+            };
+            kg.memory_nodes.insert(capsule_node.id.clone(), capsule_node);
+            kg.last_updated = ic_cdk::api::time();
+            Ok("Milestone capsule created successfully".to_string())
+        } else {
+            Err("User profile not found".to_string())
+        }
+    })
+}
+
+#[ic_cdk::query]
+fn get_user_milestone_capsules(user: Principal) -> Result<Vec<MilestoneCapsule>, String> {
+    let caller = ic_cdk::caller();
+    if caller != user && !ic_cdk::api::is_controller(&caller) {
+        return Err("Unauthorized".to_string());
+    }
+    
+    STATE.with(|state| {
+        let state = state.borrow();
+        if let Some(kg) = state.personal_knowledge_graphs.get(&user) {
+            let capsules: Vec<MilestoneCapsule> = kg.memory_nodes.values()
+                .filter(|node| node.tags.contains(&"capsule".to_string()))
+                .map(|node| MilestoneCapsule {
+                    id: node.id.clone(),
+                    title: extract_capsule_title(&node.content),
+                    content: extract_capsule_content(&node.content),
+                    created_at: node.created_at,
+                    unlock_date: node.created_at + (365 * 24 * 60 * 60 * 1_000_000_000), // 1 year later
+                    is_unlocked: ic_cdk::api::time() >= (node.created_at + (365 * 24 * 60 * 60 * 1_000_000_000)),
+                    tags: node.tags.clone(),
+                })
+                .collect();
+            Ok(capsules)
+        } else {
+            Ok(Vec::new())
+        }
+    })
+}
+
+#[ic_cdk::update]
+fn create_consent_link(user: Principal, consent: ConsentLink) -> Result<String, String> {
+    let caller = ic_cdk::caller();
+    if caller != user && !ic_cdk::api::is_controller(&caller) {
+        return Err("Unauthorized".to_string());
+    }
+    
+    STATE.with(|state| {
+        let mut state = state.borrow_mut();
+        if let Some(kg) = state.personal_knowledge_graphs.get_mut(&user) {
+            let consent_node = MemoryNode {
+                id: format!("consent_{}_{}", user.to_text(), ic_cdk::api::time()),
+                content: format!("Consent Link: {} - Access: {}", consent.name, consent.access_level),
+                node_type: MemoryNodeType::Context,
+                importance_score: 0.7,
+                created_at: ic_cdk::api::time(),
+                last_accessed: ic_cdk::api::time(),
+                access_count: 1,
+                tags: vec!["consent".to_string(), "privacy".to_string()],
+                related_conversations: Vec::new(),
+            };
+            kg.memory_nodes.insert(consent_node.id.clone(), consent_node);
+            kg.last_updated = ic_cdk::api::time();
+            Ok("Consent link created successfully".to_string())
+        } else {
+            Err("User profile not found".to_string())
+        }
+    })
+}
+
+#[ic_cdk::query]
+fn get_user_consent_links(user: Principal) -> Result<Vec<ConsentLink>, String> {
+    let caller = ic_cdk::caller();
+    if caller != user && !ic_cdk::api::is_controller(&caller) {
+        return Err("Unauthorized".to_string());
+    }
+    
+    STATE.with(|state| {
+        let state = state.borrow();
+        if let Some(kg) = state.personal_knowledge_graphs.get(&user) {
+            let consents: Vec<ConsentLink> = kg.memory_nodes.values()
+                .filter(|node| node.tags.contains(&"consent".to_string()))
+                .map(|node| ConsentLink {
+                    id: node.id.clone(),
+                    name: extract_consent_name(&node.content),
+                    access_level: extract_consent_access_level(&node.content),
+                    created_at: node.created_at,
+                    expires_at: Some(node.created_at + (30 * 24 * 60 * 60 * 1_000_000_000)), // 30 days
+                    is_active: true,
+                })
+                .collect();
+            Ok(consents)
+        } else {
+            Ok(Vec::new())
+        }
+    })
+}
+
+#[ic_cdk::query]
+fn search_user_memories(user: Principal, query: String, limit: Option<u32>) -> Result<Vec<MemoryNode>, String> {
+    let caller = ic_cdk::caller();
+    if caller != user && !ic_cdk::api::is_controller(&caller) {
+        return Err("Unauthorized".to_string());
+    }
+    
+    STATE.with(|state| {
+        let state = state.borrow();
+        if let Some(kg) = state.personal_knowledge_graphs.get(&user) {
+            let query_lower = query.to_lowercase();
+            let limit = limit.unwrap_or(20) as usize;
+            
+            let mut matching_memories: Vec<MemoryNode> = kg.memory_nodes.values()
+                .filter(|node| {
+                    node.content.to_lowercase().contains(&query_lower) ||
+                    node.tags.iter().any(|tag| tag.to_lowercase().contains(&query_lower))
+                })
+                .cloned()
+                .collect();
+            
+            // Sort by relevance (importance score and access count)
+            matching_memories.sort_by(|a, b| {
+                let score_a = a.importance_score + (a.access_count as f32 * 0.1);
+                let score_b = b.importance_score + (b.access_count as f32 * 0.1);
+                score_b.partial_cmp(&score_a).unwrap_or(std::cmp::Ordering::Equal)
+            });
+            
+            matching_memories.truncate(limit);
+            Ok(matching_memories)
+        } else {
+            Ok(Vec::new())
+        }
+    })
+}
+
+#[ic_cdk::query]
+fn export_user_data(user: Principal) -> Result<UserDataExport, String> {
+    let caller = ic_cdk::caller();
+    if caller != user && !ic_cdk::api::is_controller(&caller) {
+        return Err("Unauthorized".to_string());
+    }
+    
+    STATE.with(|state| {
+        let state = state.borrow();
+        if let Some(kg) = state.personal_knowledge_graphs.get(&user) {
+            let conversations = state.conversations.get(&user).cloned().unwrap_or_default();
+            
+            Ok(UserDataExport {
+                user_id: user.to_text(),
+                knowledge_graph: kg.clone(),
+                conversations,
+                exported_at: ic_cdk::api::time(),
+            })
+        } else {
+            Err("User data not found".to_string())
+        }
+    })
+}
+
+// Utility functions for parsing stored data
+fn extract_routine_name(content: &str) -> String {
+    if let Some(start) = content.find("Smart Routine: ") {
+        let after_prefix = &content[start + 15..];
+        if let Some(end) = after_prefix.find(" - ") {
+            after_prefix[..end].to_string()
+        } else {
+            "Unnamed Routine".to_string()
+        }
+    } else {
+        "Unnamed Routine".to_string()
+    }
+}
+
+fn extract_routine_description(content: &str) -> String {
+    if let Some(start) = content.find(" - ") {
+        content[start + 3..].to_string()
+    } else {
+        content.to_string()
+    }
+}
+
+fn extract_capsule_title(content: &str) -> String {
+    if let Some(start) = content.find("Milestone Capsule: ") {
+        let after_prefix = &content[start + 19..];
+        if let Some(end) = after_prefix.find(" - ") {
+            after_prefix[..end].to_string()
+        } else {
+            "Untitled Capsule".to_string()
+        }
+    } else {
+        "Untitled Capsule".to_string()
+    }
+}
+
+fn extract_capsule_content(content: &str) -> String {
+    if let Some(start) = content.find(" - ") {
+        content[start + 3..].to_string()
+    } else {
+        content.to_string()
+    }
+}
+
+fn extract_consent_name(content: &str) -> String {
+    if let Some(start) = content.find("Consent Link: ") {
+        let after_prefix = &content[start + 14..];
+        if let Some(end) = after_prefix.find(" - Access: ") {
+            after_prefix[..end].to_string()
+        } else {
+            "Unnamed Consent".to_string()
+        }
+    } else {
+        "Unnamed Consent".to_string()
+    }
+}
+
+fn extract_consent_access_level(content: &str) -> String {
+    if let Some(start) = content.find(" - Access: ") {
+        content[start + 11..].to_string()
+    } else {
+        "read".to_string()
+    }
 }
 
 ic_cdk::export_candid!();

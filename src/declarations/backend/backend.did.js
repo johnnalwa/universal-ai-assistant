@@ -1,95 +1,32 @@
 export const idlFactory = ({ IDL }) => {
-  const CanisterMetrics = IDL.Record({
-    'storage_used_bytes' : IDL.Nat64,
-    'total_queries' : IDL.Nat64,
-    'total_users' : IDL.Nat64,
-    'learning_events' : IDL.Nat64,
-    'uptime_start' : IDL.Nat64,
-    'knowledge_nodes_created' : IDL.Nat64,
-    'total_cycles_consumed' : IDL.Nat64,
+  const ConsentLink = IDL.Record({
+    'id' : IDL.Text,
+    'access_level' : IDL.Text,
+    'name' : IDL.Text,
+    'created_at' : IDL.Nat64,
+    'is_active' : IDL.Bool,
+    'expires_at' : IDL.Opt(IDL.Nat64),
   });
-  const Sentiment = IDL.Variant({
-    'Negative' : IDL.Null,
-    'Excited' : IDL.Null,
-    'Curious' : IDL.Null,
-    'Frustrated' : IDL.Null,
-    'Positive' : IDL.Null,
-    'Neutral' : IDL.Null,
-  });
-  const FactType = IDL.Variant({
-    'Goal' : IDL.Null,
-    'Knowledge' : IDL.Null,
-    'Experience' : IDL.Null,
-    'Preference' : IDL.Null,
-    'PersonalInfo' : IDL.Null,
-    'Relationship' : IDL.Null,
-  });
-  const ExtractedFact = IDL.Record({
-    'fact_type' : FactType,
-    'fact' : IDL.Text,
-    'confidence' : IDL.Float32,
-    'should_remember' : IDL.Bool,
-  });
-  const LearnedPreference = IDL.Record({
-    'preference' : IDL.Text,
-    'category' : IDL.Text,
-    'confidence' : IDL.Float32,
-  });
-  const ResponseStrategy = IDL.Variant({
-    'InquiryFirst' : IDL.Record({
-      'question' : IDL.Text,
-      'why_asking' : IDL.Text,
-    }),
-    'PartialAnswer' : IDL.Record({
-      'known_info' : IDL.Text,
-      'clarification_needed' : IDL.Text,
-    }),
-    'ConfidentAnswer' : IDL.Record({
-      'sources' : IDL.Vec(IDL.Text),
-      'confidence' : IDL.Float32,
-    }),
-    'LearningOpportunity' : IDL.Record({ 'suggestion' : IDL.Text }),
-  });
-  const EnhancedChatMessage = IDL.Record({
-    'ii_verified' : IDL.Opt(IDL.Bool),
+  const Result = IDL.Variant({ 'Ok' : IDL.Text, 'Err' : IDL.Text });
+  const MilestoneCapsule = IDL.Record({
+    'id' : IDL.Text,
+    'title' : IDL.Text,
     'content' : IDL.Text,
-    'provider' : IDL.Text,
-    'context_thread_id' : IDL.Opt(IDL.Text),
-    'role' : IDL.Text,
-    'user_sentiment' : IDL.Opt(Sentiment),
-    'extracted_facts' : IDL.Vec(ExtractedFact),
-    'referenced_memories' : IDL.Vec(IDL.Text),
-    'learned_preferences' : IDL.Vec(LearnedPreference),
-    'timestamp' : IDL.Nat64,
-    'cycles_cost' : IDL.Opt(IDL.Nat64),
-    'response_strategy' : IDL.Opt(ResponseStrategy),
-    'content_stored_on_chain' : IDL.Opt(IDL.Bool),
+    'unlock_date' : IDL.Nat64,
+    'tags' : IDL.Vec(IDL.Text),
+    'created_at' : IDL.Nat64,
+    'is_unlocked' : IDL.Bool,
   });
-  const SubscriptionTier = IDL.Variant({
-    'Premium' : IDL.Record({
-      'cycles_included' : IDL.Nat64,
-      'priority_access' : IDL.Bool,
-    }),
-    'Enterprise' : IDL.Record({
-      'cycles_included' : IDL.Nat64,
-      'private_models' : IDL.Bool,
-      'custom_endpoints' : IDL.Bool,
-    }),
-    'Basic' : IDL.Record({ 'cycles_included' : IDL.Nat64 }),
+  const SmartRoutine = IDL.Record({
+    'id' : IDL.Text,
+    'last_completed' : IDL.Opt(IDL.Nat64),
+    'name' : IDL.Text,
+    'description' : IDL.Text,
+    'created_at' : IDL.Nat64,
+    'category' : IDL.Text,
+    'is_active' : IDL.Bool,
+    'frequency' : IDL.Text,
   });
-  const UserDashboard = IDL.Record({
-    'cycles_balance' : IDL.Nat64,
-    'days_since_first_interaction' : IDL.Nat64,
-    'total_cycles_spent' : IDL.Nat64,
-    'knowledge_nodes_count' : IDL.Nat64,
-    'learning_progress' : IDL.Float32,
-    'stored_content_count' : IDL.Nat64,
-    'memory_strength' : IDL.Float32,
-    'subscription_tier' : IDL.Opt(SubscriptionTier),
-    'token_balance' : IDL.Nat64,
-    'conversation_count' : IDL.Nat64,
-  });
-  const Result = IDL.Variant({ 'Ok' : UserDashboard, 'Err' : IDL.Text });
   const ResponseLength = IDL.Variant({
     'Short' : IDL.Null,
     'Long' : IDL.Null,
@@ -119,6 +56,14 @@ export const idlFactory = ({ IDL }) => {
     'created_at' : IDL.Nat64,
     'relationship_type' : RelationshipType,
     'strength' : IDL.Float32,
+  });
+  const Sentiment = IDL.Variant({
+    'Negative' : IDL.Null,
+    'Excited' : IDL.Null,
+    'Curious' : IDL.Null,
+    'Frustrated' : IDL.Null,
+    'Positive' : IDL.Null,
+    'Neutral' : IDL.Null,
   });
   const TaskStatus = IDL.Variant({
     'Paused' : IDL.Null,
@@ -262,7 +207,113 @@ export const idlFactory = ({ IDL }) => {
     'memory_nodes' : IDL.Vec(IDL.Tuple(IDL.Text, MemoryNode)),
     'user_profile' : UserProfile,
   });
-  const Result_1 = IDL.Variant({ 'Ok' : IDL.Text, 'Err' : IDL.Text });
+  const FactType = IDL.Variant({
+    'Goal' : IDL.Null,
+    'Knowledge' : IDL.Null,
+    'Experience' : IDL.Null,
+    'Preference' : IDL.Null,
+    'PersonalInfo' : IDL.Null,
+    'Relationship' : IDL.Null,
+  });
+  const ExtractedFact = IDL.Record({
+    'fact_type' : FactType,
+    'fact' : IDL.Text,
+    'confidence' : IDL.Float32,
+    'should_remember' : IDL.Bool,
+  });
+  const LearnedPreference = IDL.Record({
+    'preference' : IDL.Text,
+    'category' : IDL.Text,
+    'confidence' : IDL.Float32,
+  });
+  const ResponseStrategy = IDL.Variant({
+    'InquiryFirst' : IDL.Record({
+      'question' : IDL.Text,
+      'why_asking' : IDL.Text,
+    }),
+    'PartialAnswer' : IDL.Record({
+      'known_info' : IDL.Text,
+      'clarification_needed' : IDL.Text,
+    }),
+    'ConfidentAnswer' : IDL.Record({
+      'sources' : IDL.Vec(IDL.Text),
+      'confidence' : IDL.Float32,
+    }),
+    'LearningOpportunity' : IDL.Record({ 'suggestion' : IDL.Text }),
+  });
+  const EnhancedChatMessage = IDL.Record({
+    'ii_verified' : IDL.Opt(IDL.Bool),
+    'content' : IDL.Text,
+    'provider' : IDL.Text,
+    'context_thread_id' : IDL.Opt(IDL.Text),
+    'role' : IDL.Text,
+    'user_sentiment' : IDL.Opt(Sentiment),
+    'extracted_facts' : IDL.Vec(ExtractedFact),
+    'referenced_memories' : IDL.Vec(IDL.Text),
+    'learned_preferences' : IDL.Vec(LearnedPreference),
+    'timestamp' : IDL.Nat64,
+    'cycles_cost' : IDL.Opt(IDL.Nat64),
+    'response_strategy' : IDL.Opt(ResponseStrategy),
+    'content_stored_on_chain' : IDL.Opt(IDL.Bool),
+  });
+  const UserDataExport = IDL.Record({
+    'knowledge_graph' : PersonalKnowledgeGraph,
+    'exported_at' : IDL.Nat64,
+    'user_id' : IDL.Text,
+    'conversations' : IDL.Vec(EnhancedChatMessage),
+  });
+  const Result_1 = IDL.Variant({ 'Ok' : UserDataExport, 'Err' : IDL.Text });
+  const Result_2 = IDL.Variant({ 'Ok' : IDL.Vec(IDL.Text), 'Err' : IDL.Text });
+  const CanisterMetrics = IDL.Record({
+    'storage_used_bytes' : IDL.Nat64,
+    'total_queries' : IDL.Nat64,
+    'total_users' : IDL.Nat64,
+    'learning_events' : IDL.Nat64,
+    'uptime_start' : IDL.Nat64,
+    'knowledge_nodes_created' : IDL.Nat64,
+    'total_cycles_consumed' : IDL.Nat64,
+  });
+  const Result_3 = IDL.Variant({
+    'Ok' : IDL.Vec(ConsentLink),
+    'Err' : IDL.Text,
+  });
+  const SubscriptionTier = IDL.Variant({
+    'Premium' : IDL.Record({
+      'cycles_included' : IDL.Nat64,
+      'priority_access' : IDL.Bool,
+    }),
+    'Enterprise' : IDL.Record({
+      'cycles_included' : IDL.Nat64,
+      'private_models' : IDL.Bool,
+      'custom_endpoints' : IDL.Bool,
+    }),
+    'Basic' : IDL.Record({ 'cycles_included' : IDL.Nat64 }),
+  });
+  const UserDashboard = IDL.Record({
+    'cycles_balance' : IDL.Nat64,
+    'days_since_first_interaction' : IDL.Nat64,
+    'total_cycles_spent' : IDL.Nat64,
+    'knowledge_nodes_count' : IDL.Nat64,
+    'learning_progress' : IDL.Float32,
+    'stored_content_count' : IDL.Nat64,
+    'memory_strength' : IDL.Float32,
+    'subscription_tier' : IDL.Opt(SubscriptionTier),
+    'token_balance' : IDL.Nat64,
+    'conversation_count' : IDL.Nat64,
+  });
+  const Result_4 = IDL.Variant({ 'Ok' : UserDashboard, 'Err' : IDL.Text });
+  const Result_5 = IDL.Variant({
+    'Ok' : IDL.Vec(MilestoneCapsule),
+    'Err' : IDL.Text,
+  });
+  const Result_6 = IDL.Variant({
+    'Ok' : IDL.Vec(SmartRoutine),
+    'Err' : IDL.Text,
+  });
+  const Result_7 = IDL.Variant({
+    'Ok' : IDL.Vec(MemoryNode),
+    'Err' : IDL.Text,
+  });
   const UserProfileUpdate = IDL.Record({
     'interests' : IDL.Opt(IDL.Vec(IDL.Text)),
     'name' : IDL.Opt(IDL.Text),
@@ -270,14 +321,36 @@ export const idlFactory = ({ IDL }) => {
     'goals' : IDL.Opt(IDL.Vec(PersonalGoal)),
   });
   return IDL.Service({
+    'create_consent_link' : IDL.Func(
+        [IDL.Principal, ConsentLink],
+        [Result],
+        [],
+      ),
+    'create_milestone_capsule' : IDL.Func(
+        [IDL.Principal, MilestoneCapsule],
+        [Result],
+        [],
+      ),
+    'create_smart_routine' : IDL.Func(
+        [IDL.Principal, SmartRoutine],
+        [Result],
+        [],
+      ),
+    'export_user_data' : IDL.Func([IDL.Principal], [Result_1], ['query']),
+    'get_ai_coach_suggestions' : IDL.Func(
+        [IDL.Principal, IDL.Text],
+        [Result_2],
+        ['query'],
+      ),
     'get_available_providers' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'get_canister_metrics' : IDL.Func([], [CanisterMetrics], ['query']),
+    'get_user_consent_links' : IDL.Func([IDL.Principal], [Result_3], ['query']),
     'get_user_conversations' : IDL.Func(
         [IDL.Principal],
         [IDL.Vec(EnhancedChatMessage)],
         ['query'],
       ),
-    'get_user_dashboard' : IDL.Func([IDL.Principal], [Result], ['query']),
+    'get_user_dashboard' : IDL.Func([IDL.Principal], [Result_4], ['query']),
     'get_user_knowledge_graph' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(PersonalKnowledgeGraph)],
@@ -288,22 +361,43 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(MemoryNode)],
         ['query'],
       ),
+    'get_user_milestone_capsules' : IDL.Func(
+        [IDL.Principal],
+        [Result_5],
+        ['query'],
+      ),
+    'get_user_routines' : IDL.Func([IDL.Principal], [Result_6], ['query']),
     'greet' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
     'icp_ai_prompt' : IDL.Func(
         [IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Text), IDL.Opt(IDL.Bool)],
-        [Result_1],
+        [Result],
         [],
       ),
     'memory_mind_prompt' : IDL.Func(
         [IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Bool)],
-        [Result_1],
+        [Result],
         [],
       ),
-    'prompt' : IDL.Func([IDL.Text], [Result_1], []),
+    'prompt' : IDL.Func([IDL.Text], [Result], []),
+    'save_conversation' : IDL.Func(
+        [IDL.Principal, EnhancedChatMessage],
+        [Result],
+        [],
+      ),
+    'search_user_memories' : IDL.Func(
+        [IDL.Principal, IDL.Text, IDL.Opt(IDL.Nat32)],
+        [Result_7],
+        ['query'],
+      ),
     'set_api_key' : IDL.Func([IDL.Text], [], []),
+    'update_user_preferences' : IDL.Func(
+        [IDL.Principal, ResponsePreferences],
+        [Result],
+        [],
+      ),
     'update_user_profile' : IDL.Func(
         [IDL.Principal, UserProfileUpdate],
-        [Result_1],
+        [Result],
         [],
       ),
   });

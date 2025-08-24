@@ -18,6 +18,14 @@ export interface CommunicationStyle {
   'detail_preference' : DetailLevel,
   'humor_preference' : boolean,
 }
+export interface ConsentLink {
+  'id' : string,
+  'access_level' : string,
+  'name' : string,
+  'created_at' : bigint,
+  'is_active' : boolean,
+  'expires_at' : [] | [bigint],
+}
 export interface ConversationContext {
   'topic' : string,
   'last_message_timestamp' : bigint,
@@ -124,6 +132,15 @@ export type MemoryNodeType = { 'Fact' : null } |
   { 'Preference' : null } |
   { 'Context' : null } |
   { 'Relationship' : null };
+export interface MilestoneCapsule {
+  'id' : string,
+  'title' : string,
+  'content' : string,
+  'unlock_date' : bigint,
+  'tags' : Array<string>,
+  'created_at' : bigint,
+  'is_unlocked' : boolean,
+}
 export interface PersonalGoal {
   'goal' : string,
   'importance' : number,
@@ -171,9 +188,21 @@ export type ResponseStrategy = {
   } |
   { 'ConfidentAnswer' : { 'sources' : Array<string>, 'confidence' : number } } |
   { 'LearningOpportunity' : { 'suggestion' : string } };
-export type Result = { 'Ok' : UserDashboard } |
+export type Result = { 'Ok' : string } |
   { 'Err' : string };
-export type Result_1 = { 'Ok' : string } |
+export type Result_1 = { 'Ok' : UserDataExport } |
+  { 'Err' : string };
+export type Result_2 = { 'Ok' : Array<string> } |
+  { 'Err' : string };
+export type Result_3 = { 'Ok' : Array<ConsentLink> } |
+  { 'Err' : string };
+export type Result_4 = { 'Ok' : UserDashboard } |
+  { 'Err' : string };
+export type Result_5 = { 'Ok' : Array<MilestoneCapsule> } |
+  { 'Err' : string };
+export type Result_6 = { 'Ok' : Array<SmartRoutine> } |
+  { 'Err' : string };
+export type Result_7 = { 'Ok' : Array<MemoryNode> } |
   { 'Err' : string };
 export type Sentiment = { 'Negative' : null } |
   { 'Excited' : null } |
@@ -181,6 +210,16 @@ export type Sentiment = { 'Negative' : null } |
   { 'Frustrated' : null } |
   { 'Positive' : null } |
   { 'Neutral' : null };
+export interface SmartRoutine {
+  'id' : string,
+  'last_completed' : [] | [bigint],
+  'name' : string,
+  'description' : string,
+  'created_at' : bigint,
+  'category' : string,
+  'is_active' : boolean,
+  'frequency' : string,
+}
 export type SubscriptionTier = {
     'Premium' : { 'cycles_included' : bigint, 'priority_access' : boolean }
   } |
@@ -218,6 +257,12 @@ export interface UserDashboard {
   'token_balance' : bigint,
   'conversation_count' : bigint,
 }
+export interface UserDataExport {
+  'knowledge_graph' : PersonalKnowledgeGraph,
+  'exported_at' : bigint,
+  'user_id' : string,
+  'conversations' : Array<EnhancedChatMessage>,
+}
 export interface UserProfile {
   'preferred_name' : [] | [string],
   'personality_traits' : Array<string>,
@@ -247,13 +292,22 @@ export interface WorkContext {
   'industry' : [] | [string],
 }
 export interface _SERVICE {
+  'create_consent_link' : ActorMethod<[Principal, ConsentLink], Result>,
+  'create_milestone_capsule' : ActorMethod<
+    [Principal, MilestoneCapsule],
+    Result
+  >,
+  'create_smart_routine' : ActorMethod<[Principal, SmartRoutine], Result>,
+  'export_user_data' : ActorMethod<[Principal], Result_1>,
+  'get_ai_coach_suggestions' : ActorMethod<[Principal, string], Result_2>,
   'get_available_providers' : ActorMethod<[], Array<string>>,
   'get_canister_metrics' : ActorMethod<[], CanisterMetrics>,
+  'get_user_consent_links' : ActorMethod<[Principal], Result_3>,
   'get_user_conversations' : ActorMethod<
     [Principal],
     Array<EnhancedChatMessage>
   >,
-  'get_user_dashboard' : ActorMethod<[Principal], Result>,
+  'get_user_dashboard' : ActorMethod<[Principal], Result_4>,
   'get_user_knowledge_graph' : ActorMethod<
     [Principal],
     [] | [PersonalKnowledgeGraph]
@@ -262,18 +316,29 @@ export interface _SERVICE {
     [Principal, [] | [number]],
     Array<MemoryNode>
   >,
+  'get_user_milestone_capsules' : ActorMethod<[Principal], Result_5>,
+  'get_user_routines' : ActorMethod<[Principal], Result_6>,
   'greet' : ActorMethod<[string], string>,
   'icp_ai_prompt' : ActorMethod<
     [string, [] | [string], [] | [string], [] | [boolean]],
-    Result_1
+    Result
   >,
   'memory_mind_prompt' : ActorMethod<
     [string, [] | [string], [] | [boolean]],
-    Result_1
+    Result
   >,
-  'prompt' : ActorMethod<[string], Result_1>,
+  'prompt' : ActorMethod<[string], Result>,
+  'save_conversation' : ActorMethod<[Principal, EnhancedChatMessage], Result>,
+  'search_user_memories' : ActorMethod<
+    [Principal, string, [] | [number]],
+    Result_7
+  >,
   'set_api_key' : ActorMethod<[string], undefined>,
-  'update_user_profile' : ActorMethod<[Principal, UserProfileUpdate], Result_1>,
+  'update_user_preferences' : ActorMethod<
+    [Principal, ResponsePreferences],
+    Result
+  >,
+  'update_user_profile' : ActorMethod<[Principal, UserProfileUpdate], Result>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

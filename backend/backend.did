@@ -14,6 +14,14 @@ type CommunicationStyle = record {
   detail_preference : DetailLevel;
   humor_preference : bool;
 };
+type ConsentLink = record {
+  id : text;
+  access_level : text;
+  name : text;
+  created_at : nat64;
+  is_active : bool;
+  expires_at : opt nat64;
+};
 type ConversationContext = record {
   topic : text;
   last_message_timestamp : nat64;
@@ -116,6 +124,15 @@ type MemoryNodeType = variant {
   Context;
   Relationship;
 };
+type MilestoneCapsule = record {
+  id : text;
+  title : text;
+  content : text;
+  unlock_date : nat64;
+  tags : vec text;
+  created_at : nat64;
+  is_unlocked : bool;
+};
 type PersonalGoal = record {
   goal : text;
   importance : float32;
@@ -160,8 +177,14 @@ type ResponseStrategy = variant {
   ConfidentAnswer : record { sources : vec text; confidence : float32 };
   LearningOpportunity : record { suggestion : text };
 };
-type Result = variant { Ok : UserDashboard; Err : text };
-type Result_1 = variant { Ok : text; Err : text };
+type Result = variant { Ok : text; Err : text };
+type Result_1 = variant { Ok : UserDataExport; Err : text };
+type Result_2 = variant { Ok : vec text; Err : text };
+type Result_3 = variant { Ok : vec ConsentLink; Err : text };
+type Result_4 = variant { Ok : UserDashboard; Err : text };
+type Result_5 = variant { Ok : vec MilestoneCapsule; Err : text };
+type Result_6 = variant { Ok : vec SmartRoutine; Err : text };
+type Result_7 = variant { Ok : vec MemoryNode; Err : text };
 type Sentiment = variant {
   Negative;
   Excited;
@@ -169,6 +192,16 @@ type Sentiment = variant {
   Frustrated;
   Positive;
   Neutral;
+};
+type SmartRoutine = record {
+  id : text;
+  last_completed : opt nat64;
+  name : text;
+  description : text;
+  created_at : nat64;
+  category : text;
+  is_active : bool;
+  frequency : text;
 };
 type SubscriptionTier = variant {
   Premium : record { cycles_included : nat64; priority_access : bool };
@@ -199,6 +232,12 @@ type UserDashboard = record {
   token_balance : nat64;
   conversation_count : nat64;
 };
+type UserDataExport = record {
+  knowledge_graph : PersonalKnowledgeGraph;
+  exported_at : nat64;
+  user_id : text;
+  conversations : vec EnhancedChatMessage;
+};
 type UserProfile = record {
   preferred_name : opt text;
   personality_traits : vec text;
@@ -228,16 +267,27 @@ type WorkContext = record {
   industry : opt text;
 };
 service : {
+  create_consent_link : (principal, ConsentLink) -> (Result);
+  create_milestone_capsule : (principal, MilestoneCapsule) -> (Result);
+  create_smart_routine : (principal, SmartRoutine) -> (Result);
+  export_user_data : (principal) -> (Result_1) query;
+  get_ai_coach_suggestions : (principal, text) -> (Result_2) query;
   get_available_providers : () -> (vec text) query;
   get_canister_metrics : () -> (CanisterMetrics) query;
+  get_user_consent_links : (principal) -> (Result_3) query;
   get_user_conversations : (principal) -> (vec EnhancedChatMessage) query;
-  get_user_dashboard : (principal) -> (Result) query;
+  get_user_dashboard : (principal) -> (Result_4) query;
   get_user_knowledge_graph : (principal) -> (opt PersonalKnowledgeGraph) query;
   get_user_memories : (principal, opt nat32) -> (vec MemoryNode) query;
+  get_user_milestone_capsules : (principal) -> (Result_5) query;
+  get_user_routines : (principal) -> (Result_6) query;
   greet : (text) -> (text) query;
-  icp_ai_prompt : (text, opt text, opt text, opt bool) -> (Result_1);
-  memory_mind_prompt : (text, opt text, opt bool) -> (Result_1);
-  prompt : (text) -> (Result_1);
+  icp_ai_prompt : (text, opt text, opt text, opt bool) -> (Result);
+  memory_mind_prompt : (text, opt text, opt bool) -> (Result);
+  prompt : (text) -> (Result);
+  save_conversation : (principal, EnhancedChatMessage) -> (Result);
+  search_user_memories : (principal, text, opt nat32) -> (Result_7) query;
   set_api_key : (text) -> ();
-  update_user_profile : (principal, UserProfileUpdate) -> (Result_1);
+  update_user_preferences : (principal, ResponsePreferences) -> (Result);
+  update_user_profile : (principal, UserProfileUpdate) -> (Result);
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { backend } from 'declarations/backend';
-import { FiFileText, FiHeart, FiTarget, FiUsers, FiStar, FiBook, FiLink, FiFile, FiZap, FiArrowLeft, FiHome, FiGitBranch, FiGlobe, FiAward, FiBox, FiSettings, FiCpu } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiDownload, FiUpload, FiRefreshCw, FiArrowLeft, FiHome, FiUsers, FiBox, FiLink, FiTrendingUp, FiBrain, FiCalendar, FiStar, FiBell, FiX, FiFileText, FiHeart, FiTarget, FiBook, FiFile, FiSettings, FiGitBranch, FiZap, FiGlobe, FiAward } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
 
 const MemoryDashboard = ({
@@ -18,6 +18,11 @@ const MemoryDashboard = ({
   const [selectedMemoryType, setSelectedMemoryType] = useState('all');
   const [isLoadingAction, setIsLoadingAction] = useState(false);
   const [activeAction, setActiveAction] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
   
   useEffect(() => {
     if (userKnowledgeGraph && userKnowledgeGraph.memory_nodes) {
@@ -25,6 +30,100 @@ const MemoryDashboard = ({
       setMemories(memoryArray);
     }
   }, [userKnowledgeGraph]);
+
+  // Initialize notifications
+  useEffect(() => {
+    const initNotifications = [
+      {
+        id: 1,
+        type: 'info',
+        title: 'Memory System Active',
+        message: 'Your personal knowledge graph is learning from conversations',
+        timestamp: Date.now(),
+        read: false
+      },
+      {
+        id: 2,
+        type: 'success',
+        title: 'New Features Available',
+        message: 'Smart Routines, Milestone Capsules, and Consent Links are now ready',
+        timestamp: Date.now() - 3600000,
+        read: false
+      }
+    ];
+    setNotifications(initNotifications);
+  }, []);
+
+  // Enhanced memory search function
+  const handleSearch = async (query) => {
+    if (!query.trim() || !userPrincipal) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const results = await backend.search_user_memories(userPrincipal, query, 10);
+      if (results.Ok) {
+        setSearchResults(results.Ok);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      toast.error('Failed to search memories');
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, userPrincipal]);
+
+  const handleExportData = async () => {
+    if (!userPrincipal) return;
+    
+    setIsLoadingAction(true);
+    setActiveAction('export');
+    const loadingToast = toast.loading('Exporting your data...');
+    
+    try {
+      const exportData = await backend.export_user_data(userPrincipal);
+      if (exportData.Ok) {
+        const dataStr = JSON.stringify(exportData.Ok, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `memory-export-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        toast.success('Data exported successfully!', { id: loadingToast });
+      } else {
+        toast.error('Failed to export data', { id: loadingToast });
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export data', { id: loadingToast });
+    } finally {
+      setIsLoadingAction(false);
+      setActiveAction(null);
+    }
+  };
+
+  const markNotificationAsRead = (id) => {
+    setNotifications(prev => 
+      prev.map(notif => notif.id === id ? { ...notif, read: true } : notif)
+    );
+  };
+
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   const formatDate = (timestamp) => {
     return new Date(Number(timestamp) / 1000000).toLocaleDateString();
@@ -204,18 +303,68 @@ const MemoryDashboard = ({
           <p className="text-gray-600 mt-1">Welcome back, {userPrincipal ? `${userPrincipal.slice(0, 5)}...${userPrincipal.slice(-3)}` : 'User'}</p>
         </div>
         <div className="flex items-center space-x-3">
+          {/* Notification Bell */}
+          <div className="relative">
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="p-2 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200 relative" 
+              title="Notifications"
+            >
+              <FiBell className="h-5 w-5 text-gray-600" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+            
+            {/* Notifications Dropdown */}
+            {showNotifications && (
+              <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50">
+                <div className="p-4 border-b border-gray-100">
+                  <h3 className="font-semibold text-gray-900">Notifications</h3>
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="p-4 text-center text-gray-500">
+                      No notifications
+                    </div>
+                  ) : (
+                    notifications.map((notification) => (
+                      <div 
+                        key={notification.id}
+                        className={`p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer ${!notification.read ? 'bg-blue-50' : ''}`}
+                        onClick={() => markNotificationAsRead(notification.id)}
+                      >
+                        <div className="flex items-start space-x-3">
+                          <div className={`w-2 h-2 rounded-full mt-2 ${notification.type === 'success' ? 'bg-green-500' : notification.type === 'error' ? 'bg-red-500' : 'bg-blue-500'}`} />
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900 text-sm">{notification.title}</h4>
+                            <p className="text-gray-600 text-sm mt-1">{notification.message}</p>
+                            <p className="text-gray-400 text-xs mt-2">
+                              {new Date(notification.timestamp).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          
           <button 
             onClick={onBackToWelcome} 
             className="p-2 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200" 
             title="Back to Welcome"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+            <FiHome className="h-5 w-5 text-gray-600" />
           </button>
           <button 
             onClick={onBackToChat} 
-            className="bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="px-4 py-2 bg-gradient-to-r from-red-500 to-blue-500 text-white rounded-xl hover:from-red-600 hover:to-blue-600 transition-all duration-200 font-medium" 
+            title="Back to Chat"
           >
             Back to Chat
           </button>
@@ -227,7 +376,7 @@ const MemoryDashboard = ({
           <h2 className="text-xl font-semibold text-gray-800 mb-6">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <ActionButton 
-              icon={<FiGitBranch className="text-blue-500" size={20} />} 
+              icon={<FiGitBranch className="text-white" size={20} />} 
               title="Memory Garden" 
               subtitle="Visualize connections" 
               onClick={handleMemoryGarden} 
@@ -236,7 +385,7 @@ const MemoryDashboard = ({
               colorClass="bg-gradient-to-br from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600" 
             />
             <ActionButton 
-              icon={<FiZap className="text-blue-500" size={20} />} 
+              icon={<FiZap className="text-white" size={20} />} 
               title="Learning Insights" 
               subtitle="Track your progress" 
               onClick={handleLearningInsights} 
@@ -245,21 +394,21 @@ const MemoryDashboard = ({
               colorClass="bg-gradient-to-br from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600" 
             />
             <ActionButton 
-              icon={<FiGlobe className="text-blue-500" size={20} />} 
-              title="Share Profile" 
-              subtitle="Export your data" 
-              onClick={handleShareProfile} 
+              icon={<FiDownload className="text-white" size={20} />} 
+              title="Export Data" 
+              subtitle="Download your data" 
+              onClick={handleExportData} 
               disabled={isLoadingAction} 
-              isActive={activeAction === 'share'} 
+              isActive={activeAction === 'export'} 
               colorClass="bg-gradient-to-br from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600" 
             />
             <ActionButton 
-              icon={<FiAward className="text-blue-500" size={20} />} 
+              icon={<FiAward className="text-white" size={20} />} 
               title="Mint Milestone NFT" 
               subtitle="Celebrate achievements" 
-              onClick={handleMintNFT} 
+              onClick={handleMintMilestone} 
               disabled={isLoadingAction} 
-              isActive={activeAction === 'nft'} 
+              isActive={activeAction === 'mint'} 
               colorClass="bg-gradient-to-br from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600" 
             />
           </div>
@@ -290,11 +439,11 @@ const MemoryDashboard = ({
               <span className="text-sm font-medium text-gray-700">Consent Links</span>
             </button>
             <button
-              onClick={onRefresh}
+              onClick={handleExportData}
               className="flex flex-col items-center p-4 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 border border-gray-200 hover:border-gray-300"
             >
-              <FiSettings className="text-2xl mb-2 text-blue-500" />
-              <span className="text-sm font-medium text-gray-700">Refresh Data</span>
+              <FiDownload className="text-2xl mb-2 text-blue-500" />
+              <span className="text-sm font-medium text-gray-700">Export Data</span>
             </button>
           </div>
         </div>
@@ -354,7 +503,7 @@ const MemoryDashboard = ({
                         : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                     }`}
                   >
-                    <span className="mr-2">{getMemoryTypeIcon(type)}</span>
+                    <span className="mr-2">{type !== 'all' ? getMemoryTypeIcon(type) : <FiStar className="text-blue-500" size={16} />}</span>
                     {type === 'all' ? 'All' : type} ({count})
                   </button>
                 );

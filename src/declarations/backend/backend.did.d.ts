@@ -204,6 +204,8 @@ export type Result_6 = { 'Ok' : Array<SmartRoutine> } |
   { 'Err' : string };
 export type Result_7 = { 'Ok' : Array<MemoryNode> } |
   { 'Err' : string };
+export type Result_8 = { 'Ok' : null } |
+  { 'Err' : string };
 export type Sentiment = { 'Negative' : null } |
   { 'Excited' : null } |
   { 'Curious' : null } |
@@ -267,8 +269,10 @@ export interface UserProfile {
   'preferred_name' : [] | [string],
   'personality_traits' : Array<string>,
   'interests' : Array<string>,
+  'auto_transcribe' : [] | [boolean],
   'name' : [] | [string],
   'response_preferences' : ResponsePreferences,
+  'voice_language' : [] | [string],
   'work_context' : [] | [WorkContext],
   'knowledge_domains' : Array<[string, number]>,
   'goals' : Array<PersonalGoal>,
@@ -276,6 +280,7 @@ export interface UserProfile {
   'expertise_areas' : Array<string>,
   'relationships' : Array<PersonalRelationship>,
   'conversation_patterns' : ConversationPatterns,
+  'voice_commands_enabled' : [] | [boolean],
   'communication_style' : CommunicationStyle,
 }
 export interface UserProfileUpdate {
@@ -327,6 +332,10 @@ export interface _SERVICE {
     [string, [] | [string], [] | [boolean]],
     Result
   >,
+  'process_voice_input' : ActorMethod<
+    [Principal, Uint8Array | number[], string, string],
+    Result
+  >,
   'prompt' : ActorMethod<[string], Result>,
   'save_conversation' : ActorMethod<[Principal, EnhancedChatMessage], Result>,
   'search_user_memories' : ActorMethod<
@@ -339,6 +348,10 @@ export interface _SERVICE {
     Result
   >,
   'update_user_profile' : ActorMethod<[Principal, UserProfileUpdate], Result>,
+  'update_voice_preferences' : ActorMethod<
+    [Principal, string, boolean, boolean],
+    Result_8
+  >,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

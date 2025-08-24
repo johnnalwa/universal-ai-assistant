@@ -188,8 +188,10 @@ export const idlFactory = ({ IDL }) => {
     'preferred_name' : IDL.Opt(IDL.Text),
     'personality_traits' : IDL.Vec(IDL.Text),
     'interests' : IDL.Vec(IDL.Text),
+    'auto_transcribe' : IDL.Opt(IDL.Bool),
     'name' : IDL.Opt(IDL.Text),
     'response_preferences' : ResponsePreferences,
+    'voice_language' : IDL.Opt(IDL.Text),
     'work_context' : IDL.Opt(WorkContext),
     'knowledge_domains' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Float32)),
     'goals' : IDL.Vec(PersonalGoal),
@@ -197,6 +199,7 @@ export const idlFactory = ({ IDL }) => {
     'expertise_areas' : IDL.Vec(IDL.Text),
     'relationships' : IDL.Vec(PersonalRelationship),
     'conversation_patterns' : ConversationPatterns,
+    'voice_commands_enabled' : IDL.Opt(IDL.Bool),
     'communication_style' : CommunicationStyle,
   });
   const PersonalKnowledgeGraph = IDL.Record({
@@ -320,6 +323,7 @@ export const idlFactory = ({ IDL }) => {
     'response_preferences' : IDL.Opt(ResponsePreferences),
     'goals' : IDL.Opt(IDL.Vec(PersonalGoal)),
   });
+  const Result_8 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : IDL.Text });
   return IDL.Service({
     'create_consent_link' : IDL.Func(
         [IDL.Principal, ConsentLink],
@@ -378,6 +382,11 @@ export const idlFactory = ({ IDL }) => {
         [Result],
         [],
       ),
+    'process_voice_input' : IDL.Func(
+        [IDL.Principal, IDL.Vec(IDL.Nat8), IDL.Text, IDL.Text],
+        [Result],
+        [],
+      ),
     'prompt' : IDL.Func([IDL.Text], [Result], []),
     'save_conversation' : IDL.Func(
         [IDL.Principal, EnhancedChatMessage],
@@ -398,6 +407,11 @@ export const idlFactory = ({ IDL }) => {
     'update_user_profile' : IDL.Func(
         [IDL.Principal, UserProfileUpdate],
         [Result],
+        [],
+      ),
+    'update_voice_preferences' : IDL.Func(
+        [IDL.Principal, IDL.Text, IDL.Bool, IDL.Bool],
+        [Result_8],
         [],
       ),
   });

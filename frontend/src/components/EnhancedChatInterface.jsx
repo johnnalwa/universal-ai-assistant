@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { backend } from 'declarations/backend';
 import ReactMarkdown from 'react-markdown';
+import { FiMic, FiMicOff, FiSettings, FiSend, FiPaperclip, FiMoreHorizontal } from 'react-icons/fi';
 import '../styles/enhanced-chat.css';
 
 const EnhancedChatInterface = ({ 
@@ -25,6 +26,10 @@ const EnhancedChatInterface = ({
   const [showProofSources, setShowProofSources] = useState({});
   const [showInputOptions, setShowInputOptions] = useState(false);
   const [isBoosted, setIsBoosted] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [audioChunks, setAudioChunks] = useState([]);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -148,6 +153,116 @@ const EnhancedChatInterface = ({
     setShowInputOptions(false);
   };
 
+  const startVoiceRecording = async () => {
+    try {
+      // Check if Web Speech API is supported
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert('Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.');
+        return;
+      }
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = voiceLanguage;
+
+      let finalTranscript = '';
+      let interimTranscript = '';
+
+      recognition.onstart = () => {
+        setIsRecording(true);
+        console.log('Voice recognition started');
+      };
+
+      recognition.onresult = (event) => {
+        interimTranscript = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript + ' ';
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        
+        // Update the input field with both final and interim results
+        const fullTranscript = finalTranscript + interimTranscript;
+        setMessage(prev => {
+          // Replace any previous transcription with the new one
+          const baseMessage = prev.replace(/\[Voice: .*?\]/g, '').trim();
+          return baseMessage + (baseMessage ? ' ' : '') + fullTranscript;
+        });
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsRecording(false);
+        
+        switch (event.error) {
+          case 'no-speech':
+            alert('No speech detected. Please try again.');
+            break;
+          case 'audio-capture':
+            alert('Microphone not accessible. Please check permissions.');
+            break;
+          case 'not-allowed':
+            alert('Microphone permission denied. Please allow microphone access.');
+            break;
+          default:
+            alert(`Speech recognition error: ${event.error}`);
+        }
+      };
+
+      recognition.onend = () => {
+        setIsRecording(false);
+        console.log('Voice recognition ended');
+        
+        // Clean up the final transcript
+        if (finalTranscript.trim()) {
+          setMessage(prev => {
+            const baseMessage = prev.replace(/\[Voice: .*?\]/g, '').trim();
+            return baseMessage + (baseMessage ? ' ' : '') + finalTranscript.trim();
+          });
+        }
+      };
+
+      setMediaRecorder(recognition);
+      recognition.start();
+      
+    } catch (error) {
+      console.error('Error starting voice recognition:', error);
+      alert('Unable to start voice recognition. Please check your microphone permissions.');
+    }
+  };
+
+  const stopVoiceRecording = () => {
+    if (mediaRecorder && typeof mediaRecorder.stop === 'function') {
+      mediaRecorder.stop();
+      setIsRecording(false);
+    }
+  };
+
+  // Add language selection for voice recognition
+  const [voiceLanguage, setVoiceLanguage] = useState('en-US');
+  
+  const supportedLanguages = [
+    { code: 'en-US', name: 'English (US)' },
+    { code: 'en-GB', name: 'English (UK)' },
+    { code: 'es-ES', name: 'Spanish' },
+    { code: 'fr-FR', name: 'French' },
+    { code: 'de-DE', name: 'German' },
+    { code: 'it-IT', name: 'Italian' },
+    { code: 'pt-BR', name: 'Portuguese' },
+    { code: 'ru-RU', name: 'Russian' },
+    { code: 'ja-JP', name: 'Japanese' },
+    { code: 'ko-KR', name: 'Korean' },
+    { code: 'zh-CN', name: 'Chinese (Simplified)' }
+  ];
+
   const handleFileUpload = () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -158,9 +273,6 @@ const EnhancedChatInterface = ({
       const files = Array.from(e.target.files);
       if (files.length === 0) return;
       
-      console.log('Files selected:', files.map(f => f.name));
-      
-      // Process files
       for (const file of files) {
         if (file.type.startsWith('text/') || file.name.endsWith('.txt')) {
           try {
@@ -171,7 +283,6 @@ const EnhancedChatInterface = ({
             console.error('Error reading file:', error);
           }
         } else {
-          // For non-text files, just show the file info
           const fileInfo = `📎 **Attached: ${file.name}** (${(file.size / 1024).toFixed(1)} KB)`;
           setMessage(prev => prev + (prev ? '\n\n' : '') + fileInfo);
         }
@@ -190,23 +301,20 @@ const EnhancedChatInterface = ({
             <span className="title-icon">💬</span>
             AI Conversation
             {isConfidential && (
-              <span className="confidential-badge" title="Confidential Mode Active - Messages not stored">
+              <span className="confidential-badge">
                 🔒 Private
               </span>
             )}
           </h2>
           <div className="header-controls">
             <button 
-              className={`header-btn settings-btn ${isSettingsVisible ? 'active' : ''}`} 
-              onClick={() => setIsSettingsVisible(!isSettingsVisible)} 
-              title="Toggle Settings"
+              className={`header-btn ${isSettingsVisible ? 'active' : ''}`} 
+              onClick={() => setIsSettingsVisible(!isSettingsVisible)}
             >
-              <span className="btn-icon">⚙️</span>
-              <span className="btn-label">Settings</span>
+              <FiSettings size={16} />
             </button>
-            <button className="header-btn clear-btn" onClick={handleClearChat} title="Clear chat">
-              <span className="btn-icon">🗑️</span>
-              <span className="btn-label">Clear</span>
+            <button className="header-btn" onClick={handleClearChat}>
+              🗑️
             </button>
           </div>
         </div>
@@ -214,79 +322,69 @@ const EnhancedChatInterface = ({
 
       {isSettingsVisible && (
         <div className="chat-settings">
-          <div className="settings-header">
-            <h3 className="settings-title">
-              <span className="settings-icon">⚙️</span>
-              Chat Configuration
-            </h3>
-          </div>
           <div className="settings-grid">
-            <div className="setting-group">
-              <label className="setting-label">
-                <span className="label-icon">🤖</span>
-                AI Provider
-              </label>
-              <select 
-                value={selectedProvider} 
-                onChange={(e) => setSelectedProvider(e.target.value)}
-                className="setting-select"
-              >
-                <option value="gemini">🔮 Google Gemini</option>
-                <option value="openai">🧠 OpenAI GPT</option>
-                <option value="claude">🎭 Anthropic Claude</option>
-              </select>
-            </div>
+            <select 
+              value={selectedProvider} 
+              onChange={(e) => setSelectedProvider(e.target.value)}
+              className="setting-select"
+            >
+              <option value="gemini">🔮 Gemini</option>
+              <option value="openai">🧠 GPT</option>
+              <option value="claude">🎭 Claude</option>
+            </select>
 
-            <div className="setting-group">
-              <label className="setting-label">
-                <span className="label-icon">🎨</span>
-                Assistant Style
-              </label>
-              <select 
-                value={assistantType} 
-                onChange={(e) => setAssistantType(e.target.value)}
-                className="setting-select"
-              >
-                <option value="casual">😊 Casual</option>
-                <option value="professional">💼 Professional</option>
-                <option value="creative">🎨 Creative</option>
-                <option value="technical">🔧 Technical</option>
-              </select>
-            </div>
+            <select 
+              value={assistantType} 
+              onChange={(e) => setAssistantType(e.target.value)}
+              className="setting-select"
+            >
+              <option value="casual">😊 Casual</option>
+              <option value="professional">💼 Professional</option>
+              <option value="creative">🎨 Creative</option>
+              <option value="technical">🔧 Technical</option>
+            </select>
 
-            <div className="setting-group checkbox-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={icpMode}
+                onChange={(e) => setIcpMode(e.target.checked)}
+              />
+              <span>⚡ ICP Mode</span>
+            </label>
+
+            {icpMode && (
               <label className="checkbox-label">
                 <input
                   type="checkbox"
-                  checked={icpMode}
-                  onChange={(e) => setIcpMode(e.target.checked)}
-                  className="setting-checkbox"
+                  checked={storeOnChain}
+                  onChange={(e) => setStoreOnChain(e.target.checked)}
                 />
-                <span className="checkbox-custom"></span>
-                <span className="checkbox-text">
-                  <span className="checkbox-icon">⚡</span>
-                  ICP Mode
-                </span>
+                <span>🔗 Store on-chain</span>
               </label>
-            </div>
-
-            {icpMode && (
-              <div className="setting-group checkbox-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={storeOnChain}
-                    onChange={(e) => setStoreOnChain(e.target.checked)}
-                    className="setting-checkbox"
-                  />
-                  <span className="checkbox-custom"></span>
-                  <span className="checkbox-text">
-                    <span className="checkbox-icon">🔗</span>
-                    Store on-chain
-                  </span>
-                </label>
-              </div>
             )}
+
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={isConfidential}
+                onChange={(e) => setIsConfidential(e.target.checked)}
+              />
+              <span>🔒 Private Mode</span>
+            </label>
+
+            <select 
+              value={voiceLanguage} 
+              onChange={(e) => setVoiceLanguage(e.target.value)}
+              className="setting-select"
+              title="Voice Recognition Language"
+            >
+              {supportedLanguages.map(lang => (
+                <option key={lang.code} value={lang.code}>
+                  🎤 {lang.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       )}
@@ -381,77 +479,54 @@ const EnhancedChatInterface = ({
       <div className="input-container">
         <form onSubmit={handleSendMessage} className="input-form">
           <div className="input-wrapper">
+            <div className="input-actions">
+              <button 
+                type="button"
+                className="action-btn"
+                onClick={handleFileUpload}
+                title="Attach file"
+              >
+                <FiPaperclip size={16} />
+              </button>
+              
+              <button 
+                type="button"
+                onClick={isRecording ? stopVoiceRecording : startVoiceRecording}
+                className={`voice-recording-btn ${isRecording ? 'recording' : ''}`}
+                title={isRecording ? 'Stop Recording' : 'Start Voice Recording'}
+              >
+                {isRecording ? '⏹️' : '🎤'}
+              </button>
+            </div>
+            
             <textarea
               ref={inputRef}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={isLoading ? "AI is thinking..." : "Type your message..."}
-              disabled={isLoading}
+              placeholder={isLoading ? "AI is thinking..." : isTranscribing ? "Transcribing..." : "Type your message..."}
+              disabled={isLoading || isTranscribing}
               className="message-input"
               rows={1}
             />
+            
             <button 
               type="submit" 
-              disabled={!message.trim() || isLoading}
+              disabled={!message.trim() || isLoading || isTranscribing}
               className="send-btn"
             >
-              {isLoading ? '⏳' : '➤'}
+              <FiSend size={16} />
             </button>
-            <div className="input-options-container">
-              <button 
-                className="input-options-toggle"
-                onClick={() => setShowInputOptions(!showInputOptions)}
-                title="More options"
-              >
-                +
-              </button>
-              {showInputOptions && (
-                <div className="input-options-menu">
-                  <div className="options-header">
-                    <span className="options-title">Message Options</span>
-                  </div>
-                  <div className="options-grid">
-                    <button 
-                      className={`input-option-item ${isConfidential ? 'active' : ''}`}
-                      onClick={() => {
-                        setIsConfidential(!isConfidential);
-                        setShowInputOptions(false);
-                      }}
-                    >
-                      <span className="option-icon">🔒</span>
-                      <div className="option-content">
-                        <span className="option-title">Confidential</span>
-                        <span className="option-desc">Private conversation</span>
-                      </div>
-                      {isConfidential && <span className="option-status">✓</span>}
-                    </button>
-                    <button 
-                      className="input-option-item"
-                      onClick={handleFileUpload}
-                    >
-                      <span className="option-icon">📎</span>
-                      <div className="option-content">
-                        <span className="option-title">Attach File</span>
-                        <span className="option-desc">Upload document</span>
-                      </div>
-                    </button>
-                    <button 
-                      className={`input-option-item boost ${isBoosted ? 'active' : ''}`}
-                      onClick={handleBoostToggle}
-                    >
-                      <span className="option-icon">⚡</span>
-                      <div className="option-content">
-                        <span className="option-title">Boost Message</span>
-                        <span className="option-desc">{isBoosted ? 'Enhanced mode active' : 'Enhanced processing'}</span>
-                      </div>
-                      {isBoosted && <span className="option-status">✓</span>}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
+          
+          {(isRecording || isTranscribing) && (
+            <div className={`voice-status ${isRecording ? 'recording' : 'transcribing'}`}>
+              <div className="voice-status-dot"></div>
+              <span>
+                {isRecording ? 'Recording...' : 'Transcribing...'}
+              </span>
+            </div>
+          )}
         </form>
       </div>
     </div>

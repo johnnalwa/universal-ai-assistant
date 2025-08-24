@@ -60,6 +60,11 @@ struct UserProfile {
     knowledge_domains: HashMap<String, f32>, // domain -> expertise level
     conversation_patterns: ConversationPatterns,
     response_preferences: ResponsePreferences,
+    
+    // Voice & Audio Preferences
+    voice_language: Option<String>,
+    auto_transcribe: Option<bool>,
+    voice_commands_enabled: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Clone, CandidType)]
@@ -1504,6 +1509,71 @@ fn extract_consent_access_level(content: &str) -> String {
     } else {
         "read".to_string()
     }
+}
+
+// Voice processing endpoint
+#[ic_cdk::update]
+async fn process_voice_input(
+    user: Principal,
+    audio_data: Vec<u8>,
+    language: String,
+    format: String
+) -> Result<String, String> {
+    let caller = ic_cdk::caller();
+    if caller != user && !ic_cdk::api::is_controller(&caller) {
+        return Err("Unauthorized".to_string());
+    }
+
+    // For now, return a placeholder response
+    // In a full implementation, this would:
+    // 1. Process the audio data using a speech-to-text service
+    // 2. Store the transcription in the user's knowledge graph
+    // 3. Return the transcribed text
+    
+    Ok(format!(
+        "Voice input received: {} bytes of {} audio in {} language. Transcription would be processed here.",
+        audio_data.len(),
+        format,
+        language
+    ))
+}
+
+// Enhanced voice settings for user preferences
+#[ic_cdk::update]
+fn update_voice_preferences(
+    user: Principal,
+    language: String,
+    auto_transcribe: bool,
+    voice_commands_enabled: bool
+) -> Result<(), String> {
+    let caller = ic_cdk::caller();
+    if caller != user && !ic_cdk::api::is_controller(&caller) {
+        return Err("Unauthorized".to_string());
+    }
+
+    STATE.with(|state| {
+        let mut state = state.borrow_mut();
+        
+        if let Some(kg) = state.personal_knowledge_graphs.get_mut(&user) {
+            // Update voice preferences in user profile
+            kg.user_profile.voice_language = Some(language);
+            kg.user_profile.auto_transcribe = Some(auto_transcribe);
+            kg.user_profile.voice_commands_enabled = Some(voice_commands_enabled);
+            kg.last_updated = ic_cdk::api::time();
+            
+            Ok(())
+        } else {
+            // Create new knowledge graph with voice preferences
+            let mut new_kg = PersonalKnowledgeGraph::default();
+            new_kg.user_profile.voice_language = Some(language);
+            new_kg.user_profile.auto_transcribe = Some(auto_transcribe);
+            new_kg.user_profile.voice_commands_enabled = Some(voice_commands_enabled);
+            new_kg.last_updated = ic_cdk::api::time();
+            
+            state.personal_knowledge_graphs.insert(user, new_kg);
+            Ok(())
+        }
+    })
 }
 
 ic_cdk::export_candid!();

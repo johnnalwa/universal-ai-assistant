@@ -185,6 +185,7 @@ type Result_4 = variant { Ok : UserDashboard; Err : text };
 type Result_5 = variant { Ok : vec MilestoneCapsule; Err : text };
 type Result_6 = variant { Ok : vec SmartRoutine; Err : text };
 type Result_7 = variant { Ok : vec MemoryNode; Err : text };
+type Result_8 = variant { Ok; Err : text };
 type Sentiment = variant {
   Negative;
   Excited;
@@ -242,8 +243,10 @@ type UserProfile = record {
   preferred_name : opt text;
   personality_traits : vec text;
   interests : vec text;
+  auto_transcribe : opt bool;
   name : opt text;
   response_preferences : ResponsePreferences;
+  voice_language : opt text;
   work_context : opt WorkContext;
   knowledge_domains : vec record { text; float32 };
   goals : vec PersonalGoal;
@@ -251,6 +254,7 @@ type UserProfile = record {
   expertise_areas : vec text;
   relationships : vec PersonalRelationship;
   conversation_patterns : ConversationPatterns;
+  voice_commands_enabled : opt bool;
   communication_style : CommunicationStyle;
 };
 type UserProfileUpdate = record {
@@ -284,10 +288,12 @@ service : {
   greet : (text) -> (text) query;
   icp_ai_prompt : (text, opt text, opt text, opt bool) -> (Result);
   memory_mind_prompt : (text, opt text, opt bool) -> (Result);
+  process_voice_input : (principal, blob, text, text) -> (Result);
   prompt : (text) -> (Result);
   save_conversation : (principal, EnhancedChatMessage) -> (Result);
   search_user_memories : (principal, text, opt nat32) -> (Result_7) query;
   set_api_key : (text) -> ();
   update_user_preferences : (principal, ResponsePreferences) -> (Result);
   update_user_profile : (principal, UserProfileUpdate) -> (Result);
+  update_voice_preferences : (principal, text, bool, bool) -> (Result_8);
 }

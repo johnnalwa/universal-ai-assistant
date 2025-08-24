@@ -261,342 +261,165 @@ const MemoryDashboard = ({
   );
 
   return (
-    <div className="min-h-full bg-white p-4 sm:p-6 lg:p-8">
-      <Toaster 
-        position="top-right"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: '#fff',
-            color: '#374151',
-            border: '1px solid #e5e7eb',
-            borderRadius: '12px',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-          },
-          success: {
-            iconTheme: {
-              primary: '#10b981',
-              secondary: '#fff',
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: '#ef4444',
-              secondary: '#fff',
-            },
-          },
-          loading: {
-            iconTheme: {
-              primary: '#3b82f6',
-              secondary: '#fff',
-            },
-          },
-        }}
-      />
+    <div className="min-h-full bg-white p-3">
+      <Toaster position="top-right" />
       
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+      {/* Simplified Header */}
+      <div className="flex justify-between items-center mb-4">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 to-blue-500 bg-clip-text text-transparent">
-            Memory Dashboard
-          </h1>
-          <p className="text-gray-600 mt-1">Welcome back, {userPrincipal ? `${userPrincipal.slice(0, 5)}...${userPrincipal.slice(-3)}` : 'User'}</p>
+          <h1 className="text-2xl font-bold text-gray-900">My AI Memory</h1>
+          <p className="text-sm text-gray-500">What I've learned about you</p>
         </div>
-        <div className="flex items-center space-x-3">
-          {/* Notification Bell */}
-          <div className="relative">
-            <button 
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200 relative" 
-              title="Notifications"
-            >
-              <FiBell className="h-5 w-5 text-gray-600" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-            
-            {/* Notifications Dropdown */}
-            {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50">
-                <div className="p-4 border-b border-gray-100">
-                  <h3 className="font-semibold text-gray-900">Notifications</h3>
-                </div>
-                <div className="max-h-96 overflow-y-auto">
-                  {notifications.length === 0 ? (
-                    <div className="p-4 text-center text-gray-500">
-                      No notifications
-                    </div>
-                  ) : (
-                    notifications.map((notification) => (
-                      <div 
-                        key={notification.id}
-                        className={`p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer ${!notification.read ? 'bg-blue-50' : ''}`}
-                        onClick={() => markNotificationAsRead(notification.id)}
-                      >
-                        <div className="flex items-start space-x-3">
-                          <div className={`w-2 h-2 rounded-full mt-2 ${notification.type === 'success' ? 'bg-green-500' : notification.type === 'error' ? 'bg-red-500' : 'bg-blue-500'}`} />
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900 text-sm">{notification.title}</h4>
-                            <p className="text-gray-600 text-sm mt-1">{notification.message}</p>
-                            <p className="text-gray-400 text-xs mt-2">
-                              {new Date(notification.timestamp).toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
+        <button 
+          onClick={onBackToChat} 
+          className="px-3 py-1.5 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600"
+        >
+          Back to Chat
+        </button>
+      </div>
+
+      {/* Quick Stats */}
+      {userDashboard && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div className="bg-blue-50 rounded-lg p-3 text-center">
+            <div className="text-xl font-bold text-blue-600">{Number(userDashboard.knowledge_nodes_count)}</div>
+            <div className="text-xs text-gray-600">Memories</div>
           </div>
-          
-          <button 
-            onClick={onBackToWelcome} 
-            className="p-2 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200" 
-            title="Back to Welcome"
-          >
-            <FiHome className="h-5 w-5 text-gray-600" />
-          </button>
-          <button 
-            onClick={onBackToChat} 
-            className="px-4 py-2 bg-gradient-to-r from-red-500 to-blue-500 text-white rounded-xl hover:from-red-600 hover:to-blue-600 transition-all duration-200 font-medium" 
-            title="Back to Chat"
-          >
-            Back to Chat
-          </button>
+          <div className="bg-green-50 rounded-lg p-3 text-center">
+            <div className="text-xl font-bold text-green-600">{Math.round((userDashboard.memory_strength || 0) * 100)}%</div>
+            <div className="text-xs text-gray-600">Strength</div>
+          </div>
+          <div className="bg-purple-50 rounded-lg p-3 text-center">
+            <div className="text-xl font-bold text-purple-600">{Math.round((userDashboard.learning_progress || 0) * 100)}%</div>
+            <div className="text-xs text-gray-600">Progress</div>
+          </div>
+          <div className="bg-orange-50 rounded-lg p-3 text-center">
+            <div className="text-xl font-bold text-orange-600">{Number(userDashboard.days_since_first_interaction)}</div>
+            <div className="text-xs text-gray-600">Days</div>
+          </div>
+        </div>
+      )}
+
+      {/* Simple Actions */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        <button
+          onClick={handleExportData}
+          disabled={isLoadingAction}
+          className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm flex items-center gap-2"
+        >
+          <FiDownload size={14} />
+          Export Data
+        </button>
+        <button
+          onClick={onOpenSmartRoutines}
+          className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm flex items-center gap-2"
+        >
+          <FiUsers size={14} />
+          Routines
+        </button>
+        <button
+          onClick={onOpenMilestoneCapsules}
+          className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm flex items-center gap-2"
+        >
+          <FiBox size={14} />
+          Milestones
+        </button>
+      </div>
+
+      {/* Memory Type Filters */}
+      <div className="mb-4">
+        <div className="flex flex-wrap gap-2">
+          {['all', 'Fact', 'Preference', 'Goal', 'Relationship', 'Experience', 'Knowledge'].map(type => {
+            const count = type === 'all' 
+              ? memories.length 
+              : memories.filter(m => m.node_type === type).length;
+            
+            return (
+              <button
+                key={type}
+                onClick={() => setSelectedMemoryType(type)}
+                className={`px-3 py-1.5 rounded-lg text-sm transition-all ${selectedMemoryType === type 
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {type === 'all' ? 'All' : type} ({count})
+              </button>
+            );
+          })}
         </div>
       </div>
 
-        {/* Primary Actions */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <ActionButton 
-              icon={<FiGitBranch className="text-white" size={20} />} 
-              title="Memory Garden" 
-              subtitle="Visualize connections" 
-              onClick={handleMemoryGarden} 
-              disabled={isLoadingAction} 
-              isActive={activeAction === 'garden'} 
-              colorClass="bg-gradient-to-br from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600" 
-            />
-            <ActionButton 
-              icon={<FiZap className="text-white" size={20} />} 
-              title="Learning Insights" 
-              subtitle="Track your progress" 
-              onClick={handleLearningInsights} 
-              disabled={isLoadingAction} 
-              isActive={activeAction === 'insights'} 
-              colorClass="bg-gradient-to-br from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600" 
-            />
-            <ActionButton 
-              icon={<FiDownload className="text-white" size={20} />} 
-              title="Export Data" 
-              subtitle="Download your data" 
-              onClick={handleExportData} 
-              disabled={isLoadingAction} 
-              isActive={activeAction === 'export'} 
-              colorClass="bg-gradient-to-br from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600" 
-            />
-            <ActionButton 
-              icon={<FiAward className="text-white" size={20} />} 
-              title="Mint Milestone NFT" 
-              subtitle="Celebrate achievements" 
-              onClick={handleMintMilestone} 
-              disabled={isLoadingAction} 
-              isActive={activeAction === 'mint'} 
-              colorClass="bg-gradient-to-br from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600" 
-            />
-          </div>
-        </div>
-
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">Tools & Utilities</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <button
-              onClick={onOpenSmartRoutines}
-              className="flex flex-col items-center p-4 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 border border-gray-200 hover:border-gray-300"
-            >
-              <FiUsers className="text-2xl mb-2 text-blue-500" />
-              <span className="text-sm font-medium text-gray-700">Smart Routines</span>
-            </button>
-            <button
-              onClick={onOpenMilestoneCapsules}
-              className="flex flex-col items-center p-4 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 border border-gray-200 hover:border-gray-300"
-            >
-              <FiBox className="text-2xl mb-2 text-blue-500" />
-              <span className="text-sm font-medium text-gray-700">Milestone Capsules</span>
-            </button>
-            <button
-              onClick={onOpenConsentLinks}
-              className="flex flex-col items-center p-4 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 border border-gray-200 hover:border-gray-300"
-            >
-              <FiLink className="text-2xl mb-2 text-blue-500" />
-              <span className="text-sm font-medium text-gray-700">Consent Links</span>
-            </button>
-            <button
-              onClick={handleExportData}
-              className="flex flex-col items-center p-4 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 border border-gray-200 hover:border-gray-300"
-            >
-              <FiDownload className="text-2xl mb-2 text-blue-500" />
-              <span className="text-sm font-medium text-gray-700">Export Data</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Stats Overview */}
-        {userDashboard && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Your Progress</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="bg-gradient-to-br from-red-50 to-blue-50 rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="text-3xl font-bold bg-gradient-to-r from-red-500 to-blue-500 bg-clip-text text-transparent mb-2">
-                  {Number(userDashboard.knowledge_nodes_count)}
+      {/* Memory List */}
+      <div className="space-y-3">
+        {filteredMemories.length > 0 ? (
+          filteredMemories.map((memory, index) => {
+            if (!memory || !memory.node_type) return null;
+            return (
+              <div
+                key={memory.id || index}
+                className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    {getMemoryTypeIcon(memory.node_type)}
+                    <span className="font-medium text-sm text-gray-900">{memory.node_type}</span>
+                  </div>
+                  <span className="text-xs text-gray-500">
+                    {formatDate(memory.created_at)}
+                  </span>
                 </div>
-                <div className="text-gray-600 text-sm font-medium">Memory Nodes</div>
-              </div>
-              
-              <div className="bg-gradient-to-br from-red-50 to-blue-50 rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="text-3xl font-bold bg-gradient-to-r from-red-500 to-blue-500 bg-clip-text text-transparent mb-2">
-                  {Math.round((userDashboard.memory_strength || 0) * 100)}%
+                
+                <p className="text-gray-700 text-sm mb-2 leading-relaxed">
+                  {memory.content}
+                </p>
+                
+                <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="flex items-center gap-3">
+                    <span>
+                      {[...Array(Math.round(memory.importance_score * 5))].map((_, i) => (
+                        <span key={i} className="text-yellow-400">★</span>
+                      ))}
+                    </span>
+                    <span>Used {memory.access_count} times</span>
+                  </div>
+                  
+                  {memory.tags && memory.tags.length > 0 && (
+                    <div className="flex gap-1">
+                      {memory.tags.slice(0, 2).map((tag, tagIndex) => (
+                        <span 
+                          key={tagIndex}
+                          className="bg-gray-100 px-2 py-0.5 rounded text-xs"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="text-gray-600 text-sm font-medium">Memory Strength</div>
               </div>
-              
-              <div className="bg-gradient-to-br from-red-50 to-blue-50 rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="text-3xl font-bold bg-gradient-to-r from-red-500 to-blue-500 bg-clip-text text-transparent mb-2">
-                  {Math.round((userDashboard.learning_progress || 0) * 100)}%
-                </div>
-                <div className="text-gray-600 text-sm font-medium">Learning Progress</div>
-              </div>
-              
-              <div className="bg-gradient-to-br from-red-50 to-blue-50 rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="text-3xl font-bold bg-gradient-to-r from-red-500 to-blue-500 bg-clip-text text-transparent mb-2">
-                  {Number(userDashboard.days_since_first_interaction)}
-                </div>
-                <div className="text-gray-600 text-sm font-medium">Days Learning</div>
-              </div>
+            );
+          })
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
+              🧠
             </div>
+            <h3 className="text-lg font-medium text-gray-700 mb-2">
+              {selectedMemoryType === 'all' ? 'No memories yet' : `No ${selectedMemoryType} memories`}
+            </h3>
+            <p className="text-gray-500 mb-4">
+              Chat with me to start building your personal knowledge graph
+            </p>
+            <button
+              onClick={onBackToChat}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600"
+            >
+              Start Chatting
+            </button>
           </div>
         )}
-
-        {/* Memory Type Filters */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">Memory Types</h2>
-          <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
-            <div className="flex flex-wrap gap-3">
-              {['all', 'Fact', 'Preference', 'Goal', 'Relationship', 'Experience', 'Knowledge'].map(type => {
-                const count = type === 'all' 
-                  ? memories.length 
-                  : memories.filter(m => m.node_type === type).length;
-                
-                return (
-                  <button
-                    key={type}
-                    onClick={() => setSelectedMemoryType(type)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${selectedMemoryType === type 
-                        ? 'bg-gradient-to-r from-red-500 to-blue-500 text-white shadow-lg'
-                        : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-                    }`}
-                  >
-                    <span className="mr-2">{type !== 'all' ? getMemoryTypeIcon(type) : <FiStar className="text-blue-500" size={16} />}</span>
-                    {type === 'all' ? 'All' : type} ({count})
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Memory Nodes Grid */}
-        <div>
-          {filteredMemories.length > 0 ? (
-            <div className="grid gap-5">
-              {filteredMemories.map((memory, index) => {
-                if (!memory || !memory.node_type) return null;
-                return (
-                <div
-                  key={memory.id || index}
-                  className={`${getMemoryTypeColor(memory.node_type)} rounded-2xl p-5 shadow-sm border transition-all duration-300 hover:shadow-lg hover:border-purple-300`}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">{getMemoryTypeIcon(memory.node_type)}</span>
-                      <span className="font-semibold text-base tracking-wide">{memory.node_type}</span>
-                    </div>
-                    <div className="text-xs opacity-75">
-                      {formatDate(memory.created_at)}
-                    </div>
-                  </div>
-                  
-                  <p className="text-gray-800 mb-4 leading-relaxed text-sm">
-                    {memory.content}
-                  </p>
-                  
-                  <div className="flex items-center justify-between text-xs text-gray-600">
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1">
-                        <span className="font-medium">Importance:</span>
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <span 
-                              key={i}
-                              className={i < Math.round(memory.importance_score * 5) ? 'text-yellow-400' : 'text-gray-300'}
-                            >
-                              ★
-                            </span>
-                          ))}
-                        </div>
-                      </span>
-                      
-                      <span>
-                        Accessed {memory.access_count} times
-                      </span>
-                    </div>
-                    
-                    {memory.tags && memory.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {memory.tags.map((tag, tagIndex) => (
-                          <span 
-                            key={tagIndex}
-                            className="bg-white/70 px-2 py-1 rounded-md text-xs"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                );
-              }).filter(Boolean)}
-            </div>
-          ) : (
-            <div className="text-center py-16">
-              <div className="inline-block bg-white/80 p-6 rounded-full shadow-lg mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                {selectedMemoryType === 'all' ? 'Your Memory Graph is Empty' : `No ${selectedMemoryType} Memories Found`}
-              </h3>
-              <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                Start a conversation with your assistant to build your personal knowledge graph and unlock powerful insights.
-              </p>
-              <button
-                onClick={onBackToChat}
-                className="bg-gradient-to-r from-purple-600 to-blue-500 text-white px-6 py-2.5 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-              >
-                Start a Conversation
-              </button>
-            </div>
-          )}
-        </div>
+      </div>
     </div>
   );
 };

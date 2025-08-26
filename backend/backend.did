@@ -280,72 +280,32 @@ type WorkContext = record {
   industry : opt text;
 };
 service : {
-  boost_response_with_cycles : (prompt : text, cycles_amount : nat64) -> (
-      Result,
-    );
-  create_consent_link : (user : principal, consent : ConsentLink) -> (Result);
-  create_milestone_capsule : (user : principal, capsule : MilestoneCapsule) -> (
-      Result,
-    );
-  create_smart_routine : (user : principal, routine : SmartRoutine) -> (Result);
-  export_user_data : (user : principal) -> (Result_1) query;
-  get_ai_coach_suggestions : (user : principal, context : text) -> (
-      Result_2,
-    ) query;
+  boost_response_with_cycles : (text, nat64) -> (Result);
+  create_consent_link : (principal, ConsentLink) -> (Result);
+  create_milestone_capsule : (principal, MilestoneCapsule) -> (Result);
+  create_smart_routine : (principal, SmartRoutine) -> (Result);
+  export_user_data : (principal) -> (Result_1) query;
+  get_ai_coach_suggestions : (principal, text) -> (Result_2) query;
   get_available_providers : () -> (vec text) query;
   get_canister_metrics : () -> (CanisterMetrics) query;
-  get_documents : (user : principal) -> (vec VoiceNote) query;
-  get_user_consent_links : (user : principal) -> (Result_3) query;
-  get_user_conversations : (user : principal) -> (
-      vec EnhancedChatMessage,
-    ) query;
+  get_documents : (principal) -> (vec VoiceNote) query;
+  get_user_consent_links : (principal) -> (Result_3) query;
+  get_user_conversations : (principal) -> (vec EnhancedChatMessage) query;
   get_user_cycles_balance : (principal) -> (nat64) query;
-  get_user_dashboard : (user : principal) -> (Result_4) query;
-  get_user_knowledge_graph : (user : principal) -> (
-      opt PersonalKnowledgeGraph,
-    ) query;
-  get_user_memories : (user : principal, limit : opt nat32) -> (
-      vec MemoryNode,
-    ) query;
-  get_user_milestone_capsules : (user : principal) -> (Result_5) query;
-  get_user_routines : (user : principal) -> (Result_6) query;
-  greet : (name : text) -> (text) query;
-  icp_ai_prompt : (prompt_text : text, opt text, opt text, opt bool) -> (
-      Result,
-    );
-  memory_mind_prompt : (
-      prompt : text,
-      vec text,
-      store_conversation : vec bool,
-    ) -> (Result);
-  process_voice_input : (
-      user : principal,
-      audio_data : blob,
-      language : text,
-      format : text,
-    ) -> (Result);
-  prompt : (prompt_text : text) -> (Result);
-  save_conversation : (user : principal, message : EnhancedChatMessage) -> (
-      Result,
-    );
-  search_user_memories : (
-      user : principal,
-      "query" : text,
-      limit : opt nat32,
-    ) -> (Result_7) query;
-  set_api_key : (key : text) -> ();
-  update_user_preferences : (
-      user : principal,
-      preferences : ResponsePreferences,
-    ) -> (Result);
-  update_user_profile : (
-      user : principal,
-      profile_update : UserProfileUpdate,
-    ) -> (Result);
-  update_voice_preferences : (
-      user : principal,
-      language : text,
-      auto_transcribe : bool,
-      voice_commands_enabled : bool,
-    ) -> (Result_8);
+  get_user_dashboard : (principal) -> (Result_4) query;
+  get_user_knowledge_graph : (principal) -> (opt PersonalKnowledgeGraph) query;
+  get_user_memories : (principal, opt nat32) -> (vec MemoryNode) query;
+  get_user_milestone_capsules : (principal) -> (Result_5) query;
+  get_user_routines : (principal) -> (Result_6) query;
+  greet : (text) -> (text) query;
+  icp_ai_prompt : (text, opt text, opt text, opt bool) -> (Result);
+  memory_mind_prompt : (text, vec text, vec bool) -> (Result);
+  process_voice_input : (principal, blob, text, text) -> (Result);
+  prompt : (text) -> (Result);
+  save_conversation : (principal, EnhancedChatMessage) -> (Result);
+  search_user_memories : (principal, text, opt nat32) -> (Result_7) query;
+  set_api_key : (text) -> ();
+  update_user_preferences : (principal, ResponsePreferences) -> (Result);
+  update_user_profile : (principal, UserProfileUpdate) -> (Result);
+  update_voice_preferences : (principal, text, bool, bool) -> (Result_8);
 }

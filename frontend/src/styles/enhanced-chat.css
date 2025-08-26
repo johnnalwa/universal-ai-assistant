@@ -729,11 +729,37 @@
 /* --- Message Footer & Proof --- */
 .message-footer {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 8px;
   margin-top: 12px;
   padding-top: 8px;
   border-top: 1px solid var(--border-color);
+}
+
+.memory-enhanced-message {
+  position: relative;
+}
+
+.memory-enhanced-message::before {
+  content: "🧠";
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 12px;
+  background: var(--accent-color);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .provider-info {

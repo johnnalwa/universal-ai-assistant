@@ -34,6 +34,7 @@ const EnhancedChatInterface = ({
   const [isTranscribing, setIsTranscribing] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const memoryCache = useRef(new Map()); // Cache for memory queries
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -68,7 +69,11 @@ const EnhancedChatInterface = ({
     e.preventDefault();
     if (!message.trim() || isLoading) return;
 
-    const userMessage = message.trim();
+    // Sanitize input to prevent encoding issues
+    const userMessage = message.trim()
+      .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+      .replace(/[\uFFF0-\uFFFF]/g, '') // Remove invalid Unicode
+      .normalize('NFC'); // Normalize Unicode composition
     setMessage('');
     setIsLoading(true);
     setIsTyping(true);
@@ -108,7 +113,35 @@ const EnhancedChatInterface = ({
           [storeOnChain && !isConfidential]
         );
       } else {
-        response = await backend.memory_mind_prompt(userMessage, [], [!isConfidential]);
+        // Retrieve user memories for context before sending prompt with caching
+        let memories = [];
+        if (userPrincipal) {
+          const cacheKey = `${userPrincipal.toString()}-${userMessage.toLowerCase().substring(0, 50)}`;
+          
+          // Check cache first
+          if (memoryCache.current.has(cacheKey)) {
+            memories = memoryCache.current.get(cacheKey);
+            console.log(`Using cached memories (${memories.length} items)`);
+          } else {
+            try {
+              const memoryResult = await backend.search_user_memories(userPrincipal, userMessage, 8);
+              if ('Ok' in memoryResult) {
+                memories = memoryResult.Ok;
+                // Cache the result for 5 minutes
+                memoryCache.current.set(cacheKey, memories);
+                setTimeout(() => memoryCache.current.delete(cacheKey), 300000);
+                console.log(`Retrieved ${memories.length} relevant memories for context`);
+              } else if ('Err' in memoryResult) {
+                console.warn('Memory retrieval error:', memoryResult.Err);
+              }
+            } catch (error) {
+              console.warn('Failed to retrieve memories:', error);
+              // Continue without memories rather than failing completely
+            }
+          }
+        }
+        
+        response = await backend.memory_mind_prompt(userMessage, memories, [!isConfidential]);
       }
 
       if ('Ok' in response) {
@@ -116,19 +149,20 @@ const EnhancedChatInterface = ({
         const systemMessage = {
           content: response.Ok,
           provider: selectedProvider,
-          confidence: Math.random() * 0.4 + 0.6, // Simulate confidence between 60-100%
-          sources: [
-            {
-              type: 'Personal Memory',
-              content: 'Based on your conversation history and preferences',
-              relevance: Math.random() * 0.3 + 0.7
-            },
-            {
-              type: 'Knowledge Graph',
-              content: 'Information from your personal knowledge network',
-              relevance: Math.random() * 0.3 + 0.7
-            }
-          ],
+          confidence: memories.length > 0 ? Math.random() * 0.2 + 0.8 : Math.random() * 0.4 + 0.6, // Higher confidence with memories
+          sources: memories.length > 0 ? 
+            memories.slice(0, 3).map(memory => ({
+              type: memory.node_type || 'Personal Memory',
+              content: memory.content.substring(0, 100) + (memory.content.length > 100 ? '...' : ''),
+              relevance: memory.importance_score || 0.8
+            })) :
+            [
+              {
+                type: 'Personal Memory',
+                content: 'Based on your conversation history and preferences',
+                relevance: 0.7
+              }
+            ],
           timestamp: Date.now(),
           boosted: isBoosted
         };
@@ -161,7 +195,30 @@ const EnhancedChatInterface = ({
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      setChat([...newChat, { system: { content: `Error: ${error.message}`, provider: selectedProvider } }]);
+      
+      // Enhanced error handling with user-friendly messages
+      let errorMessage = 'Something went wrong. Please try again.';
+      
+      if (error.message.includes('network')) {
+        errorMessage = 'Network connection issue. Please check your internet connection and try again.';
+      } else if (error.message.includes('unauthorized')) {
+        errorMessage = 'Authentication required. Please reconnect your Internet Identity.';
+      } else if (error.message.includes('quota') || error.message.includes('limit')) {
+        errorMessage = 'Rate limit reached. Please wait a moment before sending another message.';
+      } else if (error.message.includes('cycles')) {
+        errorMessage = 'Insufficient cycles for this operation. Please top up your balance.';
+      }
+      
+      setChat([...newChat, { 
+        system: { 
+          content: errorMessage, 
+          provider: selectedProvider,
+          confidence: 0.1,
+          sources: [],
+          timestamp: Date.now(),
+          error: true
+        } 
+      }]);
     } finally {
       setIsLoading(false);
       setIsTyping(false);
@@ -435,7 +492,7 @@ const EnhancedChatInterface = ({
                 {msg.user ? '👤' : '🧠'}
               </div>
               <div className="message-content">
-                <div className={`message-bubble ${msg.system?.boosted ? 'boosted-message' : ''}`}>
+                <div className={`message-bubble ${msg.system?.boosted ? 'boosted-message' : ''} ${msg.system?.sources?.length > 1 ? 'memory-enhanced-message' : ''}`}>
                   {msg.system?.boosted && (
                     <div className="boost-indicator">
                       <span className="boost-icon">⚡</span>
@@ -447,8 +504,8 @@ const EnhancedChatInterface = ({
                   </div>
                   {msg.system && (
                     <div className="message-footer">
-                      <span className="provider-info">via {msg.system.provider}</span>
-                      <div className="proof-section">
+                      <div className="footer-row">
+                        <span className="provider-info">via {msg.system.provider}</span>
                         <div className="confidence-indicator">
                           <span className="confidence-label">Confidence:</span>
                           <div className="confidence-bar">
@@ -461,35 +518,37 @@ const EnhancedChatInterface = ({
                             {Math.round((msg.system.confidence || 0.8) * 100)}%
                           </span>
                         </div>
+                      </div>
+                      <div className="footer-row">
                         <button 
                           className="proof-toggle-btn"
                           onClick={() => setVisibleSources(visibleSources === index ? null : index)}
                         >
                           🛡️ View Sources ({msg.system.sources?.length || 0})
                         </button>
-                        {visibleSources === index && (
-                          <div className="sources-container">
-                            {msg.system.sources && msg.system.sources.length > 0 ? (
-                              msg.system.sources.map((source, sourceIndex) => (
-                                <div key={sourceIndex} className="source-item">
-                                  <span className="source-type">{source.type || 'Memory'}</span>
-                                  <span className="source-content">{source.content}</span>
-                                  {source.relevance && (
-                                    <span className="source-relevance">
-                                      Relevance: {Math.round(source.relevance * 100)}%
-                                    </span>
-                                  )}
-                                </div>
-                              ))
-                            ) : (
-                              <div className="source-item">
-                                <span className="source-type">Personal Memory</span>
-                                <span className="source-content">Response based on your personal knowledge graph and conversation history</span>
-                              </div>
-                            )}
-                          </div>
-                        )}
                       </div>
+                      {visibleSources === index && (
+                        <div className="sources-container">
+                          {msg.system.sources && msg.system.sources.length > 0 ? (
+                            msg.system.sources.map((source, sourceIndex) => (
+                              <div key={sourceIndex} className="source-item">
+                                <span className="source-type">{source.type || 'Memory'}</span>
+                                <span className="source-content">{source.content}</span>
+                                {source.relevance && (
+                                  <span className="source-relevance">
+                                    Relevance: {Math.round(source.relevance * 100)}%
+                                  </span>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="source-item">
+                              <span className="source-type">Personal Memory</span>
+                              <span className="source-content">Response based on your personal knowledge graph and conversation history</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

@@ -76,11 +76,26 @@ const App = () => {
 
   useEffect(() => {
     if (userPrincipal) {
+      console.log('User principal changed, loading user data:', userPrincipal);
       loadUserKnowledgeGraph();
       loadUserDashboard();
       loadUserConversations();
+    } else {
+      console.log('No user principal, clearing conversation context');
+      setConversationContext(null);
     }
   }, [userPrincipal]);
+
+  useEffect(() => {
+    if (userPrincipal && isAuthenticated) {
+      const refreshInterval = setInterval(() => {
+        console.log('Periodic conversation refresh');
+        loadUserConversations();
+      }, 30000); // Refresh every 30 seconds
+      
+      return () => clearInterval(refreshInterval);
+    }
+  }, [userPrincipal, isAuthenticated]);
 
   const loadInitialData = async () => {
     try {
@@ -102,19 +117,63 @@ const App = () => {
     }
   };
 
-    const loadUserConversations = async () => {
+  const loadUserConversations = async () => {
     if (!userPrincipal) return;
+    
+    console.log('Loading conversations for user:', userPrincipal);
+    
     try {
       const conversations = await backend.get_user_conversations(userPrincipal);
+      console.log('Raw conversations from backend:', conversations);
+      
       if (conversations && conversations.length > 0) {
-        const formattedChat = conversations.map(msg => {
-          // The backend uses 'assistant' and 'user' roles.
-          // The frontend uses 'system' and 'user' keys.
-          const role = msg.role === 'assistant' ? 'system' : 'user';
-          return { [role]: { content: msg.content, provider: msg.provider || 'system' } };
+        // Enhanced conversation mapping with better error handling
+        const formattedChat = [];
+        
+        // Always start with welcome message for context
+        formattedChat.push({
+          system: { 
+            content: "🧠 Welcome back! I remember our previous conversations. How can I help you today?",
+            provider: "system"
+          }
         });
+        
+        // Process each conversation message
+        conversations.forEach((msg, index) => {
+          try {
+            console.log(`Processing message ${index}:`, msg);
+            
+            // Handle different message structures
+            if (msg.role && msg.content) {
+              const role = msg.role === 'assistant' ? 'system' : 'user';
+              const messageObj = {
+                [role]: { 
+                  content: msg.content, 
+                  provider: msg.provider || 'system',
+                  timestamp: msg.timestamp,
+                  confidence: msg.response_strategy?.confidence || null,
+                  sources: msg.referenced_memories || []
+                }
+              };
+              formattedChat.push(messageObj);
+            }
+          } catch (msgError) {
+            console.error(`Error processing message ${index}:`, msgError, msg);
+          }
+        });
+        
+        console.log('Formatted chat for frontend:', formattedChat);
         setChat(formattedChat);
+        
+        // Update conversation context for better continuity
+        setConversationContext({
+          lastLoadTime: Date.now(),
+          messageCount: conversations.length,
+          hasHistory: true
+        });
+        
       } else {
+        console.log('No conversations found, showing welcome message');
         // Keep the initial welcome message for new users
         setChat([{
           system: { 
@@ -122,9 +181,30 @@ const App = () => {
             provider: "system"
           }
         }]);
+        
+        setConversationContext({
+          lastLoadTime: Date.now(),
+          messageCount: 0,
+          hasHistory: false
+        });
       }
     } catch (error) {
       console.error('Failed to load conversations:', error);
+      
+      // Fallback to welcome message on error
+      setChat([{
+        system: { 
+          content: "🧠 Welcome to Universal AI Assistant! I had trouble loading our previous conversations, but I'm ready to help you now. What should I call you?",
+          provider: "system"
+        }
+      }]);
+      
+      setConversationContext({
+        lastLoadTime: Date.now(),
+        messageCount: 0,
+        hasHistory: false,
+        loadError: error.message
+      });
     }
   };
 

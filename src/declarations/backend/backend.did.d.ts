@@ -184,8 +184,9 @@ export type ResponseStrategy = {
     'InquiryFirst' : { 'question' : string, 'why_asking' : string }
   } |
   {
-    'PartialAnswer' : { 'known_info' : string, 'clarification_needed' : string }
+    'PartialAnswer' : { 'partial_info' : string, 'follow_up_needed' : string }
   } |
+  { 'BoostedAnswer' : null } |
   { 'ConfidentAnswer' : { 'sources' : Array<string>, 'confidence' : number } } |
   { 'LearningOpportunity' : { 'suggestion' : string } };
 export type Result = { 'Ok' : string } |
@@ -289,6 +290,14 @@ export interface UserProfileUpdate {
   'response_preferences' : [] | [ResponsePreferences],
   'goals' : [] | [Array<PersonalGoal>],
 }
+export interface VoiceNote {
+  'id' : string,
+  'content' : string,
+  'owner' : Principal,
+  'duration_seconds' : number,
+  'created_at' : bigint,
+  'transcript' : [] | [string],
+}
 export interface WorkContext {
   'job_title' : [] | [string],
   'company' : [] | [string],
@@ -297,6 +306,7 @@ export interface WorkContext {
   'industry' : [] | [string],
 }
 export interface _SERVICE {
+  'boost_response_with_cycles' : ActorMethod<[string, bigint], Result>,
   'create_consent_link' : ActorMethod<[Principal, ConsentLink], Result>,
   'create_milestone_capsule' : ActorMethod<
     [Principal, MilestoneCapsule],
@@ -307,11 +317,13 @@ export interface _SERVICE {
   'get_ai_coach_suggestions' : ActorMethod<[Principal, string], Result_2>,
   'get_available_providers' : ActorMethod<[], Array<string>>,
   'get_canister_metrics' : ActorMethod<[], CanisterMetrics>,
+  'get_documents' : ActorMethod<[Principal], Array<VoiceNote>>,
   'get_user_consent_links' : ActorMethod<[Principal], Result_3>,
   'get_user_conversations' : ActorMethod<
     [Principal],
     Array<EnhancedChatMessage>
   >,
+  'get_user_cycles_balance' : ActorMethod<[Principal], bigint>,
   'get_user_dashboard' : ActorMethod<[Principal], Result_4>,
   'get_user_knowledge_graph' : ActorMethod<
     [Principal],
@@ -329,7 +341,7 @@ export interface _SERVICE {
     Result
   >,
   'memory_mind_prompt' : ActorMethod<
-    [string, [] | [string], [] | [boolean]],
+    [string, Array<string>, Array<boolean>],
     Result
   >,
   'process_voice_input' : ActorMethod<

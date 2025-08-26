@@ -1,4 +1,5 @@
 export const idlFactory = ({ IDL }) => {
+  const Result = IDL.Variant({ 'Ok' : IDL.Text, 'Err' : IDL.Text });
   const ConsentLink = IDL.Record({
     'id' : IDL.Text,
     'access_level' : IDL.Text,
@@ -7,7 +8,6 @@ export const idlFactory = ({ IDL }) => {
     'is_active' : IDL.Bool,
     'expires_at' : IDL.Opt(IDL.Nat64),
   });
-  const Result = IDL.Variant({ 'Ok' : IDL.Text, 'Err' : IDL.Text });
   const MilestoneCapsule = IDL.Record({
     'id' : IDL.Text,
     'title' : IDL.Text,
@@ -235,9 +235,10 @@ export const idlFactory = ({ IDL }) => {
       'why_asking' : IDL.Text,
     }),
     'PartialAnswer' : IDL.Record({
-      'known_info' : IDL.Text,
-      'clarification_needed' : IDL.Text,
+      'partial_info' : IDL.Text,
+      'follow_up_needed' : IDL.Text,
     }),
+    'BoostedAnswer' : IDL.Null,
     'ConfidentAnswer' : IDL.Record({
       'sources' : IDL.Vec(IDL.Text),
       'confidence' : IDL.Float32,
@@ -275,6 +276,14 @@ export const idlFactory = ({ IDL }) => {
     'uptime_start' : IDL.Nat64,
     'knowledge_nodes_created' : IDL.Nat64,
     'total_cycles_consumed' : IDL.Nat64,
+  });
+  const VoiceNote = IDL.Record({
+    'id' : IDL.Text,
+    'content' : IDL.Text,
+    'owner' : IDL.Principal,
+    'duration_seconds' : IDL.Float32,
+    'created_at' : IDL.Nat64,
+    'transcript' : IDL.Opt(IDL.Text),
   });
   const Result_3 = IDL.Variant({
     'Ok' : IDL.Vec(ConsentLink),
@@ -325,6 +334,11 @@ export const idlFactory = ({ IDL }) => {
   });
   const Result_8 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : IDL.Text });
   return IDL.Service({
+    'boost_response_with_cycles' : IDL.Func(
+        [IDL.Text, IDL.Nat64],
+        [Result],
+        [],
+      ),
     'create_consent_link' : IDL.Func(
         [IDL.Principal, ConsentLink],
         [Result],
@@ -348,10 +362,20 @@ export const idlFactory = ({ IDL }) => {
       ),
     'get_available_providers' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'get_canister_metrics' : IDL.Func([], [CanisterMetrics], ['query']),
+    'get_documents' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Vec(VoiceNote)],
+        ['query'],
+      ),
     'get_user_consent_links' : IDL.Func([IDL.Principal], [Result_3], ['query']),
     'get_user_conversations' : IDL.Func(
         [IDL.Principal],
         [IDL.Vec(EnhancedChatMessage)],
+        ['query'],
+      ),
+    'get_user_cycles_balance' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Nat64],
         ['query'],
       ),
     'get_user_dashboard' : IDL.Func([IDL.Principal], [Result_4], ['query']),
@@ -378,7 +402,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'memory_mind_prompt' : IDL.Func(
-        [IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Bool)],
+        [IDL.Text, IDL.Vec(IDL.Text), IDL.Vec(IDL.Bool)],
         [Result],
         [],
       ),

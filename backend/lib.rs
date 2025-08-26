@@ -2,6 +2,7 @@ use candid::{CandidType, Nat, Principal};
 use ic_cdk::api::management_canister::http_request::{
     http_request, CanisterHttpRequestArgument, HttpHeader, HttpMethod,
 };
+use ic_cdk::{query, update};
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -28,7 +29,7 @@ struct State {
 }
 
 // MemoryMind Core: Personal Knowledge Graph
-#[derive(Serialize, Deserialize, Clone, CandidType, Default)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Default, Debug)]
 struct PersonalKnowledgeGraph {
     user_profile: UserProfile,
     memory_nodes: HashMap<String, MemoryNode>,
@@ -38,7 +39,7 @@ struct PersonalKnowledgeGraph {
     last_updated: u64,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType, Default)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Default, Debug)]
 struct UserProfile {
     // Basic Identity
     name: Option<String>,
@@ -67,7 +68,7 @@ struct UserProfile {
     voice_commands_enabled: Option<bool>,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct MemoryNode {
     id: String,
     content: String,
@@ -80,7 +81,7 @@ struct MemoryNode {
     related_conversations: Vec<String>,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 enum MemoryNodeType {
     Fact,
     Preference,
@@ -91,7 +92,7 @@ enum MemoryNodeType {
     Context,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct KnowledgeEdge {
     from_node: String,
     to_node: String,
@@ -100,7 +101,7 @@ struct KnowledgeEdge {
     created_at: u64,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 enum RelationshipType {
     Related,
     CausedBy,
@@ -111,7 +112,7 @@ enum RelationshipType {
     UsedFor,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType, Default)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Default, Debug)]
 struct LearningHistory {
     interaction_count: u32,
     topics_discussed: HashMap<String, u32>,
@@ -121,7 +122,7 @@ struct LearningHistory {
     last_major_update: u64,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct ConversationContext {
     thread_id: String,
     topic: String,
@@ -132,7 +133,7 @@ struct ConversationContext {
     last_message_timestamp: u64,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct EnhancedChatMessage {
     role: String,
     content: String,
@@ -153,7 +154,7 @@ struct EnhancedChatMessage {
     ii_verified: Option<bool>,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct ExtractedFact {
     fact: String,
     confidence: f32,
@@ -161,7 +162,7 @@ struct ExtractedFact {
     should_remember: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 enum FactType {
     PersonalInfo,
     Preference,
@@ -171,22 +172,14 @@ enum FactType {
     Knowledge,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct LearnedPreference {
     category: String,
     preference: String,
     confidence: f32,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
-enum ResponseStrategy {
-    ConfidentAnswer { confidence: f32, sources: Vec<String> },
-    InquiryFirst { question: String, why_asking: String },
-    PartialAnswer { known_info: String, clarification_needed: String },
-    LearningOpportunity { suggestion: String },
-}
-
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 enum Sentiment {
     Positive,
     Neutral,
@@ -196,7 +189,27 @@ enum Sentiment {
     Curious,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType, Default)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
+enum ResponseStrategy {
+    InquiryFirst {
+        question: String,
+        why_asking: String,
+    },
+    PartialAnswer {
+        partial_info: String,
+        follow_up_needed: String,
+    },
+    ConfidentAnswer {
+        confidence: f32,
+        sources: Vec<String>,
+    },
+    LearningOpportunity {
+        suggestion: String,
+    },
+    BoostedAnswer,
+}
+
+#[derive(Serialize, Deserialize, Clone, CandidType, Default, Debug)]
 struct CommunicationStyle {
     formality_level: FormalityLevel,
     detail_preference: DetailLevel,
@@ -205,7 +218,7 @@ struct CommunicationStyle {
     emoji_usage: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 enum FormalityLevel {
     VeryFormal,
     Formal,
@@ -219,7 +232,7 @@ impl Default for FormalityLevel {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 enum DetailLevel {
     Brief,
     Moderate,
@@ -233,7 +246,7 @@ impl Default for DetailLevel {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 enum TechnicalLevel {
     Beginner,
     Intermediate,
@@ -247,7 +260,7 @@ impl Default for TechnicalLevel {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 enum ResponseLength {
     Short,
     Medium,
@@ -261,7 +274,7 @@ impl Default for ResponseLength {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct PersonalGoal {
     goal: String,
     category: String,
@@ -270,7 +283,7 @@ struct PersonalGoal {
     importance: f32,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct ImportantEvent {
     event: String,
     date: u64,
@@ -278,7 +291,7 @@ struct ImportantEvent {
     category: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct PersonalRelationship {
     name: String,
     relationship_type: String,
@@ -286,7 +299,7 @@ struct PersonalRelationship {
     importance: f32,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct WorkContext {
     job_title: Option<String>,
     company: Option<String>,
@@ -295,7 +308,7 @@ struct WorkContext {
     skills: Vec<String>,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType, Default)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Default, Debug)]
 struct ConversationPatterns {
     avg_session_length: f32,
     common_topics: Vec<String>,
@@ -303,7 +316,7 @@ struct ConversationPatterns {
     time_patterns: Vec<u32>, // Hours when user is most active
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType, Default)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Default, Debug)]
 struct ResponsePreferences {
     prefers_examples: bool,
     prefers_step_by_step: bool,
@@ -312,7 +325,7 @@ struct ResponsePreferences {
     autopilot_enabled: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct Task {
     description: String,
     status: TaskStatus,
@@ -320,7 +333,7 @@ struct Task {
     due_date: Option<u64>,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 enum TaskStatus {
     Active,
     Completed,
@@ -328,14 +341,14 @@ enum TaskStatus {
     Cancelled,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct Entity {
     name: String,
     entity_type: EntityType,
     context: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 enum EntityType {
     Person,
     Company,
@@ -347,7 +360,7 @@ enum EntityType {
 }
 
 // Additional structures for new features
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct SmartRoutine {
     id: String,
     name: String,
@@ -359,7 +372,7 @@ struct SmartRoutine {
     last_completed: Option<u64>,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct MilestoneCapsule {
     id: String,
     title: String,
@@ -370,7 +383,7 @@ struct MilestoneCapsule {
     tags: Vec<String>,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct ConsentLink {
     id: String,
     name: String,
@@ -380,7 +393,7 @@ struct ConsentLink {
     is_active: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct UserDataExport {
     user_id: String,
     knowledge_graph: PersonalKnowledgeGraph,
@@ -389,7 +402,7 @@ struct UserDataExport {
 }
 
 // Keep existing structures for compatibility
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct AIContent {
     content: String,
     content_type: String,
@@ -400,7 +413,7 @@ struct AIContent {
     cycles_cost_to_create: u64,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 enum AccessLevel {
     Public,
     Private,
@@ -408,7 +421,7 @@ enum AccessLevel {
     Premium,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 enum SubscriptionTier {
     Basic { cycles_included: u64 },
     Premium { cycles_included: u64, priority_access: bool },
@@ -426,7 +439,7 @@ struct CanisterMetrics {
     learning_events: u64,
 }
 
-#[derive(Serialize, Deserialize, Clone, CandidType)]
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
 struct UserDashboard {
     cycles_balance: u64,
     token_balance: u64,
@@ -507,45 +520,297 @@ fn set_api_key(key: String) {
 // Enhanced MemoryMind AI Function
 #[ic_cdk::update]
 async fn memory_mind_prompt(
-    prompt_text: String,
-    context_thread_id: Option<String>,
-    _learn_from_response: Option<bool>,
+    prompt: String,
+    _context: Vec<String>,
+    store_conversation: Vec<bool>,
 ) -> Result<String, String> {
     let caller = ic_cdk::caller();
     
     // Initialize user's knowledge graph if first time
     ensure_user_knowledge_graph(caller);
     
-    // Extract context and memories
-    let (user_context, relevant_memories) = get_user_context_and_memories(caller, &prompt_text, context_thread_id.clone());
+    // Get or create user profile
+    let user_context = get_user_context_string(caller);
+    let relevant_memories = search_relevant_memories(caller, &prompt);
     
-    // Determine response strategy
-    let response_strategy = determine_response_strategy(caller, &prompt_text, &relevant_memories);
+    // Generate AI response with context
+    let response = generate_contextual_ai_response(
+        caller,
+        prompt.clone(),
+        user_context,
+        relevant_memories,
+    ).await?;
     
-    match &response_strategy {
-        ResponseStrategy::InquiryFirst { question, why_asking } => {
-            // Ask for clarification instead of assuming
-            let response = format!("🤔 {}\n\n({})", question, why_asking);
-            save_conversation_with_learning(caller, prompt_text.clone(), response.clone(), context_thread_id, response_strategy).await;
-            Ok(response)
-        },
-        ResponseStrategy::PartialAnswer { known_info, clarification_needed } => {
-            let response = format!("Based on what I know about you: {}\n\n❓ {}", known_info, clarification_needed);
-            save_conversation_with_learning(caller, prompt_text.clone(), response.clone(), context_thread_id, response_strategy).await;
-            Ok(response)
-        },
-        ResponseStrategy::ConfidentAnswer { confidence: _, sources: _ } => {
-            // Generate AI response with full context
-            let ai_response = generate_contextual_ai_response(caller, prompt_text.clone(), user_context, relevant_memories).await?;
-            save_conversation_with_learning(caller, prompt_text.clone(), ai_response.clone(), context_thread_id, response_strategy).await;
-            Ok(ai_response)
-        },
-        ResponseStrategy::LearningOpportunity { suggestion } => {
-            let response = format!("💡 {}\n\nWould you like me to remember this for future conversations?", suggestion);
-            save_conversation_with_learning(caller, prompt_text.clone(), response.clone(), context_thread_id, response_strategy).await;
-            Ok(response)
-        },
+    // Store conversation if requested
+    let should_store = store_conversation.get(0).unwrap_or(&true);
+    if *should_store {
+        save_conversation_with_learning(
+            caller,
+            prompt,
+            response.clone(),
+            None,
+            ResponseStrategy::ConfidentAnswer {
+                confidence: 0.8,
+                sources: Vec::new(),
+            },
+        ).await;
     }
+    
+    Ok(response)
+}
+
+#[update]
+async fn boost_response_with_cycles(
+    prompt: String,
+    cycles_amount: u64,
+) -> Result<String, String> {
+    let caller = ic_cdk::caller();
+    
+    // Verify cycles payment (minimum 1M cycles for boost)
+    let min_cycles = 1_000_000u64; // ~$0.001
+    let available_cycles = ic_cdk::api::call::msg_cycles_available128() as u64;
+    
+    if available_cycles < cycles_amount || cycles_amount < min_cycles {
+        return Err(format!(
+            "Insufficient cycles. Required: {}, Available: {}, Minimum: {}",
+            cycles_amount, available_cycles, min_cycles
+        ));
+    }
+    
+    // Accept cycles payment
+    ic_cdk::api::call::msg_cycles_accept128(cycles_amount as u128);
+    
+    // Get enhanced user context for boosted response
+    let user_context = get_enhanced_user_context(caller).await;
+    let relevant_memories = search_relevant_memories_deep(caller, &prompt).await;
+    
+    // Generate boosted AI response with enhanced context
+    let response = generate_boosted_ai_response(
+        caller,
+        prompt.clone(),
+        user_context,
+        relevant_memories,
+        cycles_amount,
+    ).await?;
+    
+    // Store boosted conversation
+    save_conversation_with_learning(
+        caller,
+        prompt,
+        response.clone(),
+        None,
+        ResponseStrategy::BoostedAnswer,
+    ).await;
+    
+    Ok(response)
+}
+
+#[query]
+fn get_user_cycles_balance(_user: Principal) -> u64 {
+    // In a real implementation, this would check the user's cycles balance
+    // For now, return canister's cycles balance as reference
+    ic_cdk::api::canister_balance128() as u64
+}
+
+fn get_user_context_string(user: Principal) -> String {
+    STATE.with(|state| {
+        let state = state.borrow();
+        if let Some(kg) = state.personal_knowledge_graphs.get(&user) {
+            let mut context = String::new();
+            
+            if let Some(name) = &kg.user_profile.name {
+                context.push_str(&format!("User's name: {}\n", name));
+            }
+            
+            if !kg.user_profile.interests.is_empty() {
+                context.push_str(&format!("Interests: {}\n", kg.user_profile.interests.join(", ")));
+            }
+            
+            if !kg.user_profile.goals.is_empty() {
+                context.push_str("Current goals:\n");
+                for goal in &kg.user_profile.goals {
+                    context.push_str(&format!("- {} ({}% complete)\n", goal.goal, (goal.progress * 100.0) as u32));
+                }
+            }
+            
+            context
+        } else {
+            "New user - no context available yet".to_string()
+        }
+    })
+}
+
+fn search_relevant_memories(user: Principal, query: &str) -> Vec<MemoryNode> {
+    STATE.with(|state| {
+        let state = state.borrow();
+        if let Some(kg) = state.personal_knowledge_graphs.get(&user) {
+            let query_lower = query.to_lowercase();
+            kg.memory_nodes.values()
+                .filter(|memory| {
+                    memory.content.to_lowercase().contains(&query_lower) ||
+                    memory.tags.iter().any(|tag| tag.to_lowercase().contains(&query_lower))
+                })
+                .cloned()
+                .collect()
+        } else {
+            Vec::new()
+        }
+    })
+}
+
+async fn get_enhanced_user_context(user: Principal) -> String {
+    // Enhanced context for boosted responses
+    let basic_context = get_user_context_string(user);
+    
+    STATE.with(|state| {
+        let state = state.borrow();
+        if let Some(kg) = state.personal_knowledge_graphs.get(&user) {
+            let mut enhanced_context = basic_context;
+            
+            // Add detailed conversation history
+            if let Some(conversations) = state.conversations.get(&user) {
+                let recent_conversations: Vec<String> = conversations
+                    .iter()
+                    .rev()
+                    .take(10) // More history for boosted responses
+                    .map(|msg| format!("{}: {}", msg.role, msg.content))
+                    .collect();
+                
+                enhanced_context.push_str(&format!(
+                    "\n\nRecent Conversation History (Last 10 messages):\n{}",
+                    recent_conversations.join("\n")
+                ));
+            }
+            
+            // Add learning patterns
+            enhanced_context.push_str(&format!(
+                "\n\nUser Learning Patterns:\n- Total Interactions: {}\n- Preferred Response Style: {:?}\n- Communication Patterns: Advanced user with {} total interactions",
+                kg.learning_patterns.interaction_count,
+                kg.user_profile.communication_style,
+                kg.learning_patterns.interaction_count
+            ));
+            
+            enhanced_context
+        } else {
+            basic_context
+        }
+    })
+}
+
+async fn search_relevant_memories_deep(user: Principal, query: &str) -> Vec<MemoryNode> {
+    // Enhanced memory search for boosted responses
+    let mut memories = search_relevant_memories(user, query);
+    
+    // For boosted responses, include more memories and related context
+    STATE.with(|state| {
+        let state = state.borrow();
+        if let Some(kg) = state.personal_knowledge_graphs.get(&user) {
+            // Add related memories through relationships
+            let mut additional_memories = Vec::new();
+            
+            for memory in &memories {
+                for relationship in &kg.relationships {
+                    if relationship.from_node == memory.id || relationship.to_node == memory.id {
+                        let related_id = if relationship.from_node == memory.id {
+                            &relationship.to_node
+                        } else {
+                            &relationship.from_node
+                        };
+                        
+                        if let Some(related_memory) = kg.memory_nodes.get(related_id) {
+                            additional_memories.push(related_memory.clone());
+                        }
+                    }
+                }
+            }
+            
+            memories.extend(additional_memories);
+            memories.sort_by(|a, b| b.importance_score.partial_cmp(&a.importance_score).unwrap());
+            memories.truncate(15); // More memories for boosted responses
+        }
+    });
+    
+    memories
+}
+
+async fn generate_boosted_ai_response(
+    user: Principal,
+    prompt: String,
+    user_context: String,
+    relevant_memories: Vec<MemoryNode>,
+    cycles_paid: u64,
+) -> Result<String, String> {
+    let api_key = STATE.with(|state| {
+        let state = state.borrow();
+        state.api_key.clone()
+    });
+    
+    if api_key.is_empty() {
+        return Err("API key is not set".to_string());
+    }
+    
+    // Build enhanced prompt for boosted response
+    let mut enhanced_prompt = String::new();
+    enhanced_prompt.push_str("You are MemoryMind, providing a PREMIUM BOOSTED RESPONSE. ");
+    enhanced_prompt.push_str("The user has paid for enhanced, comprehensive assistance. ");
+    enhanced_prompt.push_str("Provide detailed, thorough, and exceptionally helpful responses. ");
+    enhanced_prompt.push_str("Include specific examples, step-by-step guidance, and actionable insights.\n\n");
+    
+    // Add boost value context
+    let boost_value = cycles_paid as f64 / 1_000_000.0 * 0.001; // Convert to USD equivalent
+    enhanced_prompt.push_str(&format!(
+        "BOOST PAYMENT: User paid {:.4} USD equivalent ({} cycles) for this enhanced response.\n\n",
+        boost_value, cycles_paid
+    ));
+    
+    // Get recent conversation history for context
+    let recent_conversations = STATE.with(|state| {
+        let state = state.borrow();
+        state.conversations.get(&user)
+            .map(|convs| convs.iter().rev().take(5).cloned().collect::<Vec<_>>())
+            .unwrap_or_default()
+    });
+    
+    // Build comprehensive enhanced prompt with conversation history
+    let mut enhanced_prompt = String::new();
+    enhanced_prompt.push_str("You are MemoryMind, a personal AI assistant with perfect memory of this user. ");
+    
+    // Add recent conversation context
+    if !recent_conversations.is_empty() {
+        enhanced_prompt.push_str("RECENT CONVERSATION HISTORY:\n");
+        for msg in recent_conversations.iter().rev() {
+            enhanced_prompt.push_str(&format!("{}: {}\n", 
+                if msg.role == "user" { "User" } else { "You" }, 
+                msg.content
+            ));
+        }
+        enhanced_prompt.push_str("\n");
+    }
+    
+    // Add user context
+    if !user_context.is_empty() {
+        enhanced_prompt.push_str(&format!("USER PROFILE:\n{}\n\n", user_context));
+    }
+    
+    // Add relevant memories
+    if !relevant_memories.is_empty() {
+        enhanced_prompt.push_str("RELEVANT MEMORIES:\n");
+        for memory in &relevant_memories {
+            enhanced_prompt.push_str(&format!("- {}\n", memory.content));
+        }
+        enhanced_prompt.push_str("\n");
+    }
+    
+    enhanced_prompt.push_str("CRITICAL INSTRUCTIONS:\n");
+    enhanced_prompt.push_str("- ALWAYS acknowledge the conversation history and maintain continuity\n");
+    enhanced_prompt.push_str("- If user says 'hello' again, acknowledge you've spoken before\n");
+    enhanced_prompt.push_str("- Reference previous topics, goals, or interactions naturally\n");
+    enhanced_prompt.push_str("- Be conversational and remember what the user has told you\n");
+    enhanced_prompt.push_str("- Never act like this is your first interaction if you have history\n\n");
+    
+    enhanced_prompt.push_str(&format!("CURRENT USER MESSAGE: {}", prompt));
+    
+    call_gemini_api(enhanced_prompt, api_key).await
 }
 
 fn ensure_user_knowledge_graph(user: Principal) {
@@ -565,6 +830,7 @@ fn ensure_user_knowledge_graph(user: Principal) {
     });
 }
 
+#[allow(dead_code)]
 fn get_user_context_and_memories(user: Principal, prompt: &str, _context_thread_id: Option<String>) -> (String, Vec<MemoryNode>) {
     STATE.with(|state| {
         let state = state.borrow();
@@ -608,6 +874,7 @@ fn get_user_context_and_memories(user: Principal, prompt: &str, _context_thread_
     })
 }
 
+#[allow(dead_code)]
 fn determine_response_strategy(user: Principal, prompt: &str, relevant_memories: &[MemoryNode]) -> ResponseStrategy {
     STATE.with(|state| {
         let state = state.borrow();
@@ -658,12 +925,14 @@ fn determine_response_strategy(user: Principal, prompt: &str, relevant_memories:
     })
 }
 
+#[allow(dead_code)]
 fn contains_personal_context(prompt: &str) -> bool {
     let personal_indicators = ["my name is", "i am", "i work", "i like", "i prefer", "i usually"];
     let prompt_lower = prompt.to_lowercase();
     personal_indicators.iter().any(|indicator| prompt_lower.contains(indicator))
 }
 
+#[allow(dead_code)]
 fn extract_topic_from_prompt(prompt: &str) -> String {
     // Simple topic extraction - in a real implementation, this would be more sophisticated
     if prompt.len() > 50 {
@@ -673,13 +942,14 @@ fn extract_topic_from_prompt(prompt: &str) -> String {
     }
 }
 
+#[allow(dead_code)]
 fn is_learning_opportunity(_prompt: &str) -> bool {
     // Determine if this is a good opportunity to learn something new about the user
     true // Simplified for now
 }
 
 async fn generate_contextual_ai_response(
-    _user: Principal,
+    user: Principal,
     prompt: String,
     user_context: String,
     relevant_memories: Vec<MemoryNode>,
@@ -693,27 +963,120 @@ async fn generate_contextual_ai_response(
         return Err("API key is not set".to_string());
     }
     
-    // Build enhanced prompt with user context and memories
+    // Get comprehensive user data for enhanced context
+    let (user_profile, recent_conversations, conversation_thread) = STATE.with(|state| {
+        let state = state.borrow();
+        let kg = state.personal_knowledge_graphs.get(&user);
+        let conversations = state.conversations.get(&user);
+        
+        let profile = kg.map(|g| g.user_profile.clone()).unwrap_or_default();
+        let recent = conversations
+            .map(|c| c.iter().rev().take(5).cloned().collect::<Vec<_>>())
+            .unwrap_or_default();
+        let thread = kg.and_then(|g| {
+            g.context_threads.values().next().cloned()
+        });
+        
+        (profile, recent, thread)
+    });
+    
+    // Build comprehensive enhanced prompt
     let mut enhanced_prompt = String::new();
     
-    enhanced_prompt.push_str("You are MemoryMind, a personal AI assistant that learns and remembers everything about the user. ");
-    enhanced_prompt.push_str("Use the following context to provide a personalized response:\n\n");
+    // Core identity with continuity awareness
+    enhanced_prompt.push_str("You are MemoryMind, a personal AI assistant with perfect memory of this user. ");
     
-    if !user_context.trim().is_empty() {
-        enhanced_prompt.push_str(&format!("USER CONTEXT:\n{}\n", user_context));
-    }
-    
-    if !relevant_memories.is_empty() {
-        enhanced_prompt.push_str("RELEVANT MEMORIES:\n");
-        for memory in &relevant_memories {
-            enhanced_prompt.push_str(&format!("- {} ({})\n", memory.content, memory.node_type.to_string()));
+    // Add recent conversation history for continuity
+    if !recent_conversations.is_empty() {
+        enhanced_prompt.push_str("\nRECENT CONVERSATION HISTORY:\n");
+        for msg in recent_conversations.iter().rev() {
+            enhanced_prompt.push_str(&format!("{}: {}\n", 
+                if msg.role == "user" { "User" } else { "You (MemoryMind)" }, 
+                msg.content
+            ));
         }
-        enhanced_prompt.push_str("\n");
+        enhanced_prompt.push_str("\nIMPORTANT: Based on this conversation history, maintain continuity. ");
+        enhanced_prompt.push_str("Don't act like this is your first meeting if you've spoken before.\n\n");
+    }
+    enhanced_prompt.push_str("Always reference relevant past conversations and show you remember the user's context.\n\n");
+    
+    // User identity and preferences
+    if let Some(name) = &user_profile.name {
+        enhanced_prompt.push_str(&format!("USER: {}\n", name));
     }
     
-    enhanced_prompt.push_str(&format!("USER QUESTION: {}\n\n", prompt));
-    enhanced_prompt.push_str("Provide a helpful, personalized response that references relevant context and memories when appropriate. ");
-    enhanced_prompt.push_str("Be conversational and show that you remember previous interactions.");
+    if !user_profile.interests.is_empty() {
+        enhanced_prompt.push_str(&format!("INTERESTS: {}\n", user_profile.interests.join(", ")));
+    }
+    
+    if !user_profile.goals.is_empty() {
+        enhanced_prompt.push_str("CURRENT GOALS:\n");
+        for goal in &user_profile.goals {
+            enhanced_prompt.push_str(&format!("- {} ({}% complete)\n", goal.goal, (goal.progress * 100.0) as u32));
+        }
+    }
+    
+    // Communication preferences
+    let style = &user_profile.communication_style;
+    enhanced_prompt.push_str(&format!("COMMUNICATION STYLE: {:?} formality, {:?} detail level\n", 
+        style.formality_level, style.detail_preference));
+    
+    if user_profile.response_preferences.autopilot_enabled {
+        enhanced_prompt.push_str("USER PREFERS: Proactive assistance and suggestions\n");
+    }
+    
+    // Recent conversation context
+    if !recent_conversations.is_empty() {
+        enhanced_prompt.push_str("\nRECENT CONVERSATION HISTORY:\n");
+        for (_i, msg) in recent_conversations.iter().enumerate() {
+            let role_display = if msg.role == "assistant" { "You" } else { "User" };
+            let content_preview = if msg.content.len() > 100 {
+                format!("{}...", &msg.content[..100])
+            } else {
+                msg.content.clone()
+            };
+            enhanced_prompt.push_str(&format!("{}: {}\n", role_display, content_preview));
+        }
+    }
+    
+    // Relevant memories
+    if !relevant_memories.is_empty() {
+        enhanced_prompt.push_str("\nRELEVANT MEMORIES:\n");
+        for memory in &relevant_memories {
+            enhanced_prompt.push_str(&format!("- {} ({}), importance: {:.1}\n", 
+                memory.content, memory.node_type.to_string(), memory.importance_score));
+        }
+    }
+    
+    // Current context
+    if !user_context.trim().is_empty() {
+        enhanced_prompt.push_str(&format!("\nCURRENT CONTEXT:\n{}\n", user_context));
+    }
+    
+    // Conversation threading context
+    if let Some(thread) = conversation_thread {
+        enhanced_prompt.push_str(&format!("\nCONVERSATION THREAD: {}\n", thread.topic));
+        if !thread.ongoing_tasks.is_empty() {
+            enhanced_prompt.push_str("ONGOING TASKS:\n");
+            for task in &thread.ongoing_tasks {
+                enhanced_prompt.push_str(&format!("- {} (status: {:?})\n", task.description, task.status));
+            }
+        }
+    }
+    
+    // Current user input
+    enhanced_prompt.push_str(&format!("\nCURRENT USER MESSAGE: {}\n\n", prompt));
+    
+    // Response instructions
+    enhanced_prompt.push_str("INSTRUCTIONS:\n");
+    enhanced_prompt.push_str("1. Reference previous conversations naturally (\"As we discussed...\", \"Following up on...\")\n");
+    enhanced_prompt.push_str("2. Show awareness of user's goals and progress\n");
+    enhanced_prompt.push_str("3. Use appropriate communication style based on preferences\n");
+    enhanced_prompt.push_str("4. Be proactive - suggest next steps or follow-up actions\n");
+    enhanced_prompt.push_str("5. Maintain conversation continuity and context\n");
+    enhanced_prompt.push_str("6. If this relates to ongoing tasks, reference and update them\n\n");
+    
+    enhanced_prompt.push_str("Respond as the user's personal AI that truly knows and remembers them:");
     
     call_gemini_api(enhanced_prompt, api_key).await
 }
@@ -758,13 +1121,52 @@ async fn save_conversation_with_learning(
                 }
             }
             
+            // Update or create conversation thread
+            let thread_id = context_thread_id.as_ref().map(|s| s.clone()).unwrap_or_else(|| format!("thread_{}_{}", user.to_text(), ic_cdk::api::time()));
+            let thread = kg.context_threads.entry(thread_id.clone()).or_insert_with(|| ConversationContext {
+                thread_id: thread_id.clone(),
+                topic: extract_conversation_topic(&user_message),
+                related_memories: Vec::new(),
+                user_sentiment: Sentiment::Neutral,
+                ongoing_tasks: Vec::new(),
+                mentioned_entities: Vec::new(),
+                last_message_timestamp: ic_cdk::api::time(),
+            });
+            
+            // Update thread with current conversation
+            thread.last_message_timestamp = ic_cdk::api::time();
+            if user_message.len() > thread.topic.len() {
+                thread.topic = extract_conversation_topic(&user_message);
+            }
+            
             // Update learning patterns
             kg.learning_patterns.interaction_count += 1;
             kg.last_updated = ic_cdk::api::time();
         }
         
-        // Save conversation
-        let enhanced_message = EnhancedChatMessage {
+        // Save both user message and AI response
+        let conversation = state.conversations.entry(user).or_insert_with(Vec::new);
+        
+        // Save user message
+        let user_msg = EnhancedChatMessage {
+            role: "user".to_string(),
+            content: user_message,
+            timestamp: ic_cdk::api::time(),
+            provider: "user".to_string(),
+            context_thread_id: context_thread_id.clone(),
+            extracted_facts: extracted_facts.clone(),
+            referenced_memories: Vec::new(),
+            learned_preferences: Vec::new(),
+            user_sentiment: Some(Sentiment::Neutral),
+            response_strategy: None,
+            cycles_cost: Some(0),
+            content_stored_on_chain: Some(false),
+            ii_verified: Some(true),
+        };
+        conversation.push(user_msg);
+        
+        // Save AI response
+        let ai_msg = EnhancedChatMessage {
             role: "assistant".to_string(),
             content: ai_response,
             timestamp: ic_cdk::api::time(),
@@ -779,14 +1181,22 @@ async fn save_conversation_with_learning(
             content_stored_on_chain: Some(false),
             ii_verified: Some(true),
         };
-        
-        let conversation = state.conversations.entry(user).or_insert_with(Vec::new);
-        conversation.push(enhanced_message);
+        conversation.push(ai_msg);
         
         // Update metrics
         state.canister_metrics.total_queries += 1;
         state.canister_metrics.learning_events += 1;
     });
+}
+
+fn extract_conversation_topic(message: &str) -> String {
+    // Extract topic from message - simplified implementation
+    let words: Vec<&str> = message.split_whitespace().take(5).collect();
+    if words.is_empty() {
+        "General conversation".to_string()
+    } else {
+        words.join(" ")
+    }
 }
 
 fn extract_facts_from_message(message: &str) -> Vec<ExtractedFact> {
@@ -849,7 +1259,7 @@ fn extract_name_from_message(message: &str) -> Option<String> {
 // Backward compatibility functions
 #[ic_cdk::update]
 async fn prompt(prompt_text: String) -> Result<String, String> {
-    memory_mind_prompt(prompt_text, None, Some(true)).await
+    memory_mind_prompt(prompt_text, vec![], vec![true]).await
 }
 
 // Enhanced ICP functions with MemoryMind integration
@@ -860,7 +1270,7 @@ async fn icp_ai_prompt(
     _assistant_type: Option<String>,
     _store_on_chain: Option<bool>,
 ) -> Result<String, String> {
-    memory_mind_prompt(prompt_text, None, Some(true)).await
+    memory_mind_prompt(prompt_text, vec![], vec![true]).await
 }
 
 // MemoryMind specific query functions
@@ -1511,6 +1921,75 @@ fn extract_consent_access_level(content: &str) -> String {
     }
 }
 
+// Document structure for get_documents function
+#[derive(Serialize, Deserialize, Clone, CandidType, Debug)]
+struct VoiceNote {
+    id: String,
+    content: String,
+    transcript: Option<String>,
+    created_at: u64,
+    owner: Principal,
+    duration_seconds: f32,
+}
+
+impl Default for VoiceNote {
+    fn default() -> Self {
+        Self {
+            id: String::new(),
+            content: String::new(),
+            transcript: None,
+            created_at: 0,
+            owner: Principal::anonymous(),
+            duration_seconds: 0.0,
+        }
+    }
+}
+
+// Get documents function implementation
+#[ic_cdk::query]
+fn get_documents(user: Principal) -> Vec<VoiceNote> {
+    let caller = ic_cdk::caller();
+    if caller != user && !ic_cdk::api::is_controller(&caller) {
+        return Vec::new();
+    }
+    
+    STATE.with(|state| {
+        let state = state.borrow();
+        if let Some(kg) = state.personal_knowledge_graphs.get(&user) {
+            // Convert memory nodes to documents
+            kg.memory_nodes.values()
+                .map(|node| VoiceNote {
+                    id: node.id.clone(),
+                    content: node.content.clone(),
+                    transcript: Some(format!("Memory: {}", node.content)),
+                    created_at: node.created_at,
+                    owner: user,
+                    duration_seconds: 0.0,
+                })
+                .collect()
+        } else {
+            Vec::new()
+        }
+    })
+}
+
+#[allow(dead_code)]
+fn extract_document_title(content: &str) -> String {
+    // Extract first line or first 50 characters as title
+    let lines: Vec<&str> = content.lines().collect();
+    if let Some(first_line) = lines.first() {
+        if first_line.len() > 50 {
+            format!("{}...", &first_line[..50])
+        } else {
+            first_line.to_string()
+        }
+    } else if content.len() > 50 {
+        format!("{}...", &content[..50])
+    } else {
+        content.to_string()
+    }
+}
+
 // Voice processing endpoint
 #[ic_cdk::update]
 async fn process_voice_input(
@@ -1524,18 +2003,35 @@ async fn process_voice_input(
         return Err("Unauthorized".to_string());
     }
 
-    // For now, return a placeholder response
-    // In a full implementation, this would:
-    // 1. Process the audio data using a speech-to-text service
-    // 2. Store the transcription in the user's knowledge graph
-    // 3. Return the transcribed text
-    
-    Ok(format!(
-        "Voice input received: {} bytes of {} audio in {} language. Transcription would be processed here.",
+    // Enhanced voice processing with memory storage
+    let transcription = format!(
+        "[Voice Input - {} bytes of {} audio in {}]",
         audio_data.len(),
         format,
         language
-    ))
+    );
+    
+    // Store voice input as memory node
+    STATE.with(|state| {
+        let mut state = state.borrow_mut();
+        if let Some(kg) = state.personal_knowledge_graphs.get_mut(&user) {
+            let voice_node = MemoryNode {
+                id: format!("voice_{}_{}", user.to_text(), ic_cdk::api::time()),
+                content: transcription.clone(),
+                node_type: MemoryNodeType::Context,
+                importance_score: 0.6,
+                created_at: ic_cdk::api::time(),
+                last_accessed: ic_cdk::api::time(),
+                access_count: 1,
+                tags: vec!["voice".to_string(), "audio".to_string(), language.clone()],
+                related_conversations: Vec::new(),
+            };
+            kg.memory_nodes.insert(voice_node.id.clone(), voice_node);
+            kg.last_updated = ic_cdk::api::time();
+        }
+    });
+    
+    Ok(transcription)
 }
 
 // Enhanced voice settings for user preferences

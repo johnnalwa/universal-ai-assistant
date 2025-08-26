@@ -26,6 +26,8 @@ const EnhancedChatInterface = ({
   const [showProofSources, setShowProofSources] = useState({});
   const [showInputOptions, setShowInputOptions] = useState(false);
   const [isBoosted, setIsBoosted] = useState(false);
+  const [cyclesBalance, setCyclesBalance] = useState(0);
+  const [boostCost] = useState(1000000); // 1M cycles for boost
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioChunks, setAudioChunks] = useState([]);
@@ -47,6 +49,21 @@ const EnhancedChatInterface = ({
     }
   }, [isLoading]);
 
+  // Load cycles balance on component mount
+  useEffect(() => {
+    const loadCyclesBalance = async () => {
+      if (userPrincipal) {
+        try {
+          const balance = await backend.get_user_cycles_balance(userPrincipal);
+          setCyclesBalance(balance);
+        } catch (error) {
+          console.error('Failed to load cycles balance:', error);
+        }
+      }
+    };
+    loadCyclesBalance();
+  }, [userPrincipal]);
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!message.trim() || isLoading) return;
@@ -61,15 +78,36 @@ const EnhancedChatInterface = ({
 
     try {
       let response;
-      if (icpMode) {
+      
+      // Check if boost is requested and user has sufficient cycles
+      if (isBoosted) {
+        if (cyclesBalance < boostCost) {
+          setChat([...newChat, { 
+            system: { 
+              content: `Insufficient cycles for boost. Need ${boostCost} cycles, but you have ${cyclesBalance}.`, 
+              provider: 'system',
+              confidence: 0.1,
+              sources: []
+            } 
+          }]);
+          setIsLoading(false);
+          setIsTyping(false);
+          return;
+        }
+        
+        // Use cycles-based boost
+        response = await backend.boost_response_with_cycles(userMessage, boostCost);
+        
+        // Update cycles balance after successful boost
+        setCyclesBalance(prev => prev - boostCost);
+      } else if (icpMode) {
         response = await backend.icp_ai_prompt(
           userMessage, 
           [selectedProvider], 
           [assistantType], 
-          [storeOnChain && !isConfidential] // Don't store on chain if confidential
+          [storeOnChain && !isConfidential]
         );
       } else {
-        // Use confidential mode parameter - don't store conversation if confidential
         response = await backend.memory_mind_prompt(userMessage, [], [!isConfidential]);
       }
 
@@ -497,6 +535,23 @@ const EnhancedChatInterface = ({
               >
                 {isRecording ? '⏹️' : '🎤'}
               </button>
+              
+              <button 
+                type="button"
+                className={`boost-btn ${isBoosted ? 'active' : ''}`}
+                onClick={() => setIsBoosted(!isBoosted)}
+                title={isBoosted ? 'Disable boost' : `Enable boost (${boostCost.toLocaleString()} cycles)`}
+                disabled={cyclesBalance < boostCost}
+              >
+                ⚡ {isBoosted ? 'Boosted' : 'Boost'}
+                {isBoosted && <span className="boost-cost">-{boostCost.toLocaleString()}</span>}
+              </button>
+              
+              {userPrincipal && (
+                <div className="cycles-balance" title="Your ICP Cycles Balance">
+                  💎 {cyclesBalance.toLocaleString()} cycles
+                </div>
+              )}
             </div>
             
             <textarea

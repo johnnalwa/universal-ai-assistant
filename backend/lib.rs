@@ -734,7 +734,7 @@ async fn search_relevant_memories_deep(user: Principal, query: &str) -> Vec<Memo
 }
 
 async fn generate_boosted_ai_response(
-    _user: Principal,
+    user: Principal,
     prompt: String,
     user_context: String,
     relevant_memories: Vec<MemoryNode>,
@@ -814,7 +814,6 @@ async fn generate_boosted_ai_response(
 }
 
 fn ensure_user_knowledge_graph(user: Principal) {
-{{ ... }}
     STATE.with(|state| {
         let mut state = state.borrow_mut();
         if !state.personal_knowledge_graphs.contains_key(&user) {
